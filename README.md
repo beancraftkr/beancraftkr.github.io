@@ -15,7 +15,7 @@ beancraft-guides/
 
 ## 배포 URL
 
-- 직원 지각 가이드: https://jaewon496.github.io/beancraft-guides/marketing/late/
+- 직원 지각 가이드: https://beancraftkr.github.io/marketing/late/
 
 ## 자료 추가
 
