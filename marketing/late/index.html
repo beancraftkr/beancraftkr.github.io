@@ -206,15 +206,49 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 </head>
 <body>
 
-<!-- ===== 상단 웹배너 (홍보물) ===== -->
+<!-- ===== 상단 웹배너 (슬림형 + 클릭 시 풀 포스터 모달) ===== -->
 <style>
-.bc-top-banner { background: #f4ede1; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
-.bc-top-banner img { display: block; width: 100%; max-width: 720px; height: auto; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
-@media (max-width: 480px) { .bc-top-banner { padding: 16px 12px; gap: 16px; } }
+.bc-promo-bar { background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%); color: #fff; padding: 12px 20px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.bc-promo-bar .bc-thumbs { display: flex; gap: 6px; flex-shrink: 0; }
+.bc-promo-bar .bc-thumbs img { width: 38px; height: 54px; object-fit: cover; border-radius: 4px; border: 2px solid rgba(255,255,255,.4); }
+.bc-promo-bar .bc-text { flex: 1; min-width: 0; }
+.bc-promo-bar .bc-text strong { display: block; font-size: 0.95rem; font-weight: 700; letter-spacing: -0.2px; }
+.bc-promo-bar .bc-text span { display: block; font-size: 0.78rem; opacity: 0.85; margin-top: 2px; }
+.bc-promo-bar .bc-cta { background: #fff; color: #1a365d; padding: 8px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; text-decoration: none; white-space: nowrap; cursor: pointer; border: none; transition: transform .15s; }
+.bc-promo-bar .bc-cta:hover { transform: translateY(-1px); }
+.bc-promo-bar .bc-close { background: transparent; border: 0; color: rgba(255,255,255,.7); font-size: 1.2rem; cursor: pointer; padding: 0 4px; }
+.bc-promo-bar .bc-close:hover { color: #fff; }
+@media (max-width: 480px) {
+  .bc-promo-bar { padding: 10px 12px; gap: 10px; }
+  .bc-promo-bar .bc-thumbs img { width: 30px; height: 42px; }
+  .bc-promo-bar .bc-text strong { font-size: 0.85rem; }
+  .bc-promo-bar .bc-text span { font-size: 0.7rem; }
+  .bc-promo-bar .bc-cta { padding: 6px 10px; font-size: 0.75rem; }
+}
+.bc-promo-modal { position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 9999; display: none; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 24px 12px; }
+.bc-promo-modal.show { display: flex; }
+.bc-promo-modal-inner { max-width: 640px; width: 100%; display: flex; flex-direction: column; gap: 28px; padding-bottom: 40px; }
+.bc-promo-modal-inner img { width: 100%; height: auto; border-radius: 8px; display: block; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+.bc-promo-modal-close { position: fixed; top: 16px; right: 16px; background: rgba(255,255,255,.95); border: 0; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
 </style>
-<div class="bc-top-banner" aria-label="빈크래프트 홍보 배너">
-  <img src="assets/001.jpg" alt="빈크래프트 홍보물 1" loading="eager">
-  <img src="assets/002.jpg" alt="빈크래프트 홍보물 2" loading="lazy">
+<div class="bc-promo-bar" id="_bcPromoBar" role="region" aria-label="빈크래프트 홍보 배너">
+  <div class="bc-thumbs">
+    <img src="assets/001.jpg" alt="">
+    <img src="assets/002.jpg" alt="">
+  </div>
+  <div class="bc-text">
+    <strong>개인 카페 컨설팅, 빈크래프트</strong>
+    <span>인테리어 · 기기설비 · 디자인 · 원두 · 메뉴 · 운영교육</span>
+  </div>
+  <button class="bc-cta" type="button" onclick="document.getElementById('_bcPromoModal').classList.add('show')">자세히 보기</button>
+  <button class="bc-close" type="button" aria-label="닫기" onclick="document.getElementById('_bcPromoBar').style.display='none'">×</button>
+</div>
+<div class="bc-promo-modal" id="_bcPromoModal" onclick="if(event.target===this)this.classList.remove('show')">
+  <button class="bc-promo-modal-close" type="button" aria-label="닫기" onclick="document.getElementById('_bcPromoModal').classList.remove('show')">×</button>
+  <div class="bc-promo-modal-inner">
+    <img src="assets/001.jpg" alt="빈크래프트 홍보물 1">
+    <img src="assets/002.jpg" alt="빈크래프트 홍보물 2 - 주요 서비스">
+  </div>
 </div>
 
 <style>
