@@ -206,6 +206,17 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 </head>
 <body>
 
+<!-- ===== 상단 웹배너 (홍보물) ===== -->
+<style>
+.bc-top-banner { background: #f4ede1; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.bc-top-banner img { display: block; width: 100%; max-width: 720px; height: auto; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+@media (max-width: 480px) { .bc-top-banner { padding: 16px 12px; gap: 16px; } }
+</style>
+<div class="bc-top-banner" aria-label="빈크래프트 홍보 배너">
+  <img src="assets/001.jpg" alt="빈크래프트 홍보물 1" loading="eager">
+  <img src="assets/002.jpg" alt="빈크래프트 홍보물 2" loading="lazy">
+</div>
+
 <style>
 /* ===== 빈크래프트 지각 가이드 추가 스타일 ===== */
 .guide-section { background: #fff; border-radius: 12px; padding: 28px; margin-bottom: 20px; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
