@@ -210,17 +210,17 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 <style>
 .bc-entry-popup { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; }
 .bc-entry-popup.show { display: flex; }
-.bc-entry-popup-box { background: #fff; border-radius: 8px; max-width: 380px; width: 100%; max-height: 90vh; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,.4); display: flex; flex-direction: column; }
-.bc-entry-popup-imgs { display: flex; flex-direction: column; gap: 8px; padding: 10px; background: #fff; overflow-y: auto; flex: 1; }
-.bc-entry-popup-imgs img { width: 100%; height: auto; display: block; border-radius: 4px; }
+.bc-entry-popup-box { background: #fff; border-radius: 6px; max-width: 190px; width: 100%; max-height: 80vh; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,.4); display: flex; flex-direction: column; }
+.bc-entry-popup-imgs { display: flex; flex-direction: column; gap: 5px; padding: 6px; background: #fff; overflow-y: auto; flex: 1; }
+.bc-entry-popup-imgs img { width: 100%; height: auto; display: block; border-radius: 3px; }
 .bc-entry-popup-actions { display: flex; border-top: 1px solid #e5e5e5; flex-shrink: 0; }
-.bc-entry-popup-actions button { flex: 1; background: #fff; border: 0; padding: 12px; font-size: 0.88rem; font-weight: 600; cursor: pointer; color: #444; transition: background .15s; }
+.bc-entry-popup-actions button { flex: 1; background: #fff; border: 0; padding: 8px 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; color: #444; transition: background .15s; }
 .bc-entry-popup-actions button:hover { background: #f5f5f5; }
 .bc-entry-popup-actions button + button { border-left: 1px solid #e5e5e5; }
 .bc-entry-popup-actions .bc-close-btn { color: #1a365d; }
 @media (max-width: 480px) {
   .bc-entry-popup { padding: 12px; }
-  .bc-entry-popup-box { max-width: 320px; }
+  .bc-entry-popup-box { max-width: 160px; }
 }
 </style>
 <div class="bc-entry-popup" id="_bcEntryPopup" role="dialog" aria-label="빈크래프트 홍보 팝업" onclick="if(event.target===this)BCEntryPopup.close()">
