@@ -208,40 +208,39 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 
 <!-- ===== 입장 팝업 배너 (슬라이드형 - 한 장씩 + 옆으로 넘기기) ===== -->
 <style>
-.bc-entry-popup { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; }
+.bc-entry-popup { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; gap: 14px; }
 .bc-entry-popup.show { display: flex; }
-.bc-entry-popup-box { background: #fff; border-radius: 8px; max-width: 340px; width: 100%; max-height: 88vh; overflow: hidden; box-shadow: 0 6px 30px rgba(0,0,0,.4); display: flex; flex-direction: column; }
-.bc-entry-popup-slider { position: relative; background: #fff; padding: 8px; overflow: hidden; }
+.bc-entry-popup-box { background: #fff; border-radius: 8px; max-width: 340px; width: 100%; max-height: 88vh; overflow: hidden; box-shadow: 0 6px 30px rgba(0,0,0,.4); display: flex; flex-direction: column; flex-shrink: 1; }
+.bc-entry-popup-slider { background: #fff; padding: 8px; }
 .bc-entry-popup-slider .bc-slide { display: none; }
 .bc-entry-popup-slider .bc-slide.active { display: block; }
 .bc-entry-popup-slider img { width: 100%; height: auto; display: block; border-radius: 4px; }
-.bc-entry-popup-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,.85); border: 0; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem; color: #333; box-shadow: 0 2px 6px rgba(0,0,0,.2); display: flex; align-items: center; justify-content: center; transition: background .15s; }
-.bc-entry-popup-arrow:hover { background: #fff; }
-.bc-entry-popup-arrow.prev { left: 12px; }
-.bc-entry-popup-arrow.next { right: 12px; }
+.bc-entry-popup-arrow { background: rgba(255,255,255,.92); border: 0; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,.3); display: flex; align-items: center; justify-content: center; transition: background .15s, transform .15s; flex-shrink: 0; }
+.bc-entry-popup-arrow:hover { background: #fff; transform: scale(1.05); }
 .bc-entry-popup-actions { display: flex; border-top: 1px solid #e5e5e5; flex-shrink: 0; }
 .bc-entry-popup-actions button { flex: 1; background: #fff; border: 0; padding: 10px 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: #444; transition: background .15s; }
 .bc-entry-popup-actions button:hover { background: #f5f5f5; }
 .bc-entry-popup-actions button + button { border-left: 1px solid #e5e5e5; }
 .bc-entry-popup-actions .bc-close-btn { color: #1a365d; }
 @media (max-width: 480px) {
-  .bc-entry-popup { padding: 12px; }
-  .bc-entry-popup-box { max-width: 300px; }
+  .bc-entry-popup { padding: 8px; gap: 6px; }
+  .bc-entry-popup-box { max-width: 280px; }
+  .bc-entry-popup-arrow { width: 34px; height: 34px; font-size: 0.95rem; }
 }
 </style>
 <div class="bc-entry-popup" id="_bcEntryPopup" role="dialog" aria-label="빈크래프트 홍보 팝업" onclick="if(event.target===this)BCEntryPopup.close()">
+  <button class="bc-entry-popup-arrow prev" type="button" aria-label="이전" onclick="BCEntryPopup.prev()">◀</button>
   <div class="bc-entry-popup-box">
     <div class="bc-entry-popup-slider">
       <div class="bc-slide active" data-idx="0"><img src="assets/001.jpg" alt="빈크래프트 - 개인 카페 컨설팅"></div>
       <div class="bc-slide" data-idx="1"><img src="assets/002.jpg" alt="빈크래프트 - 주요 서비스"></div>
-      <button class="bc-entry-popup-arrow prev" type="button" aria-label="이전" onclick="BCEntryPopup.prev()">◀</button>
-      <button class="bc-entry-popup-arrow next" type="button" aria-label="다음" onclick="BCEntryPopup.next()">▶</button>
     </div>
     <div class="bc-entry-popup-actions">
       <button type="button" onclick="BCEntryPopup.dontShowToday()">오늘 하루 보지 않기</button>
       <button type="button" class="bc-close-btn" onclick="BCEntryPopup.close()">닫기</button>
     </div>
   </div>
+  <button class="bc-entry-popup-arrow next" type="button" aria-label="다음" onclick="BCEntryPopup.next()">▶</button>
 </div>
 <script>
 var BCEntryPopup = (function() {
