@@ -210,7 +210,7 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 <style>
 .bc-entry-popup { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; }
 .bc-entry-popup.show { display: flex; }
-.bc-entry-popup-box { background: #fff; border-radius: 8px; max-width: 285px; width: 100%; max-height: 85vh; overflow: hidden; box-shadow: 0 6px 30px rgba(0,0,0,.4); display: flex; flex-direction: column; }
+.bc-entry-popup-box { background: #fff; border-radius: 8px; max-width: 340px; width: 100%; max-height: 88vh; overflow: hidden; box-shadow: 0 6px 30px rgba(0,0,0,.4); display: flex; flex-direction: column; }
 .bc-entry-popup-slider { position: relative; background: #fff; padding: 8px; overflow: hidden; }
 .bc-entry-popup-slider .bc-slide { display: none; }
 .bc-entry-popup-slider .bc-slide.active { display: block; }
@@ -219,7 +219,6 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 .bc-entry-popup-arrow:hover { background: #fff; }
 .bc-entry-popup-arrow.prev { left: 12px; }
 .bc-entry-popup-arrow.next { right: 12px; }
-.bc-entry-popup-indicator { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.55); color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; pointer-events: none; }
 .bc-entry-popup-actions { display: flex; border-top: 1px solid #e5e5e5; flex-shrink: 0; }
 .bc-entry-popup-actions button { flex: 1; background: #fff; border: 0; padding: 10px 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: #444; transition: background .15s; }
 .bc-entry-popup-actions button:hover { background: #f5f5f5; }
@@ -227,10 +226,7 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 .bc-entry-popup-actions .bc-close-btn { color: #1a365d; }
 @media (max-width: 480px) {
   .bc-entry-popup { padding: 12px; }
-  .bc-entry-popup-box { max-width: 240px; }
-  .bc-entry-popup-arrow { width: 28px; height: 28px; font-size: 0.9rem; }
-  .bc-entry-popup-arrow.prev { left: 8px; }
-  .bc-entry-popup-arrow.next { right: 8px; }
+  .bc-entry-popup-box { max-width: 300px; }
 }
 </style>
 <div class="bc-entry-popup" id="_bcEntryPopup" role="dialog" aria-label="빈크래프트 홍보 팝업" onclick="if(event.target===this)BCEntryPopup.close()">
@@ -240,7 +236,6 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
       <div class="bc-slide" data-idx="1"><img src="assets/002.jpg" alt="빈크래프트 - 주요 서비스"></div>
       <button class="bc-entry-popup-arrow prev" type="button" aria-label="이전" onclick="BCEntryPopup.prev()">◀</button>
       <button class="bc-entry-popup-arrow next" type="button" aria-label="다음" onclick="BCEntryPopup.next()">▶</button>
-      <div class="bc-entry-popup-indicator" id="_bcSliderIndicator">1 / 2</div>
     </div>
     <div class="bc-entry-popup-actions">
       <button type="button" onclick="BCEntryPopup.dontShowToday()">오늘 하루 보지 않기</button>
@@ -259,8 +254,6 @@ var BCEntryPopup = (function() {
     if (ss.length === 0) return;
     current = (idx + ss.length) % ss.length;
     ss.forEach(function(s, i) { s.classList.toggle('active', i === current); });
-    var ind = document.getElementById('_bcSliderIndicator');
-    if (ind) ind.textContent = (current + 1) + ' / ' + ss.length;
   };
   return {
     open: function() {
