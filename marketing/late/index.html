@@ -254,11 +254,11 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
   <div class="bc-entry-popup-box">
     <div class="bc-entry-popup-slider">
       <div class="bc-slide active" data-idx="0">
-        <img src="assets/001.jpg?v=20260507f" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507f')">
+        <img src="assets/001.jpg?v=20260507g" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507g')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
       <div class="bc-slide" data-idx="1">
-        <img src="assets/002.jpg?v=20260507f" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507f')">
+        <img src="assets/002.jpg?v=20260507g" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507g')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
     </div>
@@ -275,19 +275,28 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 </div>
 <script>
 // iOS Safari·Android Chrome·Samsung Internet 모바일 viewport 동적 대응
-// visualViewport.height = 주소창·하단툴바 제외한 실제 보이는 영역 (가장 정확)
+// position:fixed inset:0가 모바일에서 주소창 뒤까지 차지하는 문제 해결
+// popup 자체의 height를 visualViewport.height에 직접 박고 box도 맞춤
 function bcFitPopupToViewport() {
+  var popup = document.querySelector('.bc-entry-popup');
   var box = document.querySelector('.bc-entry-popup-box');
-  if (!box) return;
+  if (!popup || !box) return;
   var vh = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
-  var safeMargin = 24; // 위아래 12px씩 여유
-  box.style.maxHeight = Math.max(200, vh - safeMargin) + 'px';
+  // inset:0 + height 충돌 방지: bottom을 풀고 top + height로 영역 잡기
+  popup.style.bottom = 'auto';
+  popup.style.top = (window.visualViewport ? window.visualViewport.offsetTop : 0) + 'px';
+  popup.style.height = vh + 'px';
+  // box max-height: popup 패딩 빼고
+  var pStyle = getComputedStyle(popup);
+  var padding = parseFloat(pStyle.paddingTop || 0) + parseFloat(pStyle.paddingBottom || 0);
+  box.style.maxHeight = Math.max(200, vh - padding) + 'px';
 }
 window.addEventListener('load', bcFitPopupToViewport);
 window.addEventListener('resize', bcFitPopupToViewport);
 window.addEventListener('orientationchange', bcFitPopupToViewport);
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', bcFitPopupToViewport);
+  window.visualViewport.addEventListener('scroll', bcFitPopupToViewport);
 }
 var BCEntryPopup = (function() {
   var KEY = 'bc_entry_popup_hide_until';
