@@ -208,9 +208,9 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 
 <!-- ===== 입장 팝업 배너 (슬라이드형 - 한 장씩 + 옆으로 넘기기) ===== -->
 <style>
-.bc-entry-popup { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 10002; display: none; align-items: center; justify-content: center; padding: 16px; gap: 14px; padding-top: max(16px, env(safe-area-inset-top)); padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+.bc-entry-popup { position: fixed; top: 0; left: 0; right: 0; bottom: auto; height: var(--bc-vh, 100vh); height: 100dvh; background: rgba(0,0,0,.7); z-index: 10002; display: none; align-items: center; justify-content: center; padding: 16px; gap: 14px; padding-top: max(16px, env(safe-area-inset-top)); padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 .bc-entry-popup.show { display: flex; }
-.bc-entry-popup-box { background: #fff; border-radius: 8px; max-width: 460px; width: 100%; max-height: 90vh; max-height: 90dvh; overflow: hidden; box-shadow: 0 6px 30px rgba(0,0,0,.4); display: flex; flex-direction: column; flex-shrink: 1; min-height: 0; }
+.bc-entry-popup-box { background: #fff; border-radius: 8px; max-width: 460px; width: 100%; max-height: 100%; overflow: hidden; box-shadow: 0 6px 30px rgba(0,0,0,.4); display: flex; flex-direction: column; flex-shrink: 1; min-height: 0; }
 .bc-entry-popup-slider { background: #fff; padding: 8px; position: relative; flex: 1 1 auto; overflow-y: auto; min-height: 0; -webkit-overflow-scrolling: touch; }
 .bc-entry-popup-slider .bc-slide { display: none; position: relative; }
 .bc-entry-popup-slider .bc-slide.active { display: block; }
@@ -235,7 +235,7 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 .bc-entry-popup-actions .bc-close-btn { color: #1a365d; }
 @media (max-width: 768px) {
   .bc-entry-popup { padding: 8px; gap: 0; padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: max(8px, env(safe-area-inset-bottom)); }
-  .bc-entry-popup-box { max-width: calc(100vw - 16px); max-height: calc(var(--bc-vh, 1vh) * 85); max-height: 85dvh; }
+  .bc-entry-popup-box { max-width: calc(100vw - 16px); max-height: 100%; }
   .bc-entry-popup-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; font-size: 1rem; z-index: 2; }
   .bc-entry-popup-arrow.prev { left: 14px; }
   .bc-entry-popup-arrow.next { right: 14px; }
@@ -254,11 +254,11 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
   <div class="bc-entry-popup-box">
     <div class="bc-entry-popup-slider">
       <div class="bc-slide active" data-idx="0">
-        <img src="assets/001.jpg?v=20260507l" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507l')">
+        <img src="assets/001.jpg?v=20260507m" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507m')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
       <div class="bc-slide" data-idx="1">
-        <img src="assets/002.jpg?v=20260507l" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507l')">
+        <img src="assets/002.jpg?v=20260507m" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507m')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
     </div>
@@ -277,27 +277,13 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 // iOS Safari·Android Chrome·Samsung Internet 모바일 viewport 동적 대응
 // position:fixed inset:0가 모바일에서 주소창 뒤까지 차지하는 문제 해결
 // popup 자체의 height를 visualViewport.height에 직접 박고 box도 맞춤
+// 구형 브라우저(dvh 미지원)용 viewport 높이 fallback — CSS 변수만 설정, DOM은 안 만짐
 function bcFitPopupToViewport() {
   try {
-    var popup = document.querySelector('.bc-entry-popup');
-    var box = document.querySelector('.bc-entry-popup-box');
-    if (!popup || !box) return;
     var vh = (window.visualViewport && window.visualViewport.height) || window.innerHeight || document.documentElement.clientHeight;
-    // 측정 실패 시: 인라인 스타일 제거 → CSS dvh 폴백이 작동
-    if (!vh || vh < 200) {
-      popup.style.removeProperty('bottom');
-      popup.style.removeProperty('top');
-      popup.style.removeProperty('height');
-      box.style.removeProperty('max-height');
-      return;
+    if (vh && vh > 100) {
+      document.documentElement.style.setProperty('--bc-vh', vh + 'px');
     }
-    popup.style.bottom = 'auto';
-    popup.style.top = (window.visualViewport && window.visualViewport.offsetTop) ? window.visualViewport.offsetTop + 'px' : '0px';
-    popup.style.height = vh + 'px';
-    var pStyle = getComputedStyle(popup);
-    var padding = parseFloat(pStyle.paddingTop) + parseFloat(pStyle.paddingBottom);
-    if (isNaN(padding) || padding < 0) padding = 32;
-    box.style.maxHeight = Math.max(200, vh - padding) + 'px';
   } catch(e) {}
 }
 window.addEventListener('load', bcFitPopupToViewport);
