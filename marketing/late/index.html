@@ -208,9 +208,9 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 
 <!-- ===== 입장 팝업 배너 (슬라이드형 - 한 장씩 + 옆으로 넘기기) ===== -->
 <style>
-.bc-entry-popup { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; gap: 14px; }
+.bc-entry-popup { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; gap: 14px; padding-top: max(16px, env(safe-area-inset-top)); padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 .bc-entry-popup.show { display: flex; }
-.bc-entry-popup-box { background: #fff; border-radius: 8px; max-width: 460px; width: 100%; max-height: 90vh; overflow: hidden; box-shadow: 0 6px 30px rgba(0,0,0,.4); display: flex; flex-direction: column; flex-shrink: 1; min-height: 0; }
+.bc-entry-popup-box { background: #fff; border-radius: 8px; max-width: 460px; width: 100%; max-height: 90vh; max-height: 90dvh; overflow: hidden; box-shadow: 0 6px 30px rgba(0,0,0,.4); display: flex; flex-direction: column; flex-shrink: 1; min-height: 0; }
 .bc-entry-popup-slider { background: #fff; padding: 8px; position: relative; flex: 1 1 auto; overflow-y: auto; min-height: 0; -webkit-overflow-scrolling: touch; }
 .bc-entry-popup-slider .bc-slide { display: none; position: relative; }
 .bc-entry-popup-slider .bc-slide.active { display: block; }
@@ -234,8 +234,8 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 .bc-entry-popup-actions button + button { border-left: 1px solid #e5e5e5; }
 .bc-entry-popup-actions .bc-close-btn { color: #1a365d; }
 @media (max-width: 768px) {
-  .bc-entry-popup { padding: 8px; gap: 0; }
-  .bc-entry-popup-box { max-width: calc(100vw - 16px); max-height: 92vh; }
+  .bc-entry-popup { padding: 8px; gap: 0; padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  .bc-entry-popup-box { max-width: calc(100vw - 16px); max-height: calc(var(--bc-vh, 1vh) * 85); max-height: 85dvh; }
   .bc-entry-popup-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; font-size: 1rem; z-index: 2; }
   .bc-entry-popup-arrow.prev { left: 14px; }
   .bc-entry-popup-arrow.next { right: 14px; }
@@ -254,11 +254,11 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
   <div class="bc-entry-popup-box">
     <div class="bc-entry-popup-slider">
       <div class="bc-slide active" data-idx="0">
-        <img src="assets/001.jpg?v=20260507d" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507d')">
+        <img src="assets/001.jpg?v=20260507e" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507e')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
       <div class="bc-slide" data-idx="1">
-        <img src="assets/002.jpg?v=20260507d" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507d')">
+        <img src="assets/002.jpg?v=20260507e" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507e')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
     </div>
@@ -274,6 +274,15 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
   <img id="_bcFullsizeImg" src="" alt="">
 </div>
 <script>
+// iOS Safari·Android Chrome 100vh 문제 폴백 (주소창 높이 변화 대응)
+(function() {
+  function setBcVh() {
+    document.documentElement.style.setProperty('--bc-vh', (window.innerHeight * 0.01) + 'px');
+  }
+  setBcVh();
+  window.addEventListener('resize', setBcVh);
+  window.addEventListener('orientationchange', setBcVh);
+})();
 var BCEntryPopup = (function() {
   var KEY = 'bc_entry_popup_hide_until';
   var el = function() { return document.getElementById('_bcEntryPopup'); };
