@@ -254,11 +254,11 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
   <div class="bc-entry-popup-box">
     <div class="bc-entry-popup-slider">
       <div class="bc-slide active" data-idx="0">
-        <img src="assets/001.jpg?v=20260507m" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507m')">
+        <img src="assets/001.jpg?v=20260507n" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507n')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
       <div class="bc-slide" data-idx="1">
-        <img src="assets/002.jpg?v=20260507m" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507m')">
+        <img src="assets/002.jpg?v=20260507n" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507n')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
     </div>
@@ -306,12 +306,18 @@ var BCEntryPopup = (function() {
   };
   return {
     open: function() {
-      var until = localStorage.getItem(KEY);
-      if (until && Date.now() < parseInt(until, 10)) return;
+      // ?show=1 또는 ?reset=1 쿼리스트링이면 차단 무시 + 차단 플래그 초기화
+      var qs = location.search || '';
+      var forceShow = /[?&](show|reset|debug)=1/.test(qs);
+      if (forceShow) {
+        try { localStorage.removeItem(KEY); } catch(e) {}
+      } else {
+        var until = localStorage.getItem(KEY);
+        if (until && Date.now() < parseInt(until, 10)) return;
+      }
       el().classList.add('show');
       document.body.style.overflow = 'hidden';
       go(0);
-      // 즉시 + 지연 호출 (모바일 주소창 재배치·렌더 완료 시점 모두 커버)
       bcFitPopupToViewport();
       setTimeout(bcFitPopupToViewport, 50);
       setTimeout(bcFitPopupToViewport, 200);
