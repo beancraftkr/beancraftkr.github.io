@@ -254,11 +254,11 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
   <div class="bc-entry-popup-box">
     <div class="bc-entry-popup-slider">
       <div class="bc-slide active" data-idx="0">
-        <img src="assets/001.jpg?v=20260507e" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507e')">
+        <img src="assets/001.jpg?v=20260507f" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507f')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
       <div class="bc-slide" data-idx="1">
-        <img src="assets/002.jpg?v=20260507e" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507e')">
+        <img src="assets/002.jpg?v=20260507f" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507f')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
     </div>
@@ -274,15 +274,21 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
   <img id="_bcFullsizeImg" src="" alt="">
 </div>
 <script>
-// iOS Safari·Android Chrome 100vh 문제 폴백 (주소창 높이 변화 대응)
-(function() {
-  function setBcVh() {
-    document.documentElement.style.setProperty('--bc-vh', (window.innerHeight * 0.01) + 'px');
-  }
-  setBcVh();
-  window.addEventListener('resize', setBcVh);
-  window.addEventListener('orientationchange', setBcVh);
-})();
+// iOS Safari·Android Chrome·Samsung Internet 모바일 viewport 동적 대응
+// visualViewport.height = 주소창·하단툴바 제외한 실제 보이는 영역 (가장 정확)
+function bcFitPopupToViewport() {
+  var box = document.querySelector('.bc-entry-popup-box');
+  if (!box) return;
+  var vh = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  var safeMargin = 24; // 위아래 12px씩 여유
+  box.style.maxHeight = Math.max(200, vh - safeMargin) + 'px';
+}
+window.addEventListener('load', bcFitPopupToViewport);
+window.addEventListener('resize', bcFitPopupToViewport);
+window.addEventListener('orientationchange', bcFitPopupToViewport);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', bcFitPopupToViewport);
+}
 var BCEntryPopup = (function() {
   var KEY = 'bc_entry_popup_hide_until';
   var el = function() { return document.getElementById('_bcEntryPopup'); };
@@ -301,6 +307,7 @@ var BCEntryPopup = (function() {
       el().classList.add('show');
       document.body.style.overflow = 'hidden';
       go(0);
+      bcFitPopupToViewport();
     },
     close: function() {
       el().classList.remove('show');
