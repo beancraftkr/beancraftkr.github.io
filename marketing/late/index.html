@@ -210,8 +210,8 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 <style>
 .bc-entry-popup { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; gap: 14px; }
 .bc-entry-popup.show { display: flex; }
-.bc-entry-popup-box { background: #fff; border-radius: 8px; max-width: 460px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 6px 30px rgba(0,0,0,.4); display: flex; flex-direction: column; flex-shrink: 1; transition: max-height .25s; }
-.bc-entry-popup-slider { background: #fff; padding: 8px; position: relative; }
+.bc-entry-popup-box { background: #fff; border-radius: 8px; max-width: 460px; width: 100%; max-height: 90vh; overflow: hidden; box-shadow: 0 6px 30px rgba(0,0,0,.4); display: flex; flex-direction: column; flex-shrink: 1; min-height: 0; }
+.bc-entry-popup-slider { background: #fff; padding: 8px; position: relative; flex: 1 1 auto; overflow-y: auto; min-height: 0; -webkit-overflow-scrolling: touch; }
 .bc-entry-popup-slider .bc-slide { display: none; position: relative; }
 .bc-entry-popup-slider .bc-slide.active { display: block; }
 .bc-entry-popup-slider img { width: 100%; height: auto; display: block; border-radius: 4px; cursor: zoom-in;
@@ -228,15 +228,25 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 .bc-fullsize-close { position: fixed; top: 16px; right: 16px; background: rgba(255,255,255,.95); border: 0; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
 .bc-entry-popup-arrow { background: rgba(255,255,255,.92); border: 0; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,.3); display: flex; align-items: center; justify-content: center; transition: background .15s, transform .15s; flex-shrink: 0; }
 .bc-entry-popup-arrow:hover { background: #fff; transform: scale(1.05); }
-.bc-entry-popup-actions { display: flex; border-top: 1px solid #e5e5e5; flex-shrink: 0; }
-.bc-entry-popup-actions button { flex: 1; background: #fff; border: 0; padding: 10px 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: #444; transition: background .15s; }
+.bc-entry-popup-actions { display: flex; border-top: 1px solid #e5e5e5; flex-shrink: 0; background: #fff; }
+.bc-entry-popup-actions button { flex: 1; background: #fff; border: 0; padding: 12px 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #444; transition: background .15s; min-height: 44px; }
 .bc-entry-popup-actions button:hover { background: #f5f5f5; }
 .bc-entry-popup-actions button + button { border-left: 1px solid #e5e5e5; }
 .bc-entry-popup-actions .bc-close-btn { color: #1a365d; }
-@media (max-width: 480px) {
-  .bc-entry-popup { padding: 6px; gap: 4px; }
-  .bc-entry-popup-box { max-width: calc(100vw - 80px); }
-  .bc-entry-popup-arrow { width: 32px; height: 32px; font-size: 0.9rem; }
+@media (max-width: 768px) {
+  .bc-entry-popup { padding: 8px; gap: 0; }
+  .bc-entry-popup-box { max-width: calc(100vw - 16px); max-height: 92vh; }
+  .bc-entry-popup-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; font-size: 1rem; z-index: 2; }
+  .bc-entry-popup-arrow.prev { left: 14px; }
+  .bc-entry-popup-arrow.next { right: 14px; }
+  .bc-entry-popup-arrow:hover { transform: translateY(-50%) scale(1.05); }
+  .bc-entry-popup-actions button { padding: 14px 6px; font-size: 0.9rem; min-height: 48px; }
+  .bc-entry-popup-slider .bc-zoom-hint { bottom: 8px; right: 8px; font-size: 0.65rem; }
+}
+@media (max-width: 360px) {
+  .bc-entry-popup-arrow { width: 30px; height: 30px; }
+  .bc-entry-popup-arrow.prev { left: 8px; }
+  .bc-entry-popup-arrow.next { right: 8px; }
 }
 </style>
 <div class="bc-entry-popup" id="_bcEntryPopup" role="dialog" aria-label="빈크래프트 홍보 팝업" onclick="if(event.target===this)BCEntryPopup.close()">
@@ -244,11 +254,11 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
   <div class="bc-entry-popup-box">
     <div class="bc-entry-popup-slider">
       <div class="bc-slide active" data-idx="0">
-        <img src="assets/001.jpg?v=20260507c" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507c')">
+        <img src="assets/001.jpg?v=20260507d" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507d')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
       <div class="bc-slide" data-idx="1">
-        <img src="assets/002.jpg?v=20260507c" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507c')">
+        <img src="assets/002.jpg?v=20260507d" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507d')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
     </div>
