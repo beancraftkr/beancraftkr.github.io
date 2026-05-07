@@ -254,11 +254,11 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
   <div class="bc-entry-popup-box">
     <div class="bc-entry-popup-slider">
       <div class="bc-slide active" data-idx="0">
-        <img src="assets/001.jpg?v=20260507j" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507j')">
+        <img src="assets/001.jpg?v=20260507k" alt="빈크래프트 - 개인 카페 컨설팅" onclick="BCEntryPopup.zoom('assets/001.jpg?v=20260507k')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
       <div class="bc-slide" data-idx="1">
-        <img src="assets/002.jpg?v=20260507j" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507j')">
+        <img src="assets/002.jpg?v=20260507k" alt="빈크래프트 - 주요 서비스" onclick="BCEntryPopup.zoom('assets/002.jpg?v=20260507k')">
         <div class="bc-zoom-hint">🔍 크게 보기</div>
       </div>
     </div>
@@ -1603,13 +1603,16 @@ setInterval(function(){
   } else {_dtOpen=false;}
 },3000);
 
-// === ANTI-IFRAME (다른 사이트에서 iframe으로 스캔 방지) ===
-// 정상 인앱 브라우저(카톡/인스타/페북/네이버/라인/Android WebView)는 화이트리스트 통과
-var _bcUA=navigator.userAgent||'';
-var _bcIsInApp=/KAKAOTALK|Instagram|FBAV|FB_IAB|FBAN|NAVER|Line|kakaostory|whale\/in|Daum|; wv\)/i.test(_bcUA);
-if(_$$.self!==_$$.top && !_bcIsInApp){
+// === ANTI-IFRAME (Frame Busting - 정상 사용자 절대 차단 X) ===
+// 다른 사이트가 iframe으로 임베드 시도하면 frame-bust만 시도. 실패해도 콘텐츠 정상 표시.
+// 진짜 보호는 _chk()(워터마크 무결성), MutationObserver(DOM 변조 감지),
+// copy/save/Ctrl+U 차단, devtools 감지가 담당. anti-iframe은 보조 수단.
+// 카톡·인스타·페북·네이버·라인·X·디스코드·틱톡·위챗·Android WebView·iOS WKWebView 등
+// 모든 인앱 브라우저에서 정상 작동.
+if(_$$.self!==_$$.top){
   try{_$$.top.location=_$$.self.location;}catch(e){
-    _$.body.innerHTML=_dead;
+    // 크로스오리진 부모(인앱 브라우저 또는 외부 사이트 임베드)
+    // dead page 표시 안 함 — 마케팅 자료는 노출이 가치
   }
 }
 
