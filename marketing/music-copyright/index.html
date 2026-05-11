@@ -86,13 +86,13 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 .profile-section { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 6px rgba(0,0,0,.08); border-left: 4px solid #2b6cb0; }
 .profile-section h2 { color: #1a365d; font-size: 1.1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-.profile-item label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: 6px; color: #444; }
+.profile-item label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: 6px; color: #222; }
 .profile-item select, .profile-item input { width: 100%; padding: 10px 12px; border: 1.5px solid #d0d5dd; border-radius: 8px; font-size: .9rem; background: #fff; transition: border-color .2s; }
 .profile-item select:focus, .profile-item input:focus { border-color: #2b6cb0; outline: none; box-shadow: 0 0 0 3px rgba(43,108,176,.12); }
 
 /* Filter Bar */
 .filter-bar { background: #fff; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
-.filter-bar h3 { font-size: .95rem; color: #555; margin-bottom: 12px; }
+.filter-bar h3 { font-size: .95rem; color: #333; margin-bottom: 12px; }
 .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .chip { padding: 6px 14px; border-radius: 20px; border: 1.5px solid #d0d5dd; background: #fff; font-size: .82rem; cursor: pointer; transition: all .2s; user-select: none; }
 .chip:hover { border-color: #2b6cb0; background: #ebf4ff; }
@@ -120,26 +120,26 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 .card-title { font-size: 1.1rem; font-weight: 700; color: #1a365d; }
 .card-badges { display: flex; gap: 6px; flex-wrap: wrap; }
 .badge { padding: 3px 10px; border-radius: 12px; font-size: .72rem; font-weight: 600; }
-.badge-grant { background: #d4edda; color: #155724; }
-.badge-loan { background: #fff3cd; color: #856404; }
-.badge-invest { background: #cce5ff; color: #004085; }
+.badge-grant { background: #d4edda; color: #1a365d; }
+.badge-loan { background: #fff3cd; color: #1a365d; }
+.badge-invest { background: #cce5ff; color: #1a365d; }
 .badge-guarantee { background: #e2e3e5; color: #383d41; }
-.badge-stage { background: #f0e6ff; color: #5a2d82; }
+.badge-stage { background: #f0e6ff; color: #1a365d; }
 
 .card-meta { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
 .meta-item { font-size: .82rem; color: #666; display: flex; align-items: center; gap: 4px; }
 .meta-item strong { color: #333; }
 
-.card-body { font-size: .88rem; color: #444; }
+.card-body { font-size: .88rem; color: #222; }
 .card-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: .82rem; }
 .card-table th { background: #f0f4f8; padding: 8px 12px; text-align: left; font-weight: 600; color: #333; border-bottom: 2px solid #d0d5dd; }
-.card-table td { padding: 8px 12px; border-bottom: 1px solid #eee; color: #444; }
+.card-table td { padding: 8px 12px; border-bottom: 1px solid #eee; color: #222; }
 
 .detail-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
 .detail-section h4 { font-size: .85rem; font-weight: 700; color: #2b6cb0; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-.detail-section ul { padding-left: 18px; font-size: .84rem; color: #555; }
+.detail-section ul { padding-left: 18px; font-size: .84rem; color: #333; }
 .detail-section ul li { margin-bottom: 4px; }
-.detail-section p { font-size: .84rem; color: #555; }
+.detail-section p { font-size: .84rem; color: #333; }
 
 .card-detail { display: none; }
 .card.expanded .card-detail { display: block; }
@@ -148,9 +148,9 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 
 /* Priority indicator */
 .priority-bar { height: 4px; border-radius: 2px; margin-bottom: 12px; }
-.priority-high { background: linear-gradient(90deg, #e53e3e, #fc8181); }
+.priority-high { background: linear-gradient(90deg, #1a365d, #fc8181); }
 .priority-medium { background: linear-gradient(90deg, #dd6b20, #fbd38d); }
-.priority-low { background: linear-gradient(90deg, #38a169, #9ae6b4); }
+.priority-low { background: linear-gradient(90deg, #1a365d, #9ae6b4); }
 
 /* Stage guide */
 .stage-guide { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
@@ -185,11 +185,11 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 .link-btn-primary:hover { background: #2c5282; }
 .link-btn-secondary { background: #fff; color: #2b6cb0; border-color: #2b6cb0; }
 .link-btn-secondary:hover { background: #ebf4ff; }
-.link-btn-kstartup { background: #e53e3e; color: #fff; border-color: #e53e3e; }
+.link-btn-kstartup { background: transparent; color: #1a365d; border-color: #1a365d; }
 .link-btn-kstartup:hover { background: #c53030; }
-.link-btn-search { background: #38a169; color: #fff; border-color: #38a169; }
+.link-btn-search { background: transparent; color: #1a365d; border-color: #1a365d; }
 .link-btn-search:hover { background: #2f855a; }
-.link-btn-ext { background: #805ad5; color: #fff; border-color: #805ad5; }
+.link-btn-ext { background: transparent; color: #1a365d; border-color: #1a365d; }
 .link-btn-ext:hover { background: #6b46c1; }
 .link-icon { font-size: .9rem; }
 
@@ -229,7 +229,7 @@ img, .card, .header, .copyright-bar, .watermark-overlay { -webkit-user-drag: non
 .bc-entry-popup-arrow { background: rgba(255,255,255,.92); border: 0; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,.3); display: flex; align-items: center; justify-content: center; transition: background .15s, transform .15s; flex-shrink: 0; }
 .bc-entry-popup-arrow:hover { background: #fff; transform: scale(1.05); }
 .bc-entry-popup-actions { display: flex; border-top: 1px solid #e5e5e5; flex-shrink: 0; background: #fff; }
-.bc-entry-popup-actions button { flex: 1; background: #fff; border: 0; padding: 12px 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #444; transition: background .15s; min-height: 44px; }
+.bc-entry-popup-actions button { flex: 1; background: #fff; border: 0; padding: 12px 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #222; transition: background .15s; min-height: 44px; }
 .bc-entry-popup-actions button:hover { background: #f5f5f5; }
 .bc-entry-popup-actions button + button { border-left: 1px solid #e5e5e5; }
 .bc-entry-popup-actions .bc-close-btn { color: #1a365d; }
@@ -356,8 +356,8 @@ document.addEventListener('keydown', function(e) {
 /* ===== 빈크래프트 지각 가이드 추가 스타일 ===== */
 .guide-section { background: #fff; border-radius: 12px; padding: 28px; margin-bottom: 20px; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
 .guide-section h2 { color: #1a365d; font-size: 1.4rem; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-.guide-section h2 .num { background: #c9a062; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: .85rem; font-weight: 700; }
-.guide-section .desc { color: #555; font-size: .95rem; line-height: 1.7; margin-bottom: 16px; }
+.guide-section h2 .num { background: transparent; color: #1a365d; padding: 4px 12px; border-radius: 6px; font-size: .85rem; font-weight: 800; border: 1.5px solid #1a365d; }
+.guide-section .desc { color: #333; font-size: .95rem; line-height: 1.7; margin-bottom: 16px; }
 
 /* 펼치기 카드 (PART 01, 02) */
 .collapse-card { background: #fff; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.06); overflow: hidden; }
@@ -365,23 +365,23 @@ document.addEventListener('keydown', function(e) {
 .collapse-header:hover { background: #f8f5ee; }
 .collapse-header h3 { color: #1a365d; font-size: 1.05rem; font-weight: 700; flex: 1; display: flex; align-items: center; gap: 12px; }
 .collapse-header .badge { font-size: .75rem; padding: 3px 10px; border-radius: 4px; font-weight: 700; flex-shrink: 0; }
-.collapse-header .badge.no { background: #fdf0ec; color: #c64b3c; }
-.collapse-header .badge.ok { background: #f0f5f0; color: #5a8a3a; }
-.collapse-header .badge.warn { background: #fef5e7; color: #a04a2a; }
-.collapse-header .badge.law { background: #e6efff; color: #1a365d; }
-.collapse-header .arrow { color: #c9a062; font-size: 1.2rem; transition: transform 0.2s; }
+.collapse-header .badge.no { background: transparent; color: #1a365d; border: 1.5px solid #1a365d; }
+.collapse-header .badge.ok { background: transparent; color: #1a365d; border: 1.5px solid #1a365d; }
+.collapse-header .badge.warn { background: transparent; color: #1a365d; border: 1.5px solid #1a365d; }
+.collapse-header .badge.law { background: transparent; color: #1a365d; border: 1.5px solid #1a365d; }
+.collapse-header .arrow { color: #1a365d; font-size: 1.2rem; transition: transform 0.2s; }
 .collapse-card.open .arrow { transform: rotate(90deg); }
 .collapse-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 24px; }
 .collapse-card.open .collapse-body { max-height: 2000px; padding: 4px 24px 24px 24px; }
-.collapse-body p { color: #555; line-height: 1.7; margin-bottom: 10px; font-size: .92rem; }
+.collapse-body p { color: #333; line-height: 1.7; margin-bottom: 10px; font-size: .92rem; }
 .collapse-body strong { color: #1a365d; }
-.collapse-body .quote-box strong { color: #c9a062; }
-.collapse-body .hl-no { color: #c64b3c; font-weight: 700; }
-.collapse-body .hl-ok { color: #5a8a3a; font-weight: 700; }
-.collapse-body .hl-warn { color: #a04a2a; font-weight: 700; }
-.collapse-body .hl-gold { color: #c9a062; font-weight: 700; }
+.collapse-body .quote-box strong { color: #1a365d; }
+.collapse-body .hl-no { color: #1a365d; font-weight: 700; }
+.collapse-body .hl-ok { color: #1a365d; font-weight: 700; }
+.collapse-body .hl-warn { color: #1a365d; font-weight: 700; }
+.collapse-body .hl-gold { color: #1a365d; font-weight: 700; }
 .collapse-body ul { margin: 8px 0 12px 20px; }
-.collapse-body ul li { color: #555; line-height: 1.7; font-size: .92rem; margin-bottom: 4px; }
+.collapse-body ul li { color: #333; line-height: 1.7; font-size: .92rem; margin-bottom: 4px; }
 /* 표 — 색채움 제거, 모바일 가로 스크롤 */
 .collapse-body .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; border-radius: 8px; border: 1px solid #e5e7eb; }
 .collapse-body table { width: 100%; min-width: 480px; border-collapse: collapse; font-size: .88rem; }
@@ -391,47 +391,47 @@ document.addEventListener('keydown', function(e) {
 .collapse-body table tr:nth-child(even) td { background: transparent; }
 
 /* 박스 — 모두 색채움 제거, 텍스트만 포인트 컬러 */
-.collapse-body .quote-box { background: transparent; color: #222; padding: 16px 20px; border-radius: 8px; margin: 12px 0; border-left: 4px solid #c9a062; font-weight: 700; line-height: 1.75; font-size: .98rem; }
-.collapse-body .quote-box strong { color: #c9a062; }
-.collapse-body .info-box { background: transparent; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #c9a062; margin: 12px 0; font-size: .9rem; line-height: 1.7; color: #333; }
-.collapse-body .info-box strong { color: #c9a062; }
-.collapse-body .warn-box { background: transparent; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #d19142; margin: 12px 0; font-size: .9rem; line-height: 1.7; color: #333; }
-.collapse-body .warn-box strong { color: #d19142; }
-.collapse-body .danger-box { background: transparent; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #c64b3c; margin: 12px 0; font-size: .9rem; line-height: 1.7; color: #333; }
-.collapse-body .danger-box strong { color: #c64b3c; }
-.collapse-body .good-box { background: transparent; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #5a8a3a; margin: 12px 0; font-size: .9rem; line-height: 1.7; color: #333; }
-.collapse-body .good-box strong { color: #5a8a3a; }
+.collapse-body .quote-box { background: transparent; color: #222; padding: 16px 20px; border-radius: 8px; margin: 12px 0; border-left: 4px solid #1a365d; font-weight: 700; line-height: 1.75; font-size: .98rem; }
+.collapse-body .quote-box strong { color: #1a365d; }
+.collapse-body .info-box { background: transparent; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #1a365d; margin: 12px 0; font-size: .9rem; line-height: 1.7; color: #333; }
+.collapse-body .info-box strong { color: #1a365d; }
+.collapse-body .warn-box { background: transparent; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #1a365d; margin: 12px 0; font-size: .9rem; line-height: 1.7; color: #333; }
+.collapse-body .warn-box strong { color: #1a365d; }
+.collapse-body .danger-box { background: transparent; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #1a365d; margin: 12px 0; font-size: .9rem; line-height: 1.7; color: #333; }
+.collapse-body .danger-box strong { color: #1a365d; }
+.collapse-body .good-box { background: transparent; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #1a365d; margin: 12px 0; font-size: .9rem; line-height: 1.7; color: #333; }
+.collapse-body .good-box strong { color: #1a365d; }
 
 /* badge 도 색채움 제거 */
-.collapse-header .badge.no { background: transparent; color: #c64b3c; border: 1.5px solid #c64b3c; }
-.collapse-header .badge.ok { background: transparent; color: #5a8a3a; border: 1.5px solid #5a8a3a; }
-.collapse-header .badge.warn { background: transparent; color: #a04a2a; border: 1.5px solid #a04a2a; }
+.collapse-header .badge.no { background: transparent; color: #1a365d; border: 1.5px solid #1a365d; }
+.collapse-header .badge.ok { background: transparent; color: #1a365d; border: 1.5px solid #1a365d; }
+.collapse-header .badge.warn { background: transparent; color: #1a365d; border: 1.5px solid #1a365d; }
 .collapse-header .badge.law { background: transparent; color: #1a365d; border: 1.5px solid #1a365d; }
 
 /* ===== 분당 차감액 계산기 ===== */
-.calc-box { background: transparent; border-radius: 12px; padding: 28px; margin: 18px 0; color: #222; border: 1.5px solid #1a365d; border-left: 4px solid #c9a062; }
-.calc-box h4 { color: #c9a062; font-size: 1.05rem; margin-bottom: 6px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-.calc-box .calc-desc { color: #555; font-size: .85rem; line-height: 1.6; margin-bottom: 18px; }
+.calc-box { background: transparent; border-radius: 12px; padding: 28px; margin: 18px 0; color: #222; border: 1.5px solid #1a365d; border-left: 4px solid #1a365d; }
+.calc-box h4 { color: #1a365d; font-size: 1.05rem; margin-bottom: 6px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.calc-box .calc-desc { color: #333; font-size: .85rem; line-height: 1.6; margin-bottom: 18px; }
 .calc-box .calc-input-row { display: grid; grid-template-columns: 130px 1fr 220px; gap: 10px; align-items: center; margin-bottom: 12px; }
 .calc-box .calc-input-row label { color: #222; font-size: .9rem; font-weight: 600; }
 .calc-box .calc-input-row select,
 .calc-box .calc-input-row input { background: #fff; border: 1px solid #d0d5dd; border-radius: 6px; padding: 10px 12px; color: #222; font-size: .95rem; font-family: inherit; outline: none; transition: border-color 0.15s; }
 .calc-box .calc-input-row select:focus,
-.calc-box .calc-input-row input:focus { border-color: #c9a062; background: #fff; }
-.calc-box .calc-input-row .unit { color: #555; font-size: .85rem; text-align: left; padding-left: 4px; }
+.calc-box .calc-input-row input:focus { border-color: #1a365d; background: #fff; }
+.calc-box .calc-input-row .unit { color: #333; font-size: .85rem; text-align: left; padding-left: 4px; }
 .calc-box .calc-divider { height: 1px; background: #e5e7eb; margin: 18px 0; }
 .calc-box .calc-result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; }
 .calc-box .calc-result-card { background: transparent; border-radius: 8px; padding: 14px 16px; border: 1px solid #e5e7eb; }
-.calc-box .calc-result-card.highlight { background: transparent; border-color: #c9a062; border-width: 2px; }
-.calc-box .calc-result-label { color: #555; font-size: .8rem; margin-bottom: 4px; }
-.calc-box .calc-result-value { color: #c9a062; font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
+.calc-box .calc-result-card.highlight { background: transparent; border-color: #1a365d; border-width: 2px; }
+.calc-box .calc-result-label { color: #333; font-size: .8rem; margin-bottom: 4px; }
+.calc-box .calc-result-value { color: #1a365d; font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
 .calc-box .calc-result-card.highlight .calc-result-value { font-size: 1.6rem; }
 .calc-box .calc-result-sub { color: #888; font-size: .72rem; margin-top: 2px; }
-.calc-box .calc-warning { background: transparent; border-left: 3px solid #d19142; padding: 10px 14px; border-radius: 6px; margin-top: 14px; font-size: .82rem; color: #333; line-height: 1.6; }
-.calc-box .calc-warning strong { color: #d19142; font-weight: 700; }
-.calc-box .calc-disclaimer { background: transparent; border: 1.5px solid #c64b3c; padding: 14px 18px; border-radius: 8px; margin-top: 12px; font-size: .88rem; color: #333; line-height: 1.7; text-align: center; }
-.calc-box .calc-disclaimer strong { color: #c64b3c; font-weight: 800; }
-.calc-box .calc-disclaimer .disclaimer-title { display: block; color: #c64b3c; font-weight: 800; font-size: .95rem; margin-bottom: 6px; letter-spacing: 0.5px; }
+.calc-box .calc-warning { background: transparent; border-left: 3px solid #1a365d; padding: 10px 14px; border-radius: 6px; margin-top: 14px; font-size: .82rem; color: #333; line-height: 1.6; }
+.calc-box .calc-warning strong { color: #1a365d; font-weight: 700; }
+.calc-box .calc-disclaimer { background: transparent; border: 1.5px solid #1a365d; padding: 14px 18px; border-radius: 8px; margin-top: 12px; font-size: .88rem; color: #333; line-height: 1.7; text-align: center; }
+.calc-box .calc-disclaimer strong { color: #1a365d; font-weight: 800; }
+.calc-box .calc-disclaimer .disclaimer-title { display: block; color: #1a365d; font-weight: 800; font-size: .95rem; margin-bottom: 6px; letter-spacing: 0.5px; }
 
 /* 모바일 대응 */
 @media (max-width: 768px) {
@@ -472,7 +472,7 @@ document.addEventListener('keydown', function(e) {
   <div class="guide-section">
     <h2><span class="num">PART 01</span> 영업신고증 면적으로 보는 음악 저작권료</h2>
     <div class="desc">
-      <strong style="color:#c9a062;">매장 BGM 저작권료의 유일한 기준은 '영업신고증에 적힌 면적'입니다.</strong>
+      <strong style="color:#1a365d;">매장 BGM 저작권료의 유일한 기준은 '영업신고증에 적힌 면적'입니다.</strong>
       실측 면적이 아닙니다. 멜론·유튜브 프리미엄 정기결제는 개인 감상용이라 매장 BGM의 법적 근거가 되지 않습니다. 아래 표는 한국음악저작권협회·한국음반산업협회·한국음악실연자연합회 <strong>3개 단체 통합 징수료</strong>입니다 (저작권법 시행령 별표2).
     </div>
 
@@ -498,10 +498,10 @@ document.addEventListener('keydown', function(e) {
           <tbody>
             <tr><td><strong>50㎡ 미만</strong></td><td>약 15평 미만</td><td><span class="hl-ok">면제</span></td><td><span class="hl-ok">0원</span></td></tr>
             <tr><td>50㎡ ~ 100㎡ 미만</td><td>15~30평</td><td><strong>7,350원</strong></td><td>88,200원</td></tr>
-            <tr><td>100㎡ ~ 200㎡ 미만</td><td>30~60평</td><td colspan="2"><a href="https://www.komca.or.kr" target="_blank" style="color:#c9a062;text-decoration:underline;">한국음악저작권협회 공시 확인</a></td></tr>
-            <tr><td>200㎡ ~ 300㎡ 미만</td><td>60~90평</td><td colspan="2"><a href="https://www.komca.or.kr" target="_blank" style="color:#c9a062;text-decoration:underline;">한국음악저작권협회 공시 확인</a></td></tr>
-            <tr><td>300㎡ ~ 500㎡ 미만</td><td>90~150평</td><td colspan="2"><a href="https://www.komca.or.kr" target="_blank" style="color:#c9a062;text-decoration:underline;">한국음악저작권협회 공시 확인</a></td></tr>
-            <tr><td>500㎡ ~ 1,000㎡ 미만</td><td>150~302평</td><td colspan="2"><a href="https://www.komca.or.kr" target="_blank" style="color:#c9a062;text-decoration:underline;">한국음악저작권협회 공시 확인</a></td></tr>
+            <tr><td>100㎡ ~ 200㎡ 미만</td><td>30~60평</td><td colspan="2"><a href="https://www.komca.or.kr" target="_blank" style="color:#1a365d;text-decoration:underline;">한국음악저작권협회 공시 확인</a></td></tr>
+            <tr><td>200㎡ ~ 300㎡ 미만</td><td>60~90평</td><td colspan="2"><a href="https://www.komca.or.kr" target="_blank" style="color:#1a365d;text-decoration:underline;">한국음악저작권협회 공시 확인</a></td></tr>
+            <tr><td>300㎡ ~ 500㎡ 미만</td><td>90~150평</td><td colspan="2"><a href="https://www.komca.or.kr" target="_blank" style="color:#1a365d;text-decoration:underline;">한국음악저작권협회 공시 확인</a></td></tr>
+            <tr><td>500㎡ ~ 1,000㎡ 미만</td><td>150~302평</td><td colspan="2"><a href="https://www.komca.or.kr" target="_blank" style="color:#1a365d;text-decoration:underline;">한국음악저작권협회 공시 확인</a></td></tr>
             <tr><td>1,000㎡ 이상</td><td>302평 이상</td><td colspan="2">별도 산정 (단체 직접 문의)</td></tr>
           </tbody>
         </table>
@@ -591,7 +591,7 @@ document.addEventListener('keydown', function(e) {
 
       <div class="calc-input-row" style="margin-top:6px;">
         <label style="opacity:.6;">평수 환산</label>
-        <div id="musicPyeongDisplay" style="color:#c9a062;font-weight:700;">— 평</div>
+        <div id="musicPyeongDisplay" style="color:#1a365d;font-weight:700;">— 평</div>
         <span></span>
       </div>
 
@@ -772,7 +772,7 @@ document.addEventListener('keydown', function(e) {
 </div>
 
     <div class="quote-box">
-      <strong style="color:#c9a062;">빈크래프트 컨설팅 입장</strong><br><br>
+      <strong style="color:#1a365d;">빈크래프트 컨설팅 입장</strong><br><br>
       카페 100여 곳을 분석한 결과 — <strong>50~100㎡ 매장은 '통합 징수료 직접 납부 + 합법 음원 활용'</strong>이 비용·자유도 양쪽에서 가장 유리합니다. 매월 7,350원으로 모든 법적 리스크가 해결되고, 음원은 본인 취향대로 큐레이션 가능. 100㎡ 이상 매장은 한국음악저작권협회 공시 요율 확인 필요. 매장음악서비스는 운영 인력 부족한 프랜차이즈 가맹점에 적합.
     </div>
 
@@ -786,13 +786,13 @@ document.addEventListener('keydown', function(e) {
   <div class="guide-section">
     <h2 style="margin-bottom:14px;">마무리하며</h2>
     <p style="color:#444;line-height:1.8;font-size:.98rem;margin-bottom:12px;">
-      매장 음악 저작권은 카페 사장님이 가장 놓치기 쉬운 법적 리스크입니다. 멜론 정기결제 영수증이 합법성을 보장해주지 않고, 면적이 작다고 자동 면제되지도 않습니다. 모든 기준은 <strong style="color:#c9a062;">영업신고증 면적과 '매장 공중 재생' 여부</strong> 두 가지로 압축됩니다.
+      매장 음악 저작권은 카페 사장님이 가장 놓치기 쉬운 법적 리스크입니다. 멜론 정기결제 영수증이 합법성을 보장해주지 않고, 면적이 작다고 자동 면제되지도 않습니다. 모든 기준은 <strong style="color:#1a365d;">영업신고증 면적과 '매장 공중 재생' 여부</strong> 두 가지로 압축됩니다.
     </p>
     <p style="color:#444;line-height:1.8;font-size:.98rem;margin-bottom:12px;">
-      본 자료에서 강조하고 싶은 한 가지는 — <strong style="color:#c9a062;">'알고 안 내는 것'과 '모르고 안 내는 것'의 법적 효과는 동일</strong>하다는 사실입니다. 단속·소송 시 "몰랐다"는 면책 사유로 인정되지 않습니다. 저작권법 제136조 위반은 5년 이하 징역 또는 5천만원 이하 벌금, 민사상 손해배상은 별도입니다.
+      본 자료에서 강조하고 싶은 한 가지는 — <strong style="color:#1a365d;">'알고 안 내는 것'과 '모르고 안 내는 것'의 법적 효과는 동일</strong>하다는 사실입니다. 단속·소송 시 "몰랐다"는 면책 사유로 인정되지 않습니다. 저작권법 제136조 위반은 5년 이하 징역 또는 5천만원 이하 벌금, 민사상 손해배상은 별도입니다.
     </p>
     <p style="color:#444;line-height:1.8;font-size:.98rem;">
-      그러니 <strong style="color:#c9a062;">오늘 영업신고증 면적부터 확인하십시오.</strong> 50㎡ 미만이면 한숨 돌리고, 50~100㎡면 월 7,350원으로 모든 법적 리스크를 정리하십시오 (100㎡ 이상은 한국음악저작권협회 공시 요율 확인). 작은 매장 사장님이 가장 비싸게 치르는 비용은 결국 — <span style="color:#c9a062;font-weight:700;">'몰라서 놓친 사실'에 대한 사후 정산</span>입니다.
+      그러니 <strong style="color:#1a365d;">오늘 영업신고증 면적부터 확인하십시오.</strong> 50㎡ 미만이면 한숨 돌리고, 50~100㎡면 월 7,350원으로 모든 법적 리스크를 정리하십시오 (100㎡ 이상은 한국음악저작권협회 공시 요율 확인). 작은 매장 사장님이 가장 비싸게 치르는 비용은 결국 — <span style="color:#1a365d;font-weight:700;">'몰라서 놓친 사실'에 대한 사후 정산</span>입니다.
     </p>
 
     <div style="background:#f0f2f4;padding:16px 20px;border-radius:12px;margin-top:18px;font-size:.85rem;color:#111;line-height:1.7;">
@@ -1428,7 +1428,7 @@ function toggleCard(headerEl) {
             + '<p style="color:#4a5568;font-size:0.95rem;line-height:1.6;margin:0 0 20px 0;">담당자가 영업시간 내<br>1~2시간 안에 연락드립니다.</p>'
             + '<div style="height:1px;background:#e2e8f0;width:60%;margin:8px 0 20px 0;"></div>'
             + '<p style="color:#718096;font-size:0.85rem;margin:0 0 4px 0;">급하신 경우</p>'
-            + '<a href="tel:0507-1488-9050" style="color:#c64b3c;font-weight:700;font-size:1.2rem;text-decoration:none;margin-bottom:6px;">📞 0507-1488-9050</a>'
+            + '<a href="tel:0507-1488-9050" style="color:#1a365d;font-weight:700;font-size:1.2rem;text-decoration:none;margin-bottom:6px;">📞 0507-1488-9050</a>'
             + '<p style="color:#a0aec0;font-size:0.82rem;margin:4px 0 28px 0;">담당 조희재</p>'
             + '<button onclick="bcConsultClose()" style="padding:11px 32px;background:#2b6cb0;color:#fff;border:0;border-radius:8px;font-weight:600;cursor:pointer;font-size:1rem;">닫기</button>';
           widget.appendChild(ty);
