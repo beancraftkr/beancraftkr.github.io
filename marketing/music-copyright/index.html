@@ -382,49 +382,74 @@ document.addEventListener('keydown', function(e) {
 .collapse-body .hl-gold { color: #c9a062; font-weight: 700; }
 .collapse-body ul { margin: 8px 0 12px 20px; }
 .collapse-body ul li { color: #555; line-height: 1.7; font-size: .92rem; margin-bottom: 4px; }
-.collapse-body table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .88rem; }
-.collapse-body table th { background: #1a365d; color: #f5ebd0; padding: 10px 12px; text-align: left; font-weight: 700; }
-.collapse-body table td { padding: 10px 12px; border-bottom: 1px solid #f0f2f4; color: #444; }
-.collapse-body table tr:nth-child(even) td { background: #f8f5ee; }
-.collapse-body .quote-box { background: #1a365d; color: #f5ebd0; padding: 18px 22px; border-radius: 8px; margin: 12px 0; border-left: 4px solid #c9a062; font-weight: 700; line-height: 1.7; }
-.collapse-body .info-box { background: #f8f5ee; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #c9a062; margin: 12px 0; font-size: .9rem; line-height: 1.65; color: #555; }
-.collapse-body .warn-box { background: #fef5e7; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #d19142; margin: 12px 0; font-size: .9rem; line-height: 1.65; color: #7a3a1a; }
-.collapse-body .danger-box { background: #fdf0ec; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #c64b3c; margin: 12px 0; font-size: .9rem; line-height: 1.65; color: #7a3a1a; }
-.collapse-body .good-box { background: #f0f5f0; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #5a8a3a; margin: 12px 0; font-size: .9rem; line-height: 1.65; color: #2d4a30; }
+/* 표 — 색채움 제거, 모바일 가로 스크롤 */
+.collapse-body .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; border-radius: 8px; border: 1px solid #e5e7eb; }
+.collapse-body table { width: 100%; min-width: 480px; border-collapse: collapse; font-size: .88rem; }
+.collapse-body table th { background: transparent; color: #1a365d; padding: 12px 14px; text-align: left; font-weight: 800; border-bottom: 2px solid #1a365d; white-space: nowrap; }
+.collapse-body table td { padding: 12px 14px; border-bottom: 1px solid #f0f2f4; color: #333; vertical-align: top; word-break: keep-all; }
+.collapse-body table tr:last-child td { border-bottom: 0; }
+.collapse-body table tr:nth-child(even) td { background: transparent; }
+
+/* 박스 — 모두 색채움 제거, 텍스트만 포인트 컬러 */
+.collapse-body .quote-box { background: transparent; color: #222; padding: 16px 20px; border-radius: 8px; margin: 12px 0; border-left: 4px solid #c9a062; font-weight: 700; line-height: 1.75; font-size: .98rem; }
+.collapse-body .quote-box strong { color: #c9a062; }
+.collapse-body .info-box { background: transparent; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #c9a062; margin: 12px 0; font-size: .9rem; line-height: 1.7; color: #333; }
+.collapse-body .info-box strong { color: #c9a062; }
+.collapse-body .warn-box { background: transparent; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #d19142; margin: 12px 0; font-size: .9rem; line-height: 1.7; color: #333; }
+.collapse-body .warn-box strong { color: #d19142; }
+.collapse-body .danger-box { background: transparent; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #c64b3c; margin: 12px 0; font-size: .9rem; line-height: 1.7; color: #333; }
+.collapse-body .danger-box strong { color: #c64b3c; }
+.collapse-body .good-box { background: transparent; padding: 14px 18px; border-radius: 8px; border-left: 3px solid #5a8a3a; margin: 12px 0; font-size: .9rem; line-height: 1.7; color: #333; }
+.collapse-body .good-box strong { color: #5a8a3a; }
+
+/* badge 도 색채움 제거 */
+.collapse-header .badge.no { background: transparent; color: #c64b3c; border: 1.5px solid #c64b3c; }
+.collapse-header .badge.ok { background: transparent; color: #5a8a3a; border: 1.5px solid #5a8a3a; }
+.collapse-header .badge.warn { background: transparent; color: #a04a2a; border: 1.5px solid #a04a2a; }
+.collapse-header .badge.law { background: transparent; color: #1a365d; border: 1.5px solid #1a365d; }
 
 /* ===== 분당 차감액 계산기 ===== */
-.calc-box { background: linear-gradient(135deg, #1a365d 0%, #0a1628 100%); border-radius: 12px; padding: 28px; margin: 18px 0; color: #f5ebd0; border-left: 4px solid #c9a062; }
+.calc-box { background: transparent; border-radius: 12px; padding: 28px; margin: 18px 0; color: #222; border: 1.5px solid #1a365d; border-left: 4px solid #c9a062; }
 .calc-box h4 { color: #c9a062; font-size: 1.05rem; margin-bottom: 6px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-.calc-box .calc-desc { color: rgba(245,235,208,0.7); font-size: .85rem; line-height: 1.6; margin-bottom: 18px; }
+.calc-box .calc-desc { color: #555; font-size: .85rem; line-height: 1.6; margin-bottom: 18px; }
 .calc-box .calc-input-row { display: grid; grid-template-columns: 130px 1fr 220px; gap: 10px; align-items: center; margin-bottom: 12px; }
-.calc-box .calc-input-row label { color: #f5ebd0; font-size: .9rem; font-weight: 600; }
+.calc-box .calc-input-row label { color: #222; font-size: .9rem; font-weight: 600; }
 .calc-box .calc-input-row select,
-.calc-box .calc-input-row input { background: rgba(255,255,255,0.08); border: 1px solid rgba(201,160,98,0.35); border-radius: 6px; padding: 10px 12px; color: #f5ebd0; font-size: .95rem; font-family: inherit; outline: none; transition: border-color 0.15s; }
+.calc-box .calc-input-row input { background: #fff; border: 1px solid #d0d5dd; border-radius: 6px; padding: 10px 12px; color: #222; font-size: .95rem; font-family: inherit; outline: none; transition: border-color 0.15s; }
 .calc-box .calc-input-row select:focus,
-.calc-box .calc-input-row input:focus { border-color: #c9a062; background: rgba(255,255,255,0.12); }
-.calc-box .calc-input-row .unit { color: rgba(245,235,208,0.6); font-size: .85rem; text-align: left; padding-left: 4px; }
-.calc-box .calc-divider { height: 1px; background: rgba(201,160,98,0.2); margin: 18px 0; }
+.calc-box .calc-input-row input:focus { border-color: #c9a062; background: #fff; }
+.calc-box .calc-input-row .unit { color: #555; font-size: .85rem; text-align: left; padding-left: 4px; }
+.calc-box .calc-divider { height: 1px; background: #e5e7eb; margin: 18px 0; }
 .calc-box .calc-result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; }
-.calc-box .calc-result-card { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 14px 16px; border: 1px solid rgba(201,160,98,0.2); }
-.calc-box .calc-result-card.highlight { background: rgba(201,160,98,0.12); border-color: rgba(201,160,98,0.5); }
-.calc-box .calc-result-label { color: rgba(245,235,208,0.7); font-size: .8rem; margin-bottom: 4px; }
+.calc-box .calc-result-card { background: transparent; border-radius: 8px; padding: 14px 16px; border: 1px solid #e5e7eb; }
+.calc-box .calc-result-card.highlight { background: transparent; border-color: #c9a062; border-width: 2px; }
+.calc-box .calc-result-label { color: #555; font-size: .8rem; margin-bottom: 4px; }
 .calc-box .calc-result-value { color: #c9a062; font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
 .calc-box .calc-result-card.highlight .calc-result-value { font-size: 1.6rem; }
-.calc-box .calc-result-sub { color: rgba(245,235,208,0.5); font-size: .72rem; margin-top: 2px; }
-.calc-box .calc-warning { background: rgba(255,165,2,0.1); border-left: 3px solid rgba(255,165,2,0.6); padding: 10px 14px; border-radius: 6px; margin-top: 14px; font-size: .82rem; color: rgba(255,221,153,0.95); line-height: 1.6; }
-.calc-box .calc-warning strong { color: #ffd166; font-weight: 700; }
-.calc-box .calc-disclaimer { background: rgba(231,76,60,0.12); border: 1.5px solid rgba(231,76,60,0.4); padding: 14px 18px; border-radius: 8px; margin-top: 12px; font-size: .88rem; color: rgba(255,200,195,0.95); line-height: 1.7; text-align: center; }
-.calc-box .calc-disclaimer strong { color: #ff7b6e; font-weight: 800; }
-.calc-box .calc-disclaimer .disclaimer-title { display: block; color: #ff7b6e; font-weight: 800; font-size: .95rem; margin-bottom: 6px; letter-spacing: 0.5px; }
+.calc-box .calc-result-sub { color: #888; font-size: .72rem; margin-top: 2px; }
+.calc-box .calc-warning { background: transparent; border-left: 3px solid #d19142; padding: 10px 14px; border-radius: 6px; margin-top: 14px; font-size: .82rem; color: #333; line-height: 1.6; }
+.calc-box .calc-warning strong { color: #d19142; font-weight: 700; }
+.calc-box .calc-disclaimer { background: transparent; border: 1.5px solid #c64b3c; padding: 14px 18px; border-radius: 8px; margin-top: 12px; font-size: .88rem; color: #333; line-height: 1.7; text-align: center; }
+.calc-box .calc-disclaimer strong { color: #c64b3c; font-weight: 800; }
+.calc-box .calc-disclaimer .disclaimer-title { display: block; color: #c64b3c; font-weight: 800; font-size: .95rem; margin-bottom: 6px; letter-spacing: 0.5px; }
 
 /* 모바일 대응 */
 @media (max-width: 768px) {
-  .guide-section { padding: 20px; }
+  .guide-section { padding: 20px 16px; }
   .calc-box { padding: 20px; }
   .calc-box .calc-input-row { grid-template-columns: 1fr; gap: 6px; }
   .calc-box .calc-input-row label { margin-top: 6px; }
   .calc-box .calc-input-row .unit { padding-left: 0; }
   .calc-box .calc-result-grid { grid-template-columns: 1fr; }
+  /* 표 가로 스크롤 + 최소폭 보정 */
+  .collapse-body .table-wrap { margin-left: -4px; margin-right: -4px; }
+  .collapse-body table { min-width: 520px; font-size: .82rem; }
+  .collapse-body table th, .collapse-body table td { padding: 10px 12px; }
+  .collapse-header h3 { font-size: .95rem; flex-wrap: wrap; line-height: 1.45; }
+  .collapse-header .badge { font-size: .7rem; padding: 2px 8px; }
+  .collapse-body .quote-box { padding: 14px 16px; font-size: .92rem; }
+  .collapse-body .info-box, .collapse-body .warn-box,
+  .collapse-body .danger-box, .collapse-body .good-box { padding: 12px 14px; font-size: .86rem; }
 }
 </style>
 
@@ -465,7 +490,8 @@ document.addEventListener('keydown', function(e) {
       <div class="collapse-body">
         <p>아래 금액은 <strong>한국음악저작권협회(KOMCA) + 한국음반산업협회(KAPP) + 한국음악실연자연합회(FKMP)</strong> 3개 단체가 통합 징수하는 월 정액료입니다. 개별 단체에 각각 내는 게 아니라 한 번에 결제하면 끝.</p>
 
-        <table>
+        <div class="table-wrap">
+<table>
           <thead>
             <tr><th>영업신고증 면적</th><th>약 평수</th><th>월 통합료</th><th>연간</th></tr>
           </thead>
@@ -479,6 +505,7 @@ document.addEventListener('keydown', function(e) {
             <tr><td>1,000㎡ 이상</td><td>302평 이상</td><td colspan="2">별도 산정 (단체 직접 문의)</td></tr>
           </tbody>
         </table>
+</div>
 
         <div class="info-box">
           <strong>핵심 포인트</strong><br>
@@ -499,7 +526,8 @@ document.addEventListener('keydown', function(e) {
       <div class="collapse-body">
         <p>저작권법 시행령 제11조의2는 특정 업종·용도에 대해 면적 관계없이 면제 또는 제한 적용을 규정합니다. 카페가 직접 해당되는 경우는 드물지만, 가족이 운영하는 다른 점포 또는 제휴 매장 운영 시 알아두면 좋습니다.</p>
 
-        <table>
+        <div class="table-wrap">
+<table>
           <thead>
             <tr><th>면제 / 부분 적용 대상</th><th>조건</th></tr>
           </thead>
@@ -511,6 +539,7 @@ document.addEventListener('keydown', function(e) {
             <tr><td>의료기관 (대기실)</td><td>일정 조건 충족 시</td></tr>
           </tbody>
         </table>
+</div>
 
         <div class="warn-box">
           <strong>주의 — 카페는 면제 대상 아님</strong><br>
@@ -608,7 +637,8 @@ document.addEventListener('keydown', function(e) {
           "본 서비스는 회원 개인의 비상업적 용도로만 제공되며, 매장·공연·방송 등 공개 장소에서의 재생은 별도 라이선스가 필요합니다."
         </div>
 
-        <table>
+        <div class="table-wrap">
+<table>
           <thead><tr><th>오해</th><th>실제</th></tr></thead>
           <tbody>
             <tr><td>"내 돈 내고 결제하니까 어디서든 OK"</td><td>개인 청취 권리만 구매. 공개 재생권은 별도</td></tr>
@@ -616,6 +646,7 @@ document.addEventListener('keydown', function(e) {
             <tr><td>"유튜브 무료 영상은 자유롭게 OK"</td><td>유튜브도 무료 사용은 개인 감상 한정</td></tr>
           </tbody>
         </table>
+</div>
       </div>
     </div>
 
@@ -646,7 +677,8 @@ document.addEventListener('keydown', function(e) {
       <div class="collapse-body">
         <p>라디오·TV 방송 재송신은 <strong>저작권법 제29조 제1항(공연권의 제한)</strong>에 따라 일반인이 자유롭게 들을 수 있는 방송은 매장에서 그대로 송출 가능. 단, 조건이 있습니다.</p>
 
-        <table>
+        <div class="table-wrap">
+<table>
           <thead><tr><th>조건</th><th>설명</th></tr></thead>
           <tbody>
             <tr><td>방송 그대로 송출</td><td>중간에 CD 끼우거나 멜론으로 전환하면 즉시 위법</td></tr>
@@ -654,6 +686,7 @@ document.addEventListener('keydown', function(e) {
             <tr><td>광고 시간 안 자르기</td><td>광고·뉴스 포함 원본 방송 그대로</td></tr>
           </tbody>
         </table>
+</div>
 
         <div class="info-box">
           <strong>실무 팁</strong><br>
@@ -710,7 +743,8 @@ document.addEventListener('keydown', function(e) {
       매장 BGM을 합법적으로 운영하는 방법은 크게 3가지입니다. 매장 규모·운영 스타일에 따라 정답이 다릅니다.
     </div>
 
-    <table>
+    <div class="table-wrap">
+<table>
       <thead>
         <tr><th>방식</th><th>비용</th><th>장점</th><th>단점</th></tr>
       </thead>
@@ -735,6 +769,7 @@ document.addEventListener('keydown', function(e) {
         </tr>
       </tbody>
     </table>
+</div>
 
     <div class="quote-box">
       <strong style="color:#c9a062;">빈크래프트 컨설팅 입장</strong><br><br>
