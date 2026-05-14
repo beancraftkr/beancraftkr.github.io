@@ -342,24 +342,22 @@ document.addEventListener('keydown', function(e) {
         <span class="arrow">▶</span>
       </div>
       <div class="collapse-body">
-        <p>매출 7천만원을 올리는 카페의 실제 비용 구조입니다. 아래는 서울 중심 상권 기준 직원 4~5명 규모 카페의 현실적 수치입니다.</p>
+        <p>매출 7천만원을 올리는 카페의 실제 비용 구조입니다. 서울 핵심 상권 기준, 직원 5명(사장 제외) 규모 카페의 실제 손익계산서입니다.</p>
 
         <table>
           <thead>
             <tr><th>비용 항목</th><th>금액 (월)</th><th>매출 대비 비율</th><th>비고</th></tr>
           </thead>
           <tbody>
-            <tr><td><strong>식음료 원재료비</strong></td><td>2,100~2,450만원</td><td>30~35%</td><td>원두·우유·시럽·식재료 등</td></tr>
-            <tr><td><strong>직원 인건비</strong> (본인 제외)</td><td>2,000~2,600만원</td><td>28~37%</td><td>직원 4~5명, 4대보험 포함</td></tr>
-            <tr><td><strong>임대료</strong></td><td>700~1,300만원</td><td>10~19%</td><td>상권·면적·층수에 따라 편차 큼</td></tr>
-            <tr><td><strong>전기·가스·수도</strong></td><td>180~280만원</td><td>2.6~4%</td><td>에스프레소 장비 전력 소모 포함</td></tr>
-            <tr><td><strong>카드 수수료</strong></td><td>70~100만원</td><td>1~1.5%</td><td>여신전문금융업법 우대수수료 기준</td></tr>
-            <tr><td><strong>배달앱·포장 수수료</strong></td><td>50~150만원</td><td>배달 비중에 따라 변동</td><td>배달의민족·쿠팡이츠 중개수수료 포함</td></tr>
-            <tr><td><strong>소모품·청소·유지보수</strong></td><td>80~150만원</td><td>1.1~2.1%</td><td>필터·컵·포장재·장비 수리</td></tr>
-            <tr><td><strong>산재·고용보험 (사업주 부담)</strong></td><td>40~60만원</td><td>0.6~0.9%</td><td>2026년 요율 기준</td></tr>
-            <tr><td><strong>종합소득세 (월 충당금)</strong></td><td>150~250만원</td><td>2~3.6%</td><td>연 소득세를 12개월로 분할 환산</td></tr>
-            <tr style="background:#fdf0ec;"><td><strong>합계 (사장 인건비 제외)</strong></td><td><strong>5,370~7,340만원</strong></td><td>77~105%</td><td>—</td></tr>
-            <tr style="background:#f0f5f0;"><td><strong>사장 손에 남는 금액</strong></td><td><strong>-340 ~ +1,630만원</strong></td><td>—</td><td>상황에 따라 적자 가능</td></tr>
+            <tr><td><strong>식음료 원재료비</strong></td><td>2,170만원</td><td>31.0%</td><td>원두·우유·시럽·식재료 등 (업종 평균 원가율 적용)</td></tr>
+            <tr><td><strong>직원 인건비</strong> (사장 본인 제외)</td><td>2,400만원</td><td>34.3%</td><td>직원 5명, 4대보험 사업주 부담분 포함</td></tr>
+            <tr><td><strong>임대료</strong></td><td>1,350만원</td><td>19.3%</td><td>서울 핵심 상권 1층 기준 (임대료 한도 20% 원칙)</td></tr>
+            <tr><td><strong>전기·가스·수도</strong></td><td>155만원</td><td>2.2%</td><td>에스프레소 장비·냉난방 전력 포함</td></tr>
+            <tr><td><strong>카드수수료·배달앱·소모품</strong></td><td>195만원</td><td>2.8%</td><td>카드 우대수수료 1% + 배달앱 수수료 + 포장재·필터 등</td></tr>
+            <tr><td><strong>세금 충당금</strong> (부가세+종합소득세)</td><td>530만원</td><td>7.6%</td><td>부가세 환급 후 실납부분 + 소득세 월 분할 적립</td></tr>
+            <tr style="background:#fdf0ec;font-weight:700;"><td><strong>합계 (사장 인건비 제외)</strong></td><td><strong>6,800만원</strong></td><td><strong>97.1%</strong></td><td>—</td></tr>
+            <tr style="background:#f0f5f0;font-weight:700;"><td><strong>사장 손에 남는 금액</strong></td><td><strong>200만원</strong></td><td><strong>2.9%</strong></td><td>사장 인건비 0원으로 계산한 숫자</td></tr>
+            <tr style="background:#fde8e8;font-weight:700;"><td><strong>사장 인건비 반영 시</strong> (주 72h × 최저시급)</td><td><strong>-130만원</strong></td><td><strong>적자</strong></td><td>2026년 최저시급 10,320원 × 월 환산 330만원 차감</td></tr>
           </tbody>
         </table>
 
@@ -485,17 +483,17 @@ document.addEventListener('keydown', function(e) {
       </div>
       <div class="calc-input-row">
         <label for="rRent">임대료</label>
-        <input type="number" id="rRent" value="10000000" min="0" step="100000">
+        <input type="number" id="rRent" value="13500000" min="0" step="100000">
         <span class="unit">원 / 월</span>
       </div>
       <div class="calc-input-row">
         <label for="rUtil">공과금·기타비용</label>
-        <input type="number" id="rUtil" value="6000000" min="0" step="100000">
+        <input type="number" id="rUtil" value="1950000" min="0" step="100000">
         <span class="unit">원 / 월 (전기·가스·수수료 등)</span>
       </div>
       <div class="calc-input-row">
         <label for="rTax">세금 월 충당금</label>
-        <input type="number" id="rTax" value="2000000" min="0" step="100000">
+        <input type="number" id="rTax" value="5300000" min="0" step="100000">
         <span class="unit">원 / 월</span>
       </div>
       <div class="calc-input-row">
