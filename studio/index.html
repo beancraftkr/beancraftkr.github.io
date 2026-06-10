@@ -185,7 +185,13 @@ function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()
 function uid(p){return p+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36);}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 function setDirty(v){dirty=v;var b=$('deployBtn');b.disabled=!v;b.classList.toggle('dirty',v);b.textContent=v?'● 배포하기':'배포';if(v)scheduleDraftSave();}
-function defaultCategories(){return [{id:'cardnews',name:'카드뉴스',items:[]},{id:'market',name:'상권분석',items:[]}];}
+function defaultCategories(){return [
+  {id:'cardnews',name:'카드뉴스',items:[
+    {id:'late',type:'page',title:'지각, 보상이 답일까?',page:'marketing/late/'},
+    {id:'music',type:'page',title:'매장 음악, 멜론 결제하면 끝일까?',page:'marketing/music-copyright/'}
+  ]},
+  {id:'market',name:'상권분석',items:[]}
+];}
 
 /* ===== 작업 자동 저장 (IndexedDB · 새로고침/재접속해도 유지, 배포 전까지 보관) ===== */
 var IDB_DB='bc_studio_drafts',IDB_STORE='kv';
@@ -232,11 +238,23 @@ $('pw').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('loginBtn'
 $('email').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('pw').focus();});
 
 /* ===== 데이터 (Firebase RTDB · 마케팅 전용 경로) ===== */
+function isSeedNeeded(d){
+  if(!d||!d.categories)return true;     // 데이터 자체가 없음
+  if(d.seeded)return false;             // 이미 심었음(이후 삭제는 사용자 의도이므로 재생성 안 함)
+  var cats=d.categories,any=false;      // 비어있는 채로만 존재하면 심기
+  for(var k in cats){var c=cats[k];if(c&&c.items&&c.items.length){any=true;break;}}
+  return !any;
+}
 function loadData(){
   fbDb.ref(DATA_REF).once('value').then(function(snap){
     var d=snap.val();
-    data=(d&&d.categories)?d:{categories:defaultCategories()};
-    if(!data.categories)data.categories=defaultCategories();
+    if(isSeedNeeded(d)){
+      // 최초 1회: 기존 가이드를 '실제 데이터'로 Firebase에 저장 → 이후 일반 항목처럼 편집/삭제/추가 가능
+      data={categories:defaultCategories(),seeded:true,updated:today(),updatedAt:Date.now()};
+      fbDb.ref(DATA_REF).set(data).catch(function(){});
+    }else{
+      data=d;
+    }
     restoreDraft().then(function(){renderTree();});
   }).catch(function(e){alert('데이터 로드 실패: '+e.message);});
 }
