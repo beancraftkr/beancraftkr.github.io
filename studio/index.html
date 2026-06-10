@@ -405,30 +405,59 @@ async function onAttach(it,files){
   hideOverlay();
 }
 function fileToCanvas(file){return new Promise(function(res,rej){var u=URL.createObjectURL(file);var im=new Image();im.onload=function(){var cv=document.createElement('canvas');cv.width=im.naturalWidth;cv.height=im.naturalHeight;cv.getContext('2d').drawImage(im,0,0);URL.revokeObjectURL(u);res(cv);};im.onerror=rej;im.src=u;});}
-/* 핵심: 왼쪽 번호배지 띠를 스캔해 카드 경계 검출 → 분할 */
+/* 핵심: 왼쪽 번호배지로 카드 경계를 찾고, 각 카드의 실제 콘텐츠 상·하단을 인식해
+   균일한 여백으로 타이트하게 자른다. (텍스트·내용이 바뀌어도 매번 자동 인식) */
 function splitCards(cv){
   var W=cv.width,H=cv.height,ctx=cv.getContext('2d');
+  // 1) 카드 경계 = 좌측 번호배지(01·02…) 띠 위치
   var x0=Math.max(2,Math.round(W*0.035)),x1=Math.round(W*0.05);if(x1<=x0)x1=x0+12;
   var sw=x1-x0;var d=ctx.getImageData(x0,0,sw,H).data;
-  var bright=new Array(H);
-  for(var y=0;y<H;y++){var cnt=0;for(var x=0;x<sw;x++){var p=(y*sw+x)*4;var lum=0.299*d[p]+0.587*d[p+1]+0.114*d[p+2];if(lum>70)cnt++;}bright[y]=cnt>=2;}
+  var badge=new Array(H);
+  for(var y=0;y<H;y++){var cnt=0;for(var x=0;x<sw;x++){var p=(y*sw+x)*4;if(0.299*d[p]+0.587*d[p+1]+0.114*d[p+2]>70)cnt++;}badge[y]=cnt>=2;}
   var minGap=Math.max(180,Math.round(H*0.017));
   var tops=[],i=0;
-  while(i<H){if(bright[i]){var j=i;while(j<H&&bright[j])j++;if(j-i>=6){if(!tops.length||i-tops[tops.length-1]>=minGap)tops.push(i);}i=j;}else i++;}
-  if(tops.length<2){ // 배지 못 찾음 → 통째 1장
-    return [{blob:null,url:cv.toDataURL('image/jpeg',0.9),_cv:cv}].map(toBlobCard);
+  while(i<H){if(badge[i]){var j=i;while(j<H&&badge[j])j++;if(j-i>=6){if(!tops.length||i-tops[tops.length-1]>=minGap)tops.push(i);}i=j;}else i++;}
+
+  // 2) 콘텐츠 행 감지 (가로 압축본으로 가볍게) — 글자/그래프가 있는 줄 = 콘텐츠, 카드 사이 빈 배경 = 비콘텐츠
+  var SQW=240;var sq=document.createElement('canvas');sq.width=SQW;sq.height=H;
+  sq.getContext('2d').drawImage(cv,0,0,W,H,0,0,SQW,H);
+  var sd=sq.getContext('2d').getImageData(0,0,SQW,H).data;
+  var content=new Array(H);var need=Math.max(3,Math.round(SQW*0.018));
+  for(var y2=0;y2<H;y2++){var c=0;for(var x2=0;x2<SQW;x2++){var q=(y2*SQW+x2)*4;if(0.299*sd[q]+0.587*sd[q+1]+0.114*sd[q+2]>86)c++;}content[y2]=c>=need;}
+
+  if(tops.length<2){ // 배지 못 찾음 → 전체에서 콘텐츠만 타이트 크롭(통째 1장)
+    return [cropContent(cv,0,H,content,Math.max(14,Math.round(W*0.014)))];
   }
-  var cuts=[0];for(var t=1;t<tops.length;t++){cuts.push(Math.max(0,tops[t]-8));}cuts.push(H);
+  // 3) 각 카드: [배지i, 배지i+1) 구간 안에서 콘텐츠 상·하단으로 균일 여백 크롭
+  var pad=Math.max(14,Math.round(W*0.014));
   var out=[];
-  for(var s=0;s<cuts.length-1;s++){
-    var y0=cuts[s],y1=cuts[s+1],sh=y1-y0;if(sh<20)continue;
-    var c2=document.createElement('canvas');c2.width=W;c2.height=sh;
-    c2.getContext('2d').drawImage(cv,0,y0,W,sh,0,0,W,sh);
-    out.push(c2);
+  for(var k=0;k<tops.length;k++){
+    var a=tops[k], b=(k<tops.length-1?tops[k+1]:H);
+    var card=cropContent(cv,a,b,content,pad,k<tops.length-1);
+    if(card)out.push(card);
   }
-  return out.map(function(c){return {blob:null,url:c.toDataURL('image/jpeg',0.9),_cv:c};}).map(toBlobCard);
+  return out;
 }
-function toBlobCard(o){return o;} // dataURL 사용(미리보기·저장 겸용)
+// 구간 [a,b) 안에서 실제 콘텐츠(글자/그래프)의 상·하단을 찾아 pad 여백으로 잘라 반환.
+// hasNext면 b 근처의 '다음 카드 머리'와 '카드 사이 빈 배경'을 건너뛰어 현재 카드만 정확히 끊는다.
+function cropContent(cv,a,b,content,pad,hasNext){
+  var W=cv.width,H=cv.height;
+  var ct=a; while(ct<b&&!content[ct])ct++; if(ct>=b)ct=a;          // 콘텐츠 시작(위)
+  var cb;
+  if(hasNext){
+    cb=b-1;
+    while(cb>ct&&content[cb])cb--;    // 경계에 걸친 다음 카드 머리(콘텐츠) 건너뜀
+    while(cb>ct&&!content[cb])cb--;   // 카드 사이 빈 배경 건너뜀 → 현재 카드의 마지막 콘텐츠
+  }else{
+    cb=b-1; while(cb>ct&&!content[cb])cb--;  // 마지막 카드: 끝의 빈 배경만 제거
+  }
+  if(cb<=ct)cb=Math.min(b-1,ct+1);
+  var top=Math.max(0,ct-pad), bot=Math.min(H,cb+pad+1);
+  var sh=bot-top; if(sh<24)return null;
+  var c2=document.createElement('canvas');c2.width=W;c2.height=sh;
+  c2.getContext('2d').drawImage(cv,0,top,W,sh,0,0,W,sh);
+  return {url:c2.toDataURL('image/jpeg',0.9)};
+}
 function renderCards(it){
   ensureCards(it);var l=$('clist');var w=it._cards;
   if(!w.length){l.innerHTML='<div class="status show info" style="margin-top:8px;">아직 카드가 없습니다. 위에 이미지를 넣으면 자동 분리됩니다.</div>';return;}
