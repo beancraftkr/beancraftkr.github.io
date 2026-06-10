@@ -1,5 +1,5 @@
 // 빈크래프트 마케팅 작업실 — 최소 서비스워커 (설치 가능 + 오프라인 셸)
-var CACHE='bc-studio-v1';
+var CACHE='bc-studio-v2';
 self.addEventListener('install',function(e){self.skipWaiting();});
 self.addEventListener('activate',function(e){e.waitUntil(self.clients.claim());});
 self.addEventListener('fetch',function(e){
