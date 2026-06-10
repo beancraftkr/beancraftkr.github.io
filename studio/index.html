@@ -354,8 +354,10 @@ function cardStarterHTML(it){
 var _pvBlobUrl=null;
 function setPreviewHTML(html){
   var f=$('pvFrame');if(!f)return;
+  var sy=0; try{ if(f.contentWindow) sy=f.contentWindow.scrollY||f.contentWindow.pageYOffset||0; }catch(e){}  // 보던 위치 기억
   try{ if(_pvBlobUrl)URL.revokeObjectURL(_pvBlobUrl); }catch(e){}
   _pvBlobUrl=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));
+  f.onload=function(){ try{ f.contentWindow.scrollTo(0,sy); }catch(e){} };  // 로드 후 위치 복원
   f.removeAttribute('srcdoc');
   f.src=_pvBlobUrl;
 }
