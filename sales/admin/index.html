@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>상권분석 리포트 관리 | BEANCRAFT</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; background:#f5f7fa; color:#111; line-height:1.6; -webkit-font-smoothing:antialiased; }
+.wrap { max-width:760px; margin:0 auto; padding:24px 16px 80px; }
+.top { background:linear-gradient(135deg,#1a365d 0%,#0f2647 100%); color:#fff; border-radius:16px; padding:24px 26px; margin-bottom:22px; }
+.top h1 { font-size:1.3rem; font-weight:800; letter-spacing:-.02em; }
+.top p { font-size:.85rem; color:#cbd5e0; margin-top:6px; }
+.card { background:#fff; border:1.5px solid #e5e7eb; border-radius:14px; padding:22px; margin-bottom:18px; }
+.card h2 { font-size:1rem; font-weight:800; color:#1a365d; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+.card .hint { font-size:.82rem; color:#666; line-height:1.6; margin-bottom:14px; }
+label { display:block; font-size:.82rem; font-weight:700; color:#444; margin-bottom:6px; }
+input[type=password], input[type=text] { width:100%; padding:11px 13px; border:1.5px solid #d0d5dd; border-radius:9px; font-size:.92rem; font-family:inherit; outline:none; }
+input:focus { border-color:#1a365d; box-shadow:0 0 0 3px rgba(26,54,93,.12); }
+.btn { display:inline-flex; align-items:center; gap:7px; padding:11px 20px; border-radius:999px; font-size:.9rem; font-weight:800; border:0; cursor:pointer; font-family:inherit; transition:transform .12s, background .15s; }
+.btn:hover { transform:translateY(-1px); }
+.btn.primary { background:#1a365d; color:#fff; }
+.btn.ghost { background:#fff; color:#1a365d; border:1.5px solid #1a365d; }
+.btn.danger { background:#fff; color:#c0392b; border:1.5px solid #e3b3ad; padding:7px 13px; font-size:.8rem; }
+.btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+.row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.status { font-size:.85rem; padding:10px 14px; border-radius:9px; margin-top:12px; display:none; }
+.status.show { display:block; }
+.status.ok { background:#eaf3ea; color:#2d6a2d; border:1px solid #cfe6cf; }
+.status.err { background:#fdecea; color:#c0392b; border:1px solid #f5c6c0; }
+.status.info { background:#eaf0f7; color:#1a365d; border:1px solid #cdddf0; }
+.dropzone { border:2px dashed #b8c2cc; border-radius:14px; padding:40px 20px; text-align:center; color:#667; cursor:pointer; transition:border-color .15s, background .15s; }
+.dropzone:hover, .dropzone.drag { border-color:#1a365d; background:#f0f5fb; color:#1a365d; }
+.dropzone .big { font-size:2rem; margin-bottom:8px; }
+.dropzone .sub { font-size:.8rem; color:#999; margin-top:6px; }
+#fileInput { display:none; }
+.list { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+.item { display:flex; gap:12px; align-items:center; border:1.5px solid #e5e7eb; border-radius:11px; padding:8px 10px; background:#fff; }
+.item img { width:84px; height:54px; object-fit:cover; border-radius:7px; flex-shrink:0; background:#eee; }
+.item .meta { flex:1; min-width:0; }
+.item .fn { font-size:.8rem; color:#888; font-family:monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.item .cap { width:100%; margin-top:5px; padding:6px 9px; font-size:.85rem; border:1px solid #e0e4e8; border-radius:6px; }
+.item .ord { display:flex; flex-direction:column; gap:3px; }
+.item .ord button { width:26px; height:22px; border:1px solid #d0d5dd; background:#fff; border-radius:5px; cursor:pointer; font-size:.7rem; line-height:1; }
+.empty { text-align:center; color:#999; padding:30px; font-size:.9rem; }
+.bar { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1.5px solid #e5e7eb; padding:12px 16px; display:flex; gap:10px; justify-content:center; align-items:center; z-index:50; }
+.bar .cnt { font-size:.82rem; color:#666; margin-right:auto; }
+.hidden { display:none !important; }
+.tokbox { font-size:.78rem; color:#555; background:#f7f9fb; border:1px solid #e5e9ed; border-radius:9px; padding:12px 14px; margin-top:12px; line-height:1.7; }
+.tokbox a { color:#1a365d; font-weight:700; }
+.tokbox code { background:#eef1f4; padding:1px 5px; border-radius:4px; font-size:.92em; }
+.spin { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:sp .7s linear infinite; }
+@keyframes sp { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>📊 상권분석 리포트 관리</h1>
+    <p>여기서 올린 이미지는 영업 페이지에 자동으로 표시됩니다.</p>
+  </div>
+
+  <!-- 로그인 -->
+  <div class="card" id="loginCard">
+    <h2>🔑 로그인</h2>
+    <div class="hint">처음 한 번만 GitHub 접근 토큰을 입력하면 이 브라우저에 저장됩니다. 다음부턴 바로 들어와집니다.</div>
+    <label for="tok">GitHub 접근 토큰</label>
+    <input type="password" id="tok" placeholder="github_pat_... 또는 ghp_...">
+    <div class="row" style="margin-top:12px;">
+      <button class="btn primary" id="loginBtn">로그인</button>
+      <button class="btn ghost hidden" id="logoutBtn">로그아웃</button>
+    </div>
+    <div class="status" id="loginStatus"></div>
+    <div class="tokbox">
+      <strong>토큰 발급 방법</strong> (관리자에게 받았으면 그대로 붙여넣기)<br>
+      1. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">GitHub 토큰 발급 페이지</a> 접속<br>
+      2. <strong>Repository access</strong> → <code>beancraftkr/beancraftkr.github.io</code> 만 선택<br>
+      3. <strong>Permissions → Contents → Read and write</strong> 체크<br>
+      4. 생성된 <code>github_pat_...</code> 문자열을 위에 붙여넣기
+    </div>
+  </div>
+
+  <!-- 업로드 -->
+  <div class="card hidden" id="uploadCard">
+    <h2>⬆️ 사진 올리기</h2>
+    <div class="hint">사진을 끌어다 놓거나 클릭해서 선택하세요. 여러 장 한 번에 가능합니다. (JPG/PNG, 한 장 5MB 이하 권장)</div>
+    <div class="dropzone" id="dropzone">
+      <div class="big">🖼️</div>
+      <div><strong>사진을 여기로 끌어다 놓기</strong></div>
+      <div class="sub">또는 클릭해서 파일 선택</div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" multiple>
+    <div class="status" id="upStatus"></div>
+  </div>
+
+  <!-- 목록 관리 -->
+  <div class="card hidden" id="listCard">
+    <h2>🗂️ 등록된 리포트 <span id="listCnt" style="font-weight:600;color:#888;font-size:.85rem;"></span></h2>
+    <div class="hint">순서 변경(▲▼), 설명 입력, 삭제 후 아래 <strong>변경사항 저장</strong>을 눌러야 사이트에 반영됩니다.</div>
+    <div class="list" id="list"><div class="empty">불러오는 중…</div></div>
+    <div class="status" id="saveStatus"></div>
+  </div>
+</div>
+
+<div class="bar hidden" id="bar">
+  <span class="cnt" id="barCnt"></span>
+  <a class="btn ghost" href="../" target="_blank">영업 페이지 미리보기 ↗</a>
+  <button class="btn primary" id="saveBtn">변경사항 저장</button>
+</div>
+
+<script>
+// ===== 설정 =====
+var OWNER='beancraftkr', REPO='beancraftkr.github.io', BRANCH='main';
+var GALLERY_PATH='sales/gallery';
+var MANIFEST_PATH=GALLERY_PATH+'/manifest.json';
+var API='https://api.github.com/repos/'+OWNER+'/'+REPO;
+var TOKEN_KEY='bc_admin_token';
+
+var token='';
+var manifest={ title:'빈크래프트 상권분석 리포트', subtitle:'', updated:'', images:[] };
+var manifestSha=null;
+var dirty=false;
+
+function $(id){ return document.getElementById(id); }
+function show(el,type,msg){ el.className='status show '+type; el.textContent=msg; }
+function hideStatus(el){ el.className='status'; }
+function ghHeaders(){ return { 'Authorization':'Bearer '+token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' }; }
+function b64encodeUtf8(str){ return btoa(unescape(encodeURIComponent(str))); }
+function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+// ===== 로그인 =====
+function tryLogin(t){
+  show($('loginStatus'),'info','확인 중…');
+  token=t;
+  fetch(API, { headers:ghHeaders() })
+    .then(function(r){
+      if(r.status===200) return r.json();
+      if(r.status===401) throw new Error('토큰이 올바르지 않습니다. 다시 확인해주세요.');
+      if(r.status===403) throw new Error('이 저장소에 대한 권한이 없습니다. 토큰 권한(Contents: Read and write)을 확인하세요.');
+      if(r.status===404) throw new Error('저장소를 찾을 수 없거나 접근 권한이 없습니다.');
+      throw new Error('오류 (HTTP '+r.status+')');
+    })
+    .then(function(){
+      localStorage.setItem(TOKEN_KEY,t);
+      show($('loginStatus'),'ok','✓ 로그인 성공');
+      $('logoutBtn').classList.remove('hidden');
+      $('uploadCard').classList.remove('hidden');
+      $('listCard').classList.remove('hidden');
+      $('bar').classList.remove('hidden');
+      loadManifest();
+    })
+    .catch(function(e){ token=''; show($('loginStatus'),'err','✗ '+e.message); });
+}
+$('loginBtn').onclick=function(){ var t=$('tok').value.trim(); if(!t){ show($('loginStatus'),'err','토큰을 입력하세요.'); return; } tryLogin(t); };
+$('tok').addEventListener('keydown',function(e){ if(e.key==='Enter')$('loginBtn').click(); });
+$('logoutBtn').onclick=function(){ localStorage.removeItem(TOKEN_KEY); location.reload(); };
+
+// ===== manifest 로드 =====
+function loadManifest(){
+  fetch(API+'/contents/'+MANIFEST_PATH+'?ref='+BRANCH+'&t='+Date.now(), { headers:ghHeaders() })
+    .then(function(r){
+      if(r.status===404){ manifestSha=null; return null; }
+      if(!r.ok) throw new Error('manifest 로드 실패 ('+r.status+')');
+      return r.json();
+    })
+    .then(function(data){
+      if(data){ manifestSha=data.sha; manifest=JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))))); }
+      if(!manifest.images) manifest.images=[];
+      renderList(); dirty=false; updateBar();
+    })
+    .catch(function(e){ show($('saveStatus'),'err',e.message); });
+}
+
+// ===== 목록 렌더 =====
+function renderList(){
+  var l=$('list');
+  $('listCnt').textContent='('+manifest.images.length+'장)';
+  if(!manifest.images.length){ l.innerHTML='<div class="empty">아직 등록된 리포트가 없습니다. 위에서 사진을 올려보세요.</div>'; return; }
+  l.innerHTML='';
+  manifest.images.forEach(function(it,i){
+    var div=document.createElement('div'); div.className='item';
+    div.innerHTML=
+      '<div class="ord"><button data-up="'+i+'">▲</button><button data-down="'+i+'">▼</button></div>'+
+      '<img src="../gallery/'+it.file+'?t='+Date.now()+'" alt="">'+
+      '<div class="meta"><div class="fn">'+it.file+'</div>'+
+      '<input class="cap" data-cap="'+i+'" placeholder="설명 (선택) 예: 반경 500m 매장 구성" value="'+(it.caption||'').replace(/"/g,'&quot;')+'"></div>'+
+      '<button class="btn danger" data-del="'+i+'">삭제</button>';
+    l.appendChild(div);
+  });
+  l.querySelectorAll('[data-up]').forEach(function(b){ b.onclick=function(){ var i=+b.dataset.up; if(i>0){ var t=manifest.images[i]; manifest.images[i]=manifest.images[i-1]; manifest.images[i-1]=t; dirty=true; renderList(); updateBar(); } }; });
+  l.querySelectorAll('[data-down]').forEach(function(b){ b.onclick=function(){ var i=+b.dataset.down; if(i<manifest.images.length-1){ var t=manifest.images[i]; manifest.images[i]=manifest.images[i+1]; manifest.images[i+1]=t; dirty=true; renderList(); updateBar(); } }; });
+  l.querySelectorAll('[data-del]').forEach(function(b){ b.onclick=function(){ var i=+b.dataset.del; if(confirm('이 사진을 목록에서 빼시겠어요?\n('+manifest.images[i].file+')')){ manifest.images.splice(i,1); dirty=true; renderList(); updateBar(); } }; });
+  l.querySelectorAll('[data-cap]').forEach(function(inp){ inp.oninput=function(){ manifest.images[+inp.dataset.cap].caption=inp.value; dirty=true; updateBar(); }; });
+}
+function updateBar(){ $('barCnt').textContent=dirty?'● 저장 안 된 변경사항 있음':'모든 변경사항 저장됨'; $('saveBtn').disabled=!dirty; }
+
+// ===== 업로드 =====
+var dz=$('dropzone'), fi=$('fileInput');
+dz.onclick=function(){ fi.click(); };
+dz.ondragover=function(e){ e.preventDefault(); dz.classList.add('drag'); };
+dz.ondragleave=function(){ dz.classList.remove('drag'); };
+dz.ondrop=function(e){ e.preventDefault(); dz.classList.remove('drag'); handleFiles(e.dataTransfer.files); };
+fi.onchange=function(){ handleFiles(fi.files); fi.value=''; };
+
+function sanitizeName(name){
+  var ext=(name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+  if(['jpg','jpeg','png','webp','gif'].indexOf(ext)<0) ext='jpg';
+  var base='report-'+Date.now()+'-'+Math.floor(Math.random()*9000+1000);
+  return base+'.'+ext;
+}
+function fileToB64(file){ return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){ res(r.result.split(',')[1]); }; r.onerror=rej; r.readAsDataURL(file); }); }
+
+function handleFiles(files){
+  var arr=Array.prototype.slice.call(files).filter(function(f){ return f.type.indexOf('image/')===0; });
+  if(!arr.length){ show($('upStatus'),'err','이미지 파일만 올릴 수 있습니다.'); return; }
+  var big=arr.filter(function(f){ return f.size>5*1024*1024; });
+  if(big.length) show($('upStatus'),'info','※ 5MB 넘는 파일이 있습니다. 업로드는 되지만 느릴 수 있어요.');
+  uploadSeq(arr,0);
+}
+function uploadSeq(arr,i){
+  if(i>=arr.length){ show($('upStatus'),'ok','✓ '+arr.length+'장 추가됨. 아래에서 순서/설명 확인 후 [변경사항 저장]을 누르세요.'); renderList(); updateBar(); return; }
+  var f=arr[i];
+  show($('upStatus'),'info','업로드 중… ('+(i+1)+'/'+arr.length+') '+f.name);
+  var fname=sanitizeName(f.name);
+  fileToB64(f).then(function(b64){
+    return fetch(API+'/contents/'+GALLERY_PATH+'/'+fname,{
+      method:'PUT', headers:ghHeaders(),
+      body:JSON.stringify({ message:'admin: add '+fname, content:b64, branch:BRANCH })
+    });
+  }).then(function(r){
+    if(!r.ok) return r.json().then(function(j){ throw new Error(j.message||('HTTP '+r.status)); });
+    manifest.images.push({ file:fname, caption:'' }); dirty=true;
+    uploadSeq(arr,i+1);
+  }).catch(function(e){ show($('upStatus'),'err','✗ 업로드 실패: '+e.message); });
+}
+
+// ===== 저장 (manifest 커밋) =====
+$('saveBtn').onclick=function(){
+  if(!dirty) return;
+  $('saveBtn').disabled=true; show($('saveStatus'),'info','저장 중…');
+  manifest.updated=todayStr();
+  var body={ message:'admin: update manifest', content:b64encodeUtf8(JSON.stringify(manifest,null,2)), branch:BRANCH };
+  if(manifestSha) body.sha=manifestSha;
+  fetch(API+'/contents/'+MANIFEST_PATH,{ method:'PUT', headers:ghHeaders(), body:JSON.stringify(body) })
+    .then(function(r){ if(!r.ok) return r.json().then(function(j){ throw new Error(j.message||('HTTP '+r.status)); }); return r.json(); })
+    .then(function(data){ manifestSha=data.content.sha; dirty=false; updateBar(); show($('saveStatus'),'ok','✓ 저장 완료! 1분 내 영업 페이지에 반영됩니다.'); })
+    .catch(function(e){ show($('saveStatus'),'err','✗ 저장 실패: '+e.message); updateBar(); });
+};
+
+window.addEventListener('beforeunload',function(e){ if(dirty){ e.preventDefault(); e.returnValue=''; } });
+
+// ===== 자동 로그인 =====
+(function(){ var t=localStorage.getItem(TOKEN_KEY); if(t){ $('tok').value=t; tryLogin(t); } })();
+</script>
+</body>
+</html>
