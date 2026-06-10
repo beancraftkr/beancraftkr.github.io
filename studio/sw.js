@@ -1,13 +1,12 @@
-// 빈크래프트 마케팅 작업실 — 최소 서비스워커 (설치 가능 + 오프라인 셸)
-var CACHE='bc-studio-v2';
+// 빈크래프트 마케팅 — 항상 최신(네트워크 전용). 설치 가능 유지 + 캐시 미사용으로 옛 버전 고착 방지
 self.addEventListener('install',function(e){self.skipWaiting();});
-self.addEventListener('activate',function(e){e.waitUntil(self.clients.claim());});
-self.addEventListener('fetch',function(e){
-  // 네트워크 우선 (항상 최신), 실패 시 캐시
-  e.respondWith(
-    fetch(e.request).then(function(r){
-      try{ if(e.request.method==='GET'&&r&&r.status===200&&e.request.url.indexOf('http')===0){var c=r.clone();caches.open(CACHE).then(function(ch){ch.put(e.request,c);});} }catch(_){}
-      return r;
-    }).catch(function(){ return caches.match(e.request); })
+self.addEventListener('activate',function(e){
+  e.waitUntil(
+    caches.keys().then(function(keys){return Promise.all(keys.map(function(k){return caches.delete(k);}));})
+      .then(function(){return self.clients.claim();})
   );
+});
+self.addEventListener('fetch',function(e){
+  // 항상 네트워크에서 받아옴 (오프라인일 때만 실패) → 항상 최신 코드
+  e.respondWith(fetch(e.request));
 });
