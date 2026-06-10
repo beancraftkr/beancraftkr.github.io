@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>마케팅</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f1b2d">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:#eef1f5;color:#111;-webkit-font-smoothing:antialiased;}
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* 사이드바 */
+.sidebar{width:268px;flex-shrink:0;background:#0f1b2d;color:#cdd7e3;display:flex;flex-direction:column;}
+.sb-top{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sb-top h1{font-size:1.02rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;}
+.sb-top .dot{width:8px;height:8px;border-radius:50%;background:#4a7fbf;}
+.sb-top p{font-size:.74rem;color:#7e90a8;margin-top:4px;}
+.sb-tree{flex:1;overflow-y:auto;padding:10px 8px;}
+.cat{margin-bottom:4px;}
+.cat-row{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;cursor:pointer;font-weight:700;font-size:.92rem;color:#e5ecf4;user-select:none;}
+.cat-row:hover{background:rgba(255,255,255,.06);}
+.cat-row .caret{font-size:.7rem;transition:transform .15s;color:#8fa3bd;}
+.cat.open .cat-row .caret{transform:rotate(90deg);}
+.cat-row .folder{font-size:1rem;}
+.cat-items{display:none;padding:2px 0 6px 14px;}
+.cat.open .cat-items{display:block;}
+.item-row{display:flex;align-items:center;gap:8px;padding:7px 10px 7px 14px;border-radius:7px;cursor:pointer;font-size:.86rem;color:#aebccf;border-left:2px solid transparent;}
+.item-row:hover{background:rgba(255,255,255,.05);color:#fff;}
+.item-row.active{background:rgba(74,127,191,.18);color:#fff;border-left-color:#4a7fbf;}
+.item-row .ic{font-size:.8rem;opacity:.7;}
+.item-new{display:flex;align-items:center;gap:6px;padding:7px 10px 7px 14px;border-radius:7px;cursor:pointer;font-size:.82rem;color:#6f83a0;}
+.item-new:hover{color:#9db4d4;}
+.sb-bottom{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);font-size:.76rem;color:#7e90a8;display:flex;justify-content:space-between;align-items:center;}
+.sb-bottom a{color:#9db4d4;cursor:pointer;}
+
+/* 메인 */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{height:58px;flex-shrink:0;background:#fff;border-bottom:1px solid #e2e7ee;display:flex;align-items:center;justify-content:space-between;padding:0 20px;gap:12px;}
+.crumb{font-size:.9rem;color:#445;font-weight:600;display:flex;align-items:center;gap:8px;min-width:0;}
+.crumb .sep{color:#aab4c0;}
+.crumb .cur{color:#111;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:9px;font-size:.88rem;font-weight:800;border:0;cursor:pointer;font-family:inherit;transition:transform .12s,background .15s,opacity .15s;}
+.btn:hover{transform:translateY(-1px);}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.btn.deploy{background:#1a365d;color:#fff;}
+.btn.deploy.dirty{background:#c2410c;}
+.btn.ghost{background:#fff;color:#1a365d;border:1.5px solid #1a365d;}
+.btn.sm{padding:7px 13px;font-size:.8rem;}
+.btn.danger{background:#fff;color:#c0392b;border:1.5px solid #e3b3ad;}
+.stage{flex:1;display:flex;min-height:0;}
+.controls{width:340px;flex-shrink:0;background:#fff;border-right:1px solid #e2e7ee;overflow-y:auto;padding:20px;}
+.preview{flex:1;background:#dfe4ea;min-width:0;position:relative;display:flex;flex-direction:column;}
+.preview .pv-bar{height:34px;background:#cdd5df;display:flex;align-items:center;padding:0 12px;gap:6px;font-size:.75rem;color:#5a6b80;flex-shrink:0;}
+.preview .pv-bar .dotr{width:9px;height:9px;border-radius:50%;background:#b3bdc9;}
+.preview iframe{flex:1;width:100%;border:0;background:#fff;}
+.preview .pv-empty{flex:1;display:flex;align-items:center;justify-content:center;color:#8a97a6;font-size:.95rem;text-align:center;padding:40px;}
+
+label{display:block;font-size:.78rem;font-weight:700;color:#556;margin-bottom:6px;margin-top:16px;}
+label:first-child{margin-top:0;}
+input[type=text],textarea{width:100%;padding:10px 12px;border:1.5px solid #d3d9e0;border-radius:8px;font-size:.9rem;font-family:inherit;outline:none;}
+textarea{resize:vertical;min-height:64px;}
+input:focus,textarea:focus{border-color:#1a365d;box-shadow:0 0 0 3px rgba(26,54,93,.1);}
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#7a8696;text-align:center;padding:40px;}
+.welcome .big{font-size:3rem;margin-bottom:14px;}
+.welcome h2{font-size:1.15rem;color:#445;font-weight:800;margin-bottom:8px;}
+.welcome p{font-size:.9rem;line-height:1.7;}
+
+/* 드롭존 */
+.dropzone{border:2px dashed #b8c2cc;border-radius:12px;padding:28px 16px;text-align:center;color:#667;cursor:pointer;transition:.15s;}
+.dropzone:hover,.dropzone.drag{border-color:#1a365d;background:#f0f5fb;color:#1a365d;}
+.dropzone .big{font-size:1.7rem;margin-bottom:6px;}
+.dropzone .sub{font-size:.76rem;color:#9aa6b3;margin-top:5px;}
+#fileInput{display:none;}
+.flist{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+.fitem{display:flex;gap:9px;align-items:center;border:1.5px solid #e5e7eb;border-radius:9px;padding:6px 8px;}
+.fitem img{width:60px;height:40px;object-fit:cover;border-radius:5px;flex-shrink:0;background:#eee;}
+.fitem .cap{flex:1;min-width:0;padding:5px 8px;font-size:.8rem;border:1px solid #e0e4e8;border-radius:5px;}
+.fitem .x{border:0;background:none;color:#c0392b;cursor:pointer;font-size:.95rem;padding:4px 6px;}
+.fitem .ord{display:flex;flex-direction:column;gap:3px;flex-shrink:0;}
+.fitem .ord button{width:24px;height:20px;border:1px solid #d0d5dd;background:#fff;border-radius:5px;cursor:pointer;font-size:.65rem;line-height:1;}
+.fitem .badge-new{font-size:.62rem;font-weight:800;color:#c2410c;border:1px solid #e8b48f;border-radius:4px;padding:0 5px;flex-shrink:0;}
+
+/* 로그인 모달 */
+.login{position:fixed;inset:0;background:rgba(15,27,45,.96);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
+.login .box{background:#fff;border-radius:16px;padding:30px;max-width:440px;width:100%;}
+.login h2{font-size:1.2rem;font-weight:800;color:#1a365d;margin-bottom:6px;}
+.login p{font-size:.84rem;color:#667;margin-bottom:16px;line-height:1.6;}
+.tokbox{font-size:.76rem;color:#556;background:#f7f9fb;border:1px solid #e5e9ed;border-radius:9px;padding:12px 14px;margin-top:14px;line-height:1.7;}
+.tokbox a{color:#1a365d;font-weight:700;}.tokbox code{background:#eef1f4;padding:1px 5px;border-radius:4px;}
+.status{font-size:.84rem;padding:9px 13px;border-radius:8px;margin-top:12px;display:none;}
+.status.show{display:block;}
+.status.ok{background:#eaf3ea;color:#2d6a2d;}.status.err{background:#fdecea;color:#c0392b;}.status.info{background:#eaf0f7;color:#1a365d;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.overlay{position:fixed;inset:0;background:rgba(15,27,45,.55);z-index:90;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:#fff;}
+.overlay.show{display:flex;}
+.overlay .sp2{width:42px;height:42px;border:4px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;}
+.overlay .msg{font-size:1rem;font-weight:700;}
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- 사이드바 -->
+  <aside class="sidebar">
+    <div class="sb-top">
+      <h1><span class="dot"></span>빈크래프트 작업실</h1>
+      <p>카테고리 → 항목 선택 → 편집 → 배포</p>
+    </div>
+    <div class="sb-tree" id="tree"></div>
+    <div class="sb-bottom">
+      <span id="loginState">로그인 안 됨</span>
+      <a id="logoutLink" class="hidden">로그아웃</a>
+    </div>
+  </aside>
+
+  <!-- 메인 -->
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+        <button class="btn ghost sm hidden" id="backBtn">← 뒤로</button>
+        <div class="crumb" id="crumb"><span>작업실</span></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <a class="btn ghost sm" href="../" target="_blank">공개 페이지 ↗</a>
+        <button class="btn deploy" id="deployBtn" disabled>배포</button>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <div class="welcome" id="welcome">
+        <div class="big">🗂️</div>
+        <h2>왼쪽에서 카테고리를 펼쳐 항목을 선택하세요</h2>
+        <p>카드뉴스는 주제만 입력하면 새 페이지가 만들어지고,<br>상권분석은 파일을 첨부하면 폼에 적용됩니다.<br>편집 후 우측 상단 <b>배포</b>를 누르면 고객에게 공개됩니다.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 로그인 -->
+<div class="login" id="login">
+  <div class="box">
+    <h2>🔑 빈크래프트 마케팅 작업실</h2>
+    <p>영업관리 앱과 <strong>같은 계정</strong>으로 로그인하세요. (팀 전용)</p>
+    <input type="email" id="email" placeholder="이메일" autocomplete="username" style="margin-bottom:10px;">
+    <input type="password" id="pw" placeholder="비밀번호" autocomplete="current-password">
+    <button class="btn deploy" id="loginBtn" style="margin-top:12px;width:100%;justify-content:center;">로그인</button>
+    <div class="status" id="loginStatus"></div>
+    <div class="tokbox">
+      영업관리 앱에서 쓰던 이메일·비밀번호를 그대로 입력하면 됩니다.<br>
+      계정이 없으면 관리자(사장님)에게 요청하세요. 외부인은 접근할 수 없습니다.
+    </div>
+  </div>
+</div>
+
+<!-- 배포 로딩 -->
+<div class="overlay" id="overlay"><div class="sp2"></div><div class="msg" id="overlayMsg">배포 중…</div></div>
+
+<script>
+/* ===== Firebase (영업관리 앱과 동일 프로젝트 = 같은 로그인) ===== */
+var FB={apiKey:"AIzaSyBRrxkXnyGd3HKXFKEUB2o15sY8U2N2Mic",authDomain:"beancraft-sales-team.firebaseapp.com",databaseURL:"https://beancraft-sales-team-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"beancraft-sales-team",storageBucket:"beancraft-sales-team.firebasestorage.app",messagingSenderId:"803745881200",appId:"1:803745881200:web:fb430162f761e3ecdba8b5"};
+var DATA_REF='marketing/data';        // 영업 데이터와 분리된 마케팅 전용 경로
+var PUB_REF='marketing/published';    // 고객 공개용 스냅샷
+var STORAGE_DIR='marketing';
+var DEMO=/[?&]demo=1/.test(location.search);
+var fbAuth=null,fbDb=null,fbStore=null;
+if(!DEMO){var app=firebase.initializeApp(FB);fbAuth=firebase.auth();fbDb=firebase.database();fbStore=firebase.storage();}
+
+var data={categories:[]},sel=null,dirty=false,curUser=null;
+function $(id){return document.getElementById(id);}
+function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function uid(p){return p+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function setDirty(v){dirty=v;var b=$('deployBtn');b.disabled=!v;b.classList.toggle('dirty',v);b.textContent=v?'● 배포하기':'배포';if(v)scheduleDraftSave();}
+function defaultCategories(){return [{id:'cardnews',name:'카드뉴스',items:[]},{id:'market',name:'상권분석',items:[]}];}
+
+/* ===== 작업 자동 저장 (IndexedDB · 새로고침/재접속해도 유지, 배포 전까지 보관) ===== */
+var IDB_DB='bc_studio_drafts',IDB_STORE='kv';
+function idbOpen(){return new Promise(function(res,rej){var r=indexedDB.open(IDB_DB,1);r.onupgradeneeded=function(){r.result.createObjectStore(IDB_STORE);};r.onsuccess=function(){res(r.result);};r.onerror=function(){rej(r.error);};});}
+function idbSet(k,v){return idbOpen().then(function(db){return new Promise(function(res,rej){var tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).put(v,k);tx.oncomplete=function(){res();};tx.onerror=function(){rej(tx.error);};});});}
+function idbGet(k){return idbOpen().then(function(db){return new Promise(function(res,rej){var tx=db.transaction(IDB_STORE,'readonly');var rq=tx.objectStore(IDB_STORE).get(k);rq.onsuccess=function(){res(rq.result);};rq.onerror=function(){rej(rq.error);};});});}
+function idbDel(k){return idbOpen().then(function(db){return new Promise(function(res){var tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).delete(k);tx.oncomplete=function(){res();};});}).catch(function(){});}
+function draftKey(){return 'draft_'+(DEMO?'demo':(curUser&&curUser.uid?curUser.uid:'anon'));}
+function serializeData(){
+  return {categories:(data.categories||[]).map(function(c){return {id:c.id,name:c.name,items:(c.items||[]).map(function(it){
+    var o={};for(var k in it){if(!it.hasOwnProperty(k))continue;if(k==='_cards'){o._cards=(it._cards||[]).map(function(a){return {title:a.title||'',url:a.url,revealed:!!a.revealed,committed:!!a.committed};});}else if(k.charAt(0)!=='_'){o[k]=it[k];}}
+    return o;})};})};
+}
+var _saveTimer=null;
+function scheduleDraftSave(){clearTimeout(_saveTimer);_saveTimer=setTimeout(function(){try{idbSet(draftKey(),{savedAt:Date.now(),data:serializeData()});}catch(e){}},600);}
+function restoreDraft(){
+  return idbGet(draftKey()).then(function(d){
+    if(!d||!d.data||!d.data.categories)return false;
+    var fbUpdated=(data&&data.updatedAt)||0;             // 파이어베이스가 더 최신(누가 배포)이면 로컬초안 폐기
+    if(fbUpdated&&d.savedAt&&fbUpdated>=d.savedAt){idbDel(draftKey());return false;}
+    data=d.data;if(!data.categories)data.categories=defaultCategories();
+    return true;
+  }).catch(function(){return false;});
+}
+
+/* ===== 로그인 (영업앱과 동일 Firebase 계정) ===== */
+function login(email,pw){
+  $('loginStatus').className='status show info';$('loginStatus').textContent='로그인 중…';
+  fbAuth.signInWithEmailAndPassword(email,pw).catch(function(e){
+    var c=e.code||'';
+    var m=(c.indexOf('invalid-credential')>=0||c.indexOf('wrong-password')>=0||c.indexOf('user-not-found')>=0)?'이메일 또는 비밀번호가 올바르지 않습니다.':(c.indexOf('invalid-email')>=0?'이메일 형식이 올바르지 않습니다.':(c.indexOf('too-many-requests')>=0?'시도가 많아 잠시 후 다시 해주세요.':e.message));
+    $('loginStatus').className='status show err';$('loginStatus').textContent='✗ '+m;
+  });
+}
+function afterLogin(){
+  $('login').classList.add('hidden');
+  $('loginState').textContent=curUser?('로그인됨 · '+(curUser.email||'')):'데모 미리보기';
+  $('logoutLink').classList.remove('hidden');
+  $('logoutLink').onclick=function(){if(confirm('로그아웃 할까요?')){if(fbAuth)fbAuth.signOut().then(function(){location.reload();});else location.reload();}};
+}
+$('loginBtn').onclick=function(){var e=$('email').value.trim(),p=$('pw').value;if(!e||!p){$('loginStatus').className='status show err';$('loginStatus').textContent='이메일과 비밀번호를 입력하세요.';return;}login(e,p);};
+$('pw').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('loginBtn').click();});
+$('email').addEventListener('keydown',function(ev){if(ev.key==='Enter')$('pw').focus();});
+
+/* ===== 데이터 (Firebase RTDB · 마케팅 전용 경로) ===== */
+function loadData(){
+  fbDb.ref(DATA_REF).once('value').then(function(snap){
+    var d=snap.val();
+    data=(d&&d.categories)?d:{categories:defaultCategories()};
+    if(!data.categories)data.categories=defaultCategories();
+    restoreDraft().then(function(){renderTree();});
+  }).catch(function(e){alert('데이터 로드 실패: '+e.message);});
+}
+function loadDemo(){
+  data={categories:[
+    {id:'cardnews',name:'카드뉴스',items:[
+      {id:'late',type:'page',title:'지각, 보상이 답일까?',page:'marketing/late/'},
+      {id:'music',type:'page',title:'매장 음악, 멜론 결제하면 끝일까?',page:'marketing/music-copyright/'}
+    ]},
+    {id:'market',name:'상권분석',items:[
+      {id:'market-analysis',type:'market',title:'강남역 상권분석',cards:[]}
+    ]}
+  ]};
+  restoreDraft().then(function(){renderTree();openCat('cardnews');});
+}
+
+/* ===== 사이드바 트리 ===== */
+var openCats={};
+function renderTree(){
+  var tr=$('tree');tr.innerHTML='';
+  data.categories.forEach(function(c){
+    var cat=document.createElement('div');cat.className='cat'+(openCats[c.id]?' open':'');
+    var rows=c.items.map(function(it){
+      var ic=(it.type==='gallery'||it.type==='market')?'📊':'📄';
+      return '<div class="item-row" data-cat="'+c.id+'" data-item="'+it.id+'"><span class="ic">'+ic+'</span><span>'+esc(it.title||'(제목없음)')+'</span></div>';
+    }).join('');
+    cat.innerHTML='<div class="cat-row" data-cat="'+c.id+'"><span class="caret">▶</span><span class="folder">📁</span><span>'+esc(c.name)+'</span></div>'+
+      '<div class="cat-items">'+rows+'<div class="item-new" data-newcat="'+c.id+'">＋ 새로 만들기</div></div>';
+    tr.appendChild(cat);
+  });
+  tr.querySelectorAll('.cat-row').forEach(function(r){r.onclick=function(){toggleCat(r.dataset.cat);};});
+  tr.querySelectorAll('.item-row').forEach(function(r){r.onclick=function(){selectItem(r.dataset.cat,r.dataset.item);};});
+  tr.querySelectorAll('[data-newcat]').forEach(function(r){r.onclick=function(){newItem(r.dataset.newcat);};});
+  highlightActive();
+}
+function toggleCat(id){openCats[id]=!openCats[id];renderTree();}
+function openCat(id){openCats[id]=true;renderTree();}
+function highlightActive(){document.querySelectorAll('.item-row').forEach(function(r){r.classList.toggle('active',sel&&r.dataset.cat===sel.cat&&r.dataset.item===sel.item);});}
+
+function findCat(id){return data.categories.filter(function(c){return c.id===id;})[0];}
+function findItem(cat,item){var c=findCat(cat);return c?c.items.filter(function(x){return x.id===item;})[0]:null;}
+
+/* ===== 새 항목 ===== */
+function newItem(catId){
+  openCat(catId);
+  if(catId==='cardnews'){
+    var topic=prompt('새 카드뉴스 주제를 입력하세요\n예: 배달앱 수수료, 어떻게 줄일까?','');
+    if(topic===null)return;topic=topic.trim();if(!topic)return;
+    var id=uid('c');
+    var it={id:id,type:'card',title:topic,subtitle:'',intro:''};
+    findCat('cardnews').items.push(it);setDirty(true);renderTree();selectItem('cardnews',id);
+  }else{
+    var name=prompt('새 상권분석 이름을 입력하세요\n예: 홍대입구역 상권분석','');
+    if(name===null)return;name=name.trim();if(!name)return;
+    var gid=uid('m');
+    var git={id:gid,type:'market',title:name,cards:[]};
+    findCat('market').items.push(git);setDirty(true);renderTree();selectItem('market',gid);
+  }
+}
+
+/* ===== 항목 선택 → 작업대 ===== */
+function selectItem(cat,item){
+  sel={cat:cat,item:item};highlightActive();
+  var c=findCat(cat),it=findItem(cat,item);
+  var w=$('welcome');if(w)w.classList.add('hidden');
+  $('backBtn').classList.remove('hidden');
+  $('crumb').innerHTML='<span>'+esc(c.name)+'</span><span class="sep">›</span><span class="cur">'+esc(it.title||'')+'</span>';
+  if(cat==='cardnews')renderCardWork(it);else renderMarketWork(it);
+}
+function goBack(){ sel=null; highlightActive(); $('backBtn').classList.add('hidden'); clearStage(); }
+$('backBtn').onclick=goBack;
+
+/* ----- 카드뉴스 작업대 ----- */
+function renderCardWork(it){
+  var isPage=(it.type==='page');  // 기존 가이드(외부 링크 페이지) vs 새 카드뉴스(데이터로 렌더)
+  var ctrl='<label>카드뉴스 제목</label><input type="text" id="cTitle" value="'+esc(it.title)+'"'+(isPage?' disabled':'')+'>'+
+    (isPage?'':'<label>부제 (선택)</label><input type="text" id="cSub" value="'+esc(it.subtitle||'')+'">'+
+    '<label>도입 문구 (선택)</label><textarea id="cIntro">'+esc(it.intro||'')+'</textarea>')+
+    (isPage?'<div class="status show ok" style="margin-top:14px;">기존 가이드 페이지입니다. 미리보기는 실제 페이지입니다.</div>':
+      '<div class="status show info" style="margin-top:14px;">제목·부제·도입을 입력하면 미리보기에 바로 반영됩니다. <b>배포</b>하면 팀·고객에게 공개됩니다.</div>')+
+    '<div style="margin-top:16px;display:flex;gap:8px;"><button class="btn danger sm" id="cDel">항목 삭제</button></div>';
+  var pv=isPage?'<iframe id="pvFrame" sandbox="allow-same-origin" src="/'+String(it.page).replace(/^\/+/,'')+'"></iframe>':'<iframe id="pvFrame"></iframe>';
+  $('stage').innerHTML='<div class="controls">'+ctrl+'</div><div class="preview"><div class="pv-bar"><span class="dotr"></span><span class="dotr"></span><span class="dotr"></span><span style="margin-left:8px;">미리보기</span></div>'+pv+'</div>';
+  if(!isPage){
+    updateDraftPreview(it);
+    $('cTitle').oninput=function(){it.title=this.value;setDirty(true);$('crumb').querySelector('.cur').textContent=this.value;var act=document.querySelector('.item-row.active span:last-child');if(act)act.textContent=this.value;updateDraftPreview(it);};
+    $('cSub').oninput=function(){it.subtitle=this.value;setDirty(true);updateDraftPreview(it);};
+    $('cIntro').oninput=function(){it.intro=this.value;setDirty(true);updateDraftPreview(it);};
+  }
+  $('cDel').onclick=function(){if(confirm('이 카드뉴스를 삭제할까요?')){var c=findCat('cardnews');c.items=c.items.filter(function(x){return x.id!==it.id;});setDirty(true);sel=null;renderTree();clearStage();}};
+}
+function cardStarterHTML(it){
+  return '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+   '<title>'+esc(it.title)+' | BEANCRAFT</title>'+
+   '<meta name="robots" content="noindex, nofollow">'+
+   '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">'+
+   '<style>body{font-family:Pretendard,sans-serif;margin:0;color:#111;background:#fff;}'+
+   '.wm{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:1;}'+
+   '.wm::before{content:\'빈크래프트 BeanCraft · 빈크래프트 BeanCraft · 빈크래프트 BeanCraft · 빈크래프트 BeanCraft · 빈크래프트 BeanCraft\';position:absolute;top:-50%;left:-50%;width:200%;height:200%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:rgba(26,54,93,.06);letter-spacing:6px;white-space:nowrap;transform:rotate(-35deg);}'+
+   '.hd{background:linear-gradient(135deg,#1a365d,#0f2647);color:#fff;padding:48px 24px;text-align:center;position:relative;z-index:2;}'+
+   '.hd .chip{display:inline-block;font-size:.76rem;font-weight:800;letter-spacing:.06em;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:6px 14px;margin-bottom:14px;}'+
+   '.hd h1{font-size:1.8rem;font-weight:800;letter-spacing:-.02em;line-height:1.3;}'+
+   '.hd p{color:#cbd5e0;margin-top:8px;font-size:.98rem;}'+
+   '.bd{max-width:760px;margin:0 auto;padding:30px 20px 80px;position:relative;z-index:2;}'+
+   '.intro{border:1.5px solid #1a365d;border-radius:14px;padding:20px 22px;font-size:1rem;line-height:1.8;color:#222;}'+
+   '.ph{margin-top:24px;border:1.5px dashed #c3ccd6;border-radius:14px;padding:40px 20px;text-align:center;color:#9aa6b3;}'+
+   '.cr{position:fixed;bottom:0;left:0;width:100%;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#a0aec0;padding:10px;text-align:center;font-size:.72rem;z-index:3;}.cr b{color:#4a7fbf;}</style></head>'+
+   '<body><div class="wm"></div><div class="hd"><span class="chip">BEANCRAFT · 카페 컨설팅</span><h1>'+esc(it.title)+'</h1>'+
+   (it.subtitle?'<p>'+esc(it.subtitle)+'</p>':'')+'</div><div class="bd">'+
+   (it.intro?'<div class="intro">'+esc(it.intro).replace(/\n/g,'<br>')+'</div>':'<div class="intro">도입 문구를 입력하면 여기에 표시됩니다.</div>')+
+   '<div class="ph">📝 본문 내용 영역<br><small>(세부 편집 방식은 다음 단계에서 설정)</small></div></div>'+
+   '<div class="cr"><b>© 2026 BEANCRAFT</b> · 무단 복제·재배포 금지</div></body></html>';
+}
+function updateDraftPreview(it){var f=$('pvFrame');if(f)f.srcdoc=cardStarterHTML(it);}
+
+/* ----- 상권분석 작업대 (카드 자동분리 + 공개체크 + 오픈업식 미리보기) ----- */
+function ensureCards(it){if(!it._cards){it._cards=(it.cards||[]).map(function(c){return{title:c.title||'',url:c.file,revealed:!!c.revealed,committed:true};});}return it._cards;}
+function renderMarketWork(it){
+  ensureCards(it);
+  var ctrl='<label>상권분석 제목 (지역명)</label><input type="text" id="mTitle" value="'+esc(it.title)+'">'+
+    '<label>자료 첨부 (합본 1장 → 자동으로 카드 분리)</label>'+
+    '<div class="dropzone" id="dz"><div class="big">📊</div><div><strong>상권분석 이미지를 끌어다 놓기</strong></div><div class="sub">합쳐진 이미지를 넣으면 카드별로 자동 분리됩니다</div></div>'+
+    '<input type="file" id="fileInput" accept="image/*,application/pdf,.pdf">'+
+    '<div id="cardhint" class="status show info" style="margin-top:12px;">공개할 카드를 체크하세요. 체크 안 한 카드는 고객 화면에서 블러 처리됩니다.</div>'+
+    '<div class="flist" id="clist"></div>'+
+    '<div style="margin-top:16px;display:flex;gap:8px;"><button class="btn danger sm" id="mDel">항목 삭제</button></div>';
+  $('stage').innerHTML='<div class="controls">'+ctrl+'</div><div class="preview"><div class="pv-bar"><span class="dotr"></span><span class="dotr"></span><span class="dotr"></span><span style="margin-left:8px;">고객 화면 미리보기</span></div><iframe id="pvFrame"></iframe></div>';
+  renderCards(it);updateMarketPreview(it);
+  $('mTitle').oninput=function(){it.title=this.value;setDirty(true);$('crumb').querySelector('.cur').textContent=this.value;var act=document.querySelector('.item-row.active span:last-child');if(act)act.textContent=this.value;updateMarketPreview(it);};
+  var dz=$('dz'),fi=$('fileInput');
+  dz.onclick=function(){fi.click();};
+  dz.ondragover=function(e){e.preventDefault();dz.classList.add('drag');};
+  dz.ondragleave=function(){dz.classList.remove('drag');};
+  dz.ondrop=function(e){e.preventDefault();dz.classList.remove('drag');onAttach(it,e.dataTransfer.files);};
+  fi.onchange=function(){onAttach(it,fi.files);fi.value='';};
+  $('mDel').onclick=function(){if(confirm('이 상권분석을 삭제할까요?')){var c=findCat('market');c.items=c.items.filter(function(x){return x.id!==it.id;});setDirty(true);sel=null;renderTree();clearStage();}};
+}
+/* 첨부 → 로딩 중 → 자동 분리 */
+async function onAttach(it,files){
+  var arr=[].slice.call(files);var f=arr[0];if(!f)return;
+  showOverlay('로딩 중…');
+  try{
+    var imgs=[];
+    if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){
+      if(!window.pdfjsLib)throw new Error('PDF 모듈 로드 실패');
+      var buf=await f.arrayBuffer();var pdf=await pdfjsLib.getDocument({data:buf}).promise;
+      for(var n=1;n<=pdf.numPages;n++){var pg=await pdf.getPage(n);var vp=pg.getViewport({scale:2});var cc=document.createElement('canvas');cc.width=vp.width;cc.height=vp.height;await pg.render({canvasContext:cc.getContext('2d'),viewport:vp}).promise;imgs.push(cc);}
+    }else if(f.type.indexOf('image/')===0){
+      imgs.push(await fileToCanvas(f));
+    }else{ hideOverlay();alert('이미지 또는 PDF만 첨부 가능합니다.');return; }
+    var cards=[];
+    for(var k=0;k<imgs.length;k++){ cards=cards.concat(splitCards(imgs[k])); }
+    ensureCards(it);
+    cards.forEach(function(c,i){ it._cards.push({title:'카드 '+(it._cards.length+1),url:c.url,blob:c.blob,revealed:false,committed:false}); });
+    setDirty(true);renderCards(it);updateMarketPreview(it);
+  }catch(e){ alert('처리 실패: '+(e&&e.message||e)); }
+  hideOverlay();
+}
+function fileToCanvas(file){return new Promise(function(res,rej){var u=URL.createObjectURL(file);var im=new Image();im.onload=function(){var cv=document.createElement('canvas');cv.width=im.naturalWidth;cv.height=im.naturalHeight;cv.getContext('2d').drawImage(im,0,0);URL.revokeObjectURL(u);res(cv);};im.onerror=rej;im.src=u;});}
+/* 핵심: 왼쪽 번호배지 띠를 스캔해 카드 경계 검출 → 분할 */
+function splitCards(cv){
+  var W=cv.width,H=cv.height,ctx=cv.getContext('2d');
+  var x0=Math.max(2,Math.round(W*0.035)),x1=Math.round(W*0.05);if(x1<=x0)x1=x0+12;
+  var sw=x1-x0;var d=ctx.getImageData(x0,0,sw,H).data;
+  var bright=new Array(H);
+  for(var y=0;y<H;y++){var cnt=0;for(var x=0;x<sw;x++){var p=(y*sw+x)*4;var lum=0.299*d[p]+0.587*d[p+1]+0.114*d[p+2];if(lum>70)cnt++;}bright[y]=cnt>=2;}
+  var minGap=Math.max(180,Math.round(H*0.017));
+  var tops=[],i=0;
+  while(i<H){if(bright[i]){var j=i;while(j<H&&bright[j])j++;if(j-i>=6){if(!tops.length||i-tops[tops.length-1]>=minGap)tops.push(i);}i=j;}else i++;}
+  if(tops.length<2){ // 배지 못 찾음 → 통째 1장
+    return [{blob:null,url:cv.toDataURL('image/jpeg',0.9),_cv:cv}].map(toBlobCard);
+  }
+  var cuts=[0];for(var t=1;t<tops.length;t++){cuts.push(Math.max(0,tops[t]-8));}cuts.push(H);
+  var out=[];
+  for(var s=0;s<cuts.length-1;s++){
+    var y0=cuts[s],y1=cuts[s+1],sh=y1-y0;if(sh<20)continue;
+    var c2=document.createElement('canvas');c2.width=W;c2.height=sh;
+    c2.getContext('2d').drawImage(cv,0,y0,W,sh,0,0,W,sh);
+    out.push(c2);
+  }
+  return out.map(function(c){return {blob:null,url:c.toDataURL('image/jpeg',0.9),_cv:c};}).map(toBlobCard);
+}
+function toBlobCard(o){return o;} // dataURL 사용(미리보기·저장 겸용)
+function renderCards(it){
+  ensureCards(it);var l=$('clist');var w=it._cards;
+  if(!w.length){l.innerHTML='<div class="status show info" style="margin-top:8px;">아직 카드가 없습니다. 위에 이미지를 넣으면 자동 분리됩니다.</div>';return;}
+  l.innerHTML='';
+  w.forEach(function(a,i){
+    var d=document.createElement('div');d.className='fitem';
+    d.innerHTML='<div class="ord"><button data-up="'+i+'">▲</button><button data-down="'+i+'">▼</button></div>'+
+      '<img src="'+a.url+'">'+
+      '<div class="meta" style="flex:1;min-width:0;"><input class="cap" placeholder="카드 제목" value="'+esc(a.title||'')+'">'+
+      '<label style="display:flex;align-items:center;gap:6px;margin-top:5px;font-size:.8rem;color:#445;cursor:pointer;"><input type="checkbox" '+(a.revealed?'checked':'')+' style="width:auto;"> 공개(체크 안 하면 블러)</label></div>'+
+      '<button class="x">✕</button>';
+    d.querySelector('[data-up]').onclick=function(){if(i>0){var t=w[i];w[i]=w[i-1];w[i-1]=t;setDirty(true);renderCards(it);updateMarketPreview(it);}};
+    d.querySelector('[data-down]').onclick=function(){if(i<w.length-1){var t=w[i];w[i]=w[i+1];w[i+1]=t;setDirty(true);renderCards(it);updateMarketPreview(it);}};
+    d.querySelector('.cap').oninput=function(){a.title=this.value;setDirty(true);updateMarketPreview(it);};
+    d.querySelector('input[type=checkbox]').onchange=function(){a.revealed=this.checked;setDirty(true);updateMarketPreview(it);};
+    d.querySelector('.x').onclick=function(){if(!confirm('이 카드를 뺄까요?'))return;w.splice(i,1);setDirty(true);renderCards(it);updateMarketPreview(it);};
+    l.appendChild(d);
+  });
+}
+/* 오픈업식 고객 화면 미리보기 */
+function updateMarketPreview(it){
+  ensureCards(it);var w=it._cards;
+  var cards=w.map(function(a){
+    var t=esc(a.title||'정보 카드');
+    if(a.revealed){
+      return '<div class="oc"><div class="oct on">'+t+'</div><img class="oi" src="'+a.url+'"></div>';
+    }
+    return '<div class="oc"><div class="oct off">🔒 '+t+'</div><div class="olock"><img class="oi blur" src="'+a.url+'"><div class="ov"><div class="ovmsg">이 정보는 카페 창업자에게만<br>제공되는 서비스입니다</div><a class="ovbtn">무료 상담받기 →</a></div></div></div>';
+  }).join('');
+  if(!w.length)cards='<div style="text-align:center;color:#9aa6b3;padding:60px;">이미지를 넣으면 카드가 여기 표시됩니다.</div>';
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">'+
+   '<style>*{margin:0;box-sizing:border-box}body{font-family:Pretendard,sans-serif;background:#fff;color:#111;}'+
+   '.wm{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:5}.wm::before{content:\'빈크래프트 BeanCraft · 빈크래프트 BeanCraft · 빈크래프트 BeanCraft · 빈크래프트 BeanCraft · 빈크래프트 BeanCraft\';position:absolute;top:-50%;left:-50%;width:200%;height:200%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:rgba(26,54,93,.05);letter-spacing:6px;white-space:nowrap;transform:rotate(-35deg)}'+
+   '.hd{background:linear-gradient(135deg,#1a365d,#0f2647);color:#fff;padding:26px 22px}.hd .area{font-size:1.3rem;font-weight:800}.hd .sub{font-size:.84rem;color:#cbd5e0;margin-top:4px}'+
+   '.bd{max-width:560px;margin:0 auto;padding:18px 16px 40px;position:relative;z-index:6}'+
+   '.purpose{border:1.5px solid #1a365d;border-radius:12px;padding:15px 17px;font-size:.86rem;line-height:1.75;color:#222;margin-bottom:10px}.purpose b{color:#1a365d}'+
+   '.disc{font-size:.74rem;color:#8a93a0;line-height:1.6;margin:0 2px 16px;}'+
+   '.oc{border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:14px;background:#fff}'+
+   '.oct{padding:11px 15px;font-size:.95rem;border-bottom:1px solid #f0f2f4}.oct.on{font-weight:800;color:#111}.oct.off{font-weight:600;color:#9aa6b3}'+
+   '.oi{width:100%;display:block}.oi.blur{filter:blur(11px);transform:scale(1.04)}'+
+   '.olock{position:relative;max-height:220px;overflow:hidden}'+
+   '.ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(20,30,50,.34)}'+
+   '.ovmsg{color:#fff;font-weight:700;font-size:.95rem;text-align:center;line-height:1.5;text-shadow:0 1px 6px rgba(0,0,0,.4)}'+
+   '.ovbtn{background:#fff;color:#1a365d;font-weight:800;font-size:.9rem;padding:10px 20px;border-radius:999px;text-decoration:none}'+
+   '.foot{margin-top:8px;border-top:1px dashed #d3d9e0;padding-top:18px;text-align:center}'+
+   '.foot p{font-size:.85rem;color:#445;line-height:1.7;margin-bottom:14px}.foot .site{color:#1a365d;font-weight:700}'+
+   '.cta{display:inline-block;background:#1a365d;color:#fff;font-weight:800;padding:13px 26px;border-radius:999px;text-decoration:none;font-size:.95rem}</style></head>'+
+   '<body><div class="wm"></div>'+
+   '<div class="hd"><div class="area">'+esc(it.title||'상권분석 리포트')+'</div><div class="sub">빈크래프트 상권분석 리포트</div></div>'+
+   '<div class="bd">'+
+   '<div class="purpose">이 자료는 빈크래프트가 직접 개발한 상권분석 프로그램으로 분석한 실제 데이터입니다. 저희는 <b>상권분석을 파는 회사가 아니라, 매물부터 오픈까지 함께하는 카페 창업 회사</b>예요. 상권분석은 창업을 준비하는 과정의 일부입니다.<br><br>그래서 이 자료도 전체 중 일부만 공개해 두었어요. 정보를 팔려는 게 아니라, 저희가 창업을 도울 때 <b>이런 데이터까지 들여다본다</b>는 걸 보여드리고 싶었습니다. 모든 정보는 카페 창업자를 위해 준비해 두었습니다.</div>'+
+   '<div class="disc">※ 분석 데이터는 실시간으로 수집되지만, 본 자료는 <b>수집된 시점 기준</b> 정보입니다. 전체 분석은 카페 창업 상담 시에만 제공됩니다.</div>'+
+   cards+
+   '<div class="foot"><p>이 외에도 <b>수십 가지 상권 데이터</b>를 분석해 드립니다.<br><span class="site">beancraft.co.kr</span> · 빈크래프트 카페 컨설팅</p><a class="cta">무료 상담 신청하기</a></div>'+
+   '</div></body></html>';
+  var fr=$('pvFrame');if(fr)fr.srcdoc=html;
+}
+
+function clearStage(){$('stage').innerHTML='<div class="welcome" id="welcome"><div class="big">🗂️</div><h2>왼쪽에서 카테고리를 펼쳐 항목을 선택하세요</h2><p>카드뉴스는 주제만 입력하면 새 페이지가 만들어지고,<br>상권분석은 파일을 첨부하면 폼에 적용됩니다.<br>편집 후 우측 상단 <b>배포</b>를 누르면 고객에게 공개됩니다.</p></div>';$('crumb').innerHTML='<span>작업실</span>';var bb=$('backBtn');if(bb)bb.classList.add('hidden');}
+
+/* ===== 배포 ===== */
+$('deployBtn').onclick=function(){if(!dirty)return;deploy();};
+function showOverlay(m){$('overlayMsg').textContent=m;$('overlay').classList.add('show');}
+function hideOverlay(){$('overlay').classList.remove('show');}
+
+async function deploy(){
+  if(DEMO){showOverlay('(데모) 배포 시뮬레이션…');setTimeout(function(){hideOverlay();setDirty(false);alert('데모 모드에서는 실제 배포되지 않습니다.');},1200);return;}
+  try{
+    showOverlay('배포 준비 중…');
+    // 1) 상권분석 카드 → Firebase Storage 업로드 (체크된 공개 여부 포함)
+    for(var ci=0;ci<data.categories.length;ci++){
+      var c=data.categories[ci];
+      for(var ii=0;ii<c.items.length;ii++){
+        var it=c.items[ii];
+        if(it._cards){
+          var newCards=[];
+          for(var wi=0;wi<it._cards.length;wi++){
+            var a=it._cards[wi];
+            if(a.committed){newCards.push({title:a.title||'',file:a.url,revealed:!!a.revealed});}
+            else{
+              showOverlay('카드 올리는 중… ('+(wi+1)+'/'+it._cards.length+')');
+              var fn=uid('card')+'.jpg';
+              var ref=fbStore.ref(STORAGE_DIR+'/'+it.id+'/'+fn);
+              await ref.putString(a.url,'data_url');
+              var url=await ref.getDownloadURL();
+              newCards.push({title:a.title||'',file:url,revealed:!!a.revealed});
+            }
+          }
+          it.cards=newCards;it.type='market';delete it._cards;delete it.files;
+        }
+        if(it.type==='page'&&it._draft){delete it._draft;}
+      }
+    }
+    // 2) 작업 데이터 저장 (팀 전용) + 고객 공개용 스냅샷
+    showOverlay('저장하는 중…');
+    data.updated=today();data.updatedAt=Date.now();
+    var clean=stripT(data);
+    await fbDb.ref(DATA_REF).set(clean);
+    await fbDb.ref(PUB_REF).set(clean);
+    await idbDel(draftKey());            // 배포 완료 → 로컬 임시저장 정리 (이제 Firebase에 영구 보관)
+    hideOverlay();setDirty(false);
+    alert('✅ 배포 완료! 팀·고객 페이지에 반영되었습니다.');
+    renderTree();highlightActive();
+  }catch(e){hideOverlay();alert('배포 실패: '+(e&&e.message||e));}
+}
+function stripT(o){return JSON.parse(JSON.stringify(o,function(k,v){return k.charAt&&k.charAt(0)==='_'?undefined:v;}));}
+function ext(n){var e=(n.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');return['jpg','jpeg','png','webp','gif'].indexOf(e)<0?'jpg':e;}
+
+window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue='';}});
+
+/* ===== 시작 ===== */
+if(DEMO){afterLogin();loadDemo();}
+else{fbAuth.onAuthStateChanged(function(u){if(u){curUser=u;afterLogin();loadData();}else{$('login').classList.remove('hidden');}});}
+</script>
+</body>
+</html>
