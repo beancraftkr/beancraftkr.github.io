@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-modal';
+var BUILD='20260611-btn2';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -673,9 +673,8 @@ function updateMarketPreview(it){
   var cards=arr.join('');
   // 카드 아래 상담 유도(박스 아님): 질문 + 가로 두 버튼(구분선)
   var midcta='<div class="midcta"><div class="ask">준비 중인 카페가 있으신가요?</div>'+
-    '<div class="ctarow"><button class="cta2" type="button" onclick="openConsult(\'find\')">매물 구해주세요</button>'+
-    '<span class="sep">ㅣ</span>'+
-    '<button class="cta2" type="button" onclick="openConsult(\'have\')">매물은 구했어요</button></div></div>';
+    '<div class="ctarow"><button class="cta2 find" type="button" onclick="openConsult(\'find\')">매물 구해주세요</button>'+
+    '<button class="cta2 have" type="button" onclick="openConsult(\'have\')">매물은 구했어요</button></div></div>';
   if(!w.length)cards='<div style="text-align:center;color:#9aa6b3;padding:60px;">이미지를 넣으면 카드가 여기 표시됩니다.</div>';
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">'+
    '<style>*{margin:0;box-sizing:border-box}body{font-family:Pretendard,sans-serif;background:#fff;color:#111;}'+
@@ -689,7 +688,7 @@ function updateMarketPreview(it){
    '.hbtn{display:inline-block;margin-bottom:12px;background:#fff;color:#1a365d;border:1.5px solid #1a365d;font-weight:700;padding:10px 22px;border-radius:999px;text-decoration:none;font-size:.88rem}'+
    '.ask{font-size:.92rem;font-weight:700;color:#1a365d;margin-bottom:10px}'+
    '.midcta{text-align:center;margin:24px 2px 26px}.midcta .ask{font-size:1.05rem;font-weight:800;color:#1a365d;margin-bottom:12px}'+
-   '.ctarow{display:flex;align-items:center;justify-content:center;gap:2px}.cta2{color:#1a365d;font-weight:800;font-size:1rem;text-decoration:none;padding:9px 16px;background:none;border:0;cursor:pointer;font-family:inherit}.sep{color:#c3ccd6;font-weight:400}'+
+   '.ctarow{display:flex;gap:10px;max-width:400px;margin:0 auto}.cta2{flex:1;text-align:center;font-weight:700;font-size:.96rem;padding:13px 12px;border-radius:10px;cursor:pointer;font-family:inherit;text-decoration:none;border:1.5px solid #1a365d}.cta2.find{background:#1a365d;color:#fff}.cta2.have{background:#fff;color:#1a365d}'+
    '.cmodal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}.cmodal.open{display:flex}'+
    '.cbox{background:#fff;border-radius:16px;width:440px;max-width:calc(100vw - 32px);height:800px;max-height:calc(100vh - 56px);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 12px 44px rgba(0,0,0,.35)}'+
    '.chead{background:linear-gradient(135deg,#1a365d,#2b6cb0);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}.chead b{font-size:1rem;font-weight:800}.cclose{background:none;border:0;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px 8px;line-height:1}.cbox iframe{flex:1;width:100%;border:0;background:#fff}'+
