@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-logo-real';
+var BUILD='20260611-uptimeout';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -761,7 +761,16 @@ $('deployBtn').onclick=function(){if(!dirty)return;deploy();};
 function showOverlay(m){$('overlayMsg').textContent=m;$('overlay').classList.add('show');}
 function hideOverlay(){$('overlay').classList.remove('show');}
 
-function uploadDataUrl(itemId,dataUrl){var fn=uid('card')+'.jpg';var ref=fbStore.ref(STORAGE_DIR+'/'+itemId+'/'+fn);return ref.putString(dataUrl,'data_url').then(function(){return ref.getDownloadURL();});}
+function uploadDataUrl(itemId,dataUrl){
+  var fn=uid('card')+'.jpg';var ref=fbStore.ref(STORAGE_DIR+'/'+itemId+'/'+fn);
+  return new Promise(function(resolve,reject){
+    var done=false;
+    var t=setTimeout(function(){if(!done){done=true;reject(new Error('사진 업로드 응답 없음(30초 초과). Firebase 콘솔에서 Storage가 사용설정됐는지 / Storage 규칙이 로그인 사용자 쓰기를 허용하는지 확인하세요.'));}},30000);
+    ref.putString(dataUrl,'data_url').then(function(){return ref.getDownloadURL();})
+      .then(function(url){if(!done){done=true;clearTimeout(t);resolve(url);}})
+      .catch(function(e){if(!done){done=true;clearTimeout(t);reject(new Error('Storage 업로드 실패: '+((e&&e.code)||(e&&e.message)||e)));}});
+  });
+}
 // 가린 카드용: 블러를 이미지에 영구적으로 구워서 dataURL 반환 (원본은 고객에게 전송 안 됨)
 function blurToDataUrl(srcDataUrl){return new Promise(function(res,rej){var im=new Image();im.onload=function(){var w=im.naturalWidth,h=im.naturalHeight;var cv=document.createElement('canvas');cv.width=w;cv.height=h;var x=cv.getContext('2d');var r=Math.max(16,Math.round(w*0.022));x.filter='blur('+r+'px)';x.drawImage(im,0,0,w,h);x.filter='none';x.fillStyle='rgba(15,20,30,0.16)';x.fillRect(0,0,w,h);res(cv.toDataURL('image/jpeg',0.5));};im.onerror=rej;im.src=srcDataUrl;});}
 // 공개 카드용: 1400px로 축소 + 워터마크를 이미지에 영구히 구워 dataURL 반환 → 네트워크탭으로 빼가도 워터마크 저화질본만 나감
