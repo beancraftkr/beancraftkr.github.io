@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-3cat-ocr';
+var BUILD='20260611-3cat-ocr2';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -475,7 +475,7 @@ function renderMarketWork(it){
     '<input type="file" id="fileInput" accept="image/*,application/pdf,.pdf">'+
     '<div id="cardhint" class="status show info" style="margin-top:12px;">공개할 카드를 체크하세요. 체크 안 한 카드는 고객 화면에서 블러 처리됩니다.</div>'+
     '<div class="flist" id="clist"></div>'+
-    '<div style="margin-top:16px;display:flex;gap:8px;"><button class="btn danger sm" id="mDel">항목 삭제</button></div>';
+    '<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn sm" id="mDetect">🔁 카드 제목 다시 인식</button><button class="btn danger sm" id="mDel">항목 삭제</button></div>';
   $('stage').innerHTML='<div class="controls">'+ctrl+'</div><div class="preview"><div class="pv-bar"><span class="dotr"></span><span class="dotr"></span><span class="dotr"></span><span style="margin-left:8px;">고객 화면 미리보기</span></div><iframe id="pvFrame"></iframe></div>';
   renderCards(it);updateMarketPreview(it);
   $('mTitle').oninput=function(){it.title=this.value;setDirty(true);$('crumb').querySelector('.cur').textContent=this.value;var act=document.querySelector('.item-row.active span:last-child');if(act)act.textContent=this.value;updateMarketPreview(it);};
@@ -486,7 +486,10 @@ function renderMarketWork(it){
   dz.ondragleave=function(){dz.classList.remove('drag');};
   dz.ondrop=function(e){e.preventDefault();dz.classList.remove('drag');onAttach(it,e.dataTransfer.files);};
   fi.onchange=function(){onAttach(it,fi.files);fi.value='';};
+  $('mDetect').onclick=function(){detectTitles(it);};
   $('mDel').onclick=function(){if(confirm('이 항목을 삭제할까요?')){var c=findCat(catIdOf(it));if(c)c.items=c.items.filter(function(x){return x.id!==it.id;});setDirty(true);sel=null;renderTree();clearStage();}};
+  // 기존 카드 제목이 '카드 N'(또는 빈값)이면 자동으로 한 번 다시 인식 → 옛 제목 고착 방지
+  if(!it._titleTried && it._cards.length && it._cards.some(function(a){return !a.title||/^카드\s*\d+$/.test(a.title);})){ it._titleTried=true; detectTitles(it); }
 }
 function fmtDate(d){try{return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}catch(e){return '';}}
 function loadImg(src){return new Promise(function(res,rej){var im=new Image();im.onload=function(){res(im);};im.onerror=rej;im.src=src;});}
@@ -566,6 +569,24 @@ async function onAttach(it,files){
     }catch(e){/* OCR 실패 시 정해진 라벨/카드N 유지 */}
   }catch(e){ alert('처리 실패: '+(e&&e.message||e)); }
   hideOverlay();
+}
+/* 이미 있는 카드(예: 예전에 '카드 N'으로 저장된 것)의 제목을 이미지에서 다시 읽어 고침.
+   OCR 안 되면 정해진 분석 카테고리명으로라도 채움 → '카드 N'이 남지 않게. */
+function detectTitles(it){
+  ensureCards(it);if(!it._cards.length)return;
+  var labels=ANALYSIS_LABELS[catIdOf(it)]||[];
+  (async function(){
+    var ocrOk=false; try{ await getTess(); ocrOk=true; }catch(e){ ocrOk=false; }
+    for(var i=0;i<it._cards.length;i++){
+      var ocr='';
+      if(ocrOk){ showOverlay('카드 제목 인식 중… ('+(i+1)+'/'+it._cards.length+')'); try{ ocr=await ocrTitle(it._cards[i].url); }catch(e){ ocr=''; } }
+      var snapped=snapLabel(ocr,labels);
+      var t=snapped||((ocr&&ocr.length>=2&&ocr.length<=24)?ocr:'')||labels[i]||'';
+      if(t&&t!==it._cards[i].title){it._cards[i].title=t;setDirty(true);}
+      renderCards(it);updateMarketPreview(it);
+    }
+    hideOverlay();
+  })();
 }
 function fileToCanvas(file){return new Promise(function(res,rej){var u=URL.createObjectURL(file);var im=new Image();im.onload=function(){var cv=document.createElement('canvas');cv.width=im.naturalWidth;cv.height=im.naturalHeight;cv.getContext('2d').drawImage(im,0,0);URL.revokeObjectURL(u);res(cv);};im.onerror=rej;im.src=u;});}
 /* 핵심: 왼쪽 번호배지로 카드 경계를 찾고, 각 카드의 실제 콘텐츠 상·하단을 인식해
