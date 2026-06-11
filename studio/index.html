@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-cta3';
+var BUILD='20260611-cta4';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -672,11 +672,12 @@ function updateMarketPreview(it){
     }
     return '<div class="oc"><div class="oct off">'+t+'</div><div class="olock"><img class="oi blur" src="'+a.url+'"><div class="ov"><div class="ovmsg">이 정보는 카페 창업자에게만<br>제공되는 서비스입니다</div></div></div></div>';
   });
-  var midcta='<div class="midcta"><div class="ask">준비 중인 상권이 있으신가요?</div>'+
-    '<a class="cta2" href="'+FF+'" target="_blank" rel="noopener">매물 구해주세요</a>'+
-    '<a class="cta2 have" href="'+FH+'" target="_blank" rel="noopener">매물은 구했어요</a></div>';
-  if(arr.length){ arr.splice(Math.min(1,arr.length),0,midcta); }   // 첫 카드 바로 뒤(잘 보이게)
   var cards=arr.join('');
+  // 카드 아래 상담 유도(박스 아님): 질문 + 가로 두 버튼(구분선)
+  var midcta='<div class="midcta"><div class="ask">준비 중인 카페가 있으신가요?</div>'+
+    '<div class="ctarow"><a class="cta2" href="'+FF+'" target="_blank" rel="noopener">매물 구해주세요</a>'+
+    '<span class="sep">ㅣ</span>'+
+    '<a class="cta2" href="'+FH+'" target="_blank" rel="noopener">매물은 구했어요</a></div></div>';
   if(!w.length)cards='<div style="text-align:center;color:#9aa6b3;padding:60px;">이미지를 넣으면 카드가 여기 표시됩니다.</div>';
   var col=esc(it.collectedAt||'');
   var dateLine=col?'<div class="collected">데이터 수집일 · <b>'+col+'</b></div>':'';
@@ -691,8 +692,8 @@ function updateMarketPreview(it){
    '.notice{background:#f4f7fb;border:1px solid #dde6f1;border-radius:10px;padding:11px 14px;font-size:.78rem;color:#3b4a5e;line-height:1.6;margin:0 2px 16px;display:flex;gap:7px;align-items:flex-start}.notice .ic{flex-shrink:0}'+
    '.hbtn{display:inline-block;margin-bottom:12px;background:#fff;color:#1a365d;border:1.5px solid #1a365d;font-weight:700;padding:10px 22px;border-radius:999px;text-decoration:none;font-size:.88rem}'+
    '.ask{font-size:.92rem;font-weight:700;color:#1a365d;margin-bottom:10px}'+
-   '.midcta{border:1.5px solid #1a365d;border-radius:14px;padding:20px 18px;text-align:center;margin:4px 2px 18px;background:#f4f7fb}.midcta .ask{font-size:1.02rem;font-weight:800;color:#1a365d;margin-bottom:14px}'+
-   '.cta2{display:block;width:100%;background:#1a365d;color:#fff;font-weight:800;padding:14px;border-radius:10px;text-decoration:none;font-size:.98rem;margin-bottom:10px}.cta2.have{background:#fff;color:#1a365d;border:1.5px solid #1a365d;margin-bottom:0}'+
+   '.midcta{text-align:center;margin:24px 2px 26px}.midcta .ask{font-size:1.05rem;font-weight:800;color:#1a365d;margin-bottom:12px}'+
+   '.ctarow{display:flex;align-items:center;justify-content:center;gap:2px}.cta2{color:#1a365d;font-weight:800;font-size:1rem;text-decoration:none;padding:9px 16px}.sep{color:#c3ccd6;font-weight:400}'+
    '.oc{border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:14px;background:#fff}'+
    '.oct{padding:11px 15px;font-size:.95rem;border-bottom:1px solid #f0f2f4}.oct.on{font-weight:800;color:#111}.oct.off{font-weight:600;color:#9aa6b3}'+
    '.oi{width:100%;display:block}.oi.blur{filter:blur(11px);transform:scale(1.04)}'+
@@ -709,8 +710,9 @@ function updateMarketPreview(it){
    '<div class="purpose">이 자료는 빈크래프트가 직접 개발한 상권분석 프로그램으로 분석한 실제 데이터입니다. 저희는 <b>상권분석을 파는 회사가 아니라, 매물부터 오픈까지 함께하는 카페 창업 회사</b>예요. 상권분석은 창업을 준비하는 과정의 일부입니다.<br><br>그래서 이 자료도 전체 중 일부만 공개해 두었어요. 정보를 팔려는 게 아니라, 저희가 창업을 도울 때 <b>이런 데이터까지 들여다본다</b>는 걸 보여드리고 싶었습니다. 모든 정보는 카페 창업자를 위해 준비해 두었습니다.</div>'+
    '<div class="disc">※ 분석 데이터는 실시간으로 수집되지만, 본 자료는 <b>수집된 시점 기준</b> 정보입니다. 전체 분석은 카페 창업 상담 시에만 제공됩니다.</div>'+
    dateLine+
-   '<div class="notice"><span>공개된 정보는 <b>영상 속에 첨부한 정보</b>만 보여드리고 있습니다.</span></div>'+
    cards+
+   '<div class="notice"><span>공개된 정보는 <b>영상 속에 첨부한 정보</b>만 보여드리고 있습니다.</span></div>'+
+   midcta+
    '<div class="foot"><a class="hbtn" href="https://beancraft.co.kr" target="_blank" rel="noopener">빈크래프트 홈페이지 바로가기</a><p><b>빈크래프트는 프랜차이즈 회사가 아닙니다.</b><br>개인 카페를 만들어 주는 회사입니다.</p></div>'+
    '</div></body></html>';
   setPreviewHTML(html);
