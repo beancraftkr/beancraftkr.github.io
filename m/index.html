@@ -41,7 +41,9 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:#fff;c
 .cbox iframe{flex:1;width:100%;border:0;background:#fff}
 .oc{border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:14px;background:#fff}
 .oct{padding:11px 15px;font-size:.95rem;border-bottom:1px solid #f0f2f4}.oct.on{font-weight:800;color:#111}.oct.off{font-weight:600;color:#9aa6b3}
-.oi{width:100%;display:block}
+.oi{width:100%;display:block;-webkit-touch-callout:none;-webkit-user-drag:none;user-drag:none}
+.iw{position:relative}
+.ish{position:absolute;inset:0;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='190'%3E%3Cg transform='rotate(-22 140 95)'%3E%3Ctext x='20' y='90' font-family='sans-serif' font-size='15' font-weight='700' fill='rgba(255,255,255,0.13)'%3EBEANCRAFT %EB%B9%88%ED%81%AC%EB%9E%98%ED%94%84%ED%8A%B8%3C/text%3E%3Ctext x='20' y='115' font-family='sans-serif' font-size='11' fill='rgba(255,255,255,0.09)'%3E%EB%AC%B4%EB%8B%A8 %EB%B3%B5%EC%A0%9C%C2%B7%EA%B3%B5%EC%9C%A0 %EA%B8%88%EC%A7%80%3C/text%3E%3C/g%3E%3C/svg%3E")}
 .olock{position:relative;max-height:230px;overflow:hidden}
 .olock .oi{filter:blur(4px);transform:scale(1.05)}
 .ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(20,30,50,.42)}
@@ -52,7 +54,8 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:#fff;c
 .cta{display:inline-block;background:#1a365d;color:#fff;font-weight:800;padding:13px 26px;border-radius:999px;text-decoration:none;font-size:.95rem}
 .cr{position:fixed;bottom:0;left:0;width:100%;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#a0aec0;padding:9px;text-align:center;font-size:.7rem;z-index:10}.cr b{color:#4a7fbf}
 .state{text-align:center;color:#9aa6b3;padding:80px 24px;font-size:.95rem;line-height:1.7}
-body{padding-bottom:46px}
+body{padding-bottom:46px;-webkit-user-select:none;-moz-user-select:none;user-select:none}
+@media print{body>*{display:none!important}body::after{content:'© BEANCRAFT — 본 자료는 저작물로 인쇄·복제가 금지되어 있습니다.';display:block;padding:60px 30px;font-size:14px;color:#333}}
 </style>
 </head>
 <body>
@@ -91,13 +94,13 @@ function render(item){
   var arr=(item.cards||[]).map(function(c){
     var t=esc(c.title||'정보 카드');
     if(c.revealed){
-      return '<div class="oc"><div class="oct on">'+t+'</div><img class="oi" loading="lazy" src="'+c.file+'"></div>';
+      return '<div class="oc"><div class="oct on">'+t+'</div><div class="iw"><img class="oi" loading="lazy" draggable="false" src="'+c.file+'"><div class="ish"></div></div></div>';
     }
-    return '<div class="oc"><div class="oct off">'+LOCK+t+'</div><div class="olock"><img class="oi" loading="lazy" src="'+c.file+'"><div class="ov"><div class="ovmsg">이 정보는 카페 창업자에게만<br>제공되는 서비스입니다</div></div></div></div>';
+    return '<div class="oc"><div class="oct off">'+LOCK+t+'</div><div class="olock"><img class="oi" loading="lazy" draggable="false" src="'+c.file+'"><div class="ov"><div class="ovmsg">이 정보는 카페 창업자에게만<br>제공되는 서비스입니다</div></div></div></div>';
   });
   var cards=arr.join('');
   // 카드 아래 상담 유도(박스 아님): 질문 + 가로 두 버튼(구분선)
-  var midcta='<div class="midcta"><div class="ask">준비 중인 카페가 있으신가요?</div>'+
+  var midcta='<div class="midcta"><div class="ask">카페 창업에 어떤 도움을 드릴까요?</div>'+
     '<div class="ctarow"><button class="cta2 find" type="button" onclick="openConsult(\'find\')">매물 구해주세요</button>'+
     '<button class="cta2 have" type="button" onclick="openConsult(\'have\')">매물은 구했어요</button></div></div>';
   if(!item.cards||!item.cards.length)cards='<div class="state">등록된 카드가 없습니다.</div>';
@@ -119,6 +122,26 @@ function findItem(data,id){
   for(var k in cats){var c=cats[k];var items=c.items||[];for(var j in items){var it=items[j];if(it&&(it.type==='market'||it.cards)){if(!first)first=it;if(it.id===id)return it;}}}
   return id?null:first;  // id 없으면 첫 상권분석
 }
+
+/* ===== 자료 보호 (우클릭·드래그·복사·저장·인쇄·소스보기 차단) =====
+   완전 차단은 불가능하므로(화면 캡처는 OS 기능) 워터마크와 함께 다층 억제용. */
+(function(){
+  var d=document;
+  d.addEventListener('contextmenu',function(e){e.preventDefault();});
+  d.addEventListener('dragstart',function(e){e.preventDefault();});
+  d.addEventListener('selectstart',function(e){var a=d.activeElement;if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;e.preventDefault();});
+  d.addEventListener('copy',function(e){var a=d.activeElement;if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;e.preventDefault();if(e.clipboardData)e.clipboardData.setData('text/plain','© BEANCRAFT 저작물 — 무단 복제·공유 금지');});
+  d.addEventListener('cut',function(e){e.preventDefault();});
+  d.addEventListener('keydown',function(e){
+    var k=(e.key||'').toLowerCase();
+    if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&(k==='u'||k==='s'||k==='p'||k==='a')){
+      if(k==='a'&&d.activeElement&&(d.activeElement.tagName==='INPUT'||d.activeElement.tagName==='TEXTAREA'))return;
+      e.preventDefault();e.stopPropagation();
+    }
+    if((e.ctrlKey||e.metaKey)&&e.shiftKey&&(k==='i'||k==='j'||k==='c'||k==='s'))e.preventDefault();
+    if(e.keyCode===123)e.preventDefault();   // F12
+  });
+})();
 
 var id=location.hash.replace('#','');
 if(DEMO){
