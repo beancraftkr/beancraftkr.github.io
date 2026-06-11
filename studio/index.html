@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-single';
+var BUILD='20260611-cardreorder';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -105,6 +105,8 @@ input:focus,textarea:focus{border-color:#1a365d;box-shadow:0 0 0 3px rgba(26,54,
 #fileInput{display:none;}
 .flist{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
 .fitem{display:flex;gap:9px;align-items:center;border:1.5px solid #e5e7eb;border-radius:9px;padding:6px 8px;}
+.fitem.cdragging{opacity:.4;}
+.fitem.cdrop{box-shadow:inset 0 2px 0 #2b6cb0;}
 .fitem img{width:60px;height:40px;object-fit:cover;border-radius:5px;flex-shrink:0;background:#eee;}
 .fitem .cap{flex:1;min-width:0;padding:5px 8px;font-size:.8rem;border:1px solid #e0e4e8;border-radius:5px;}
 .fitem .x{border:0;background:none;color:#c0392b;cursor:pointer;font-size:.95rem;padding:4px 6px;}
@@ -356,6 +358,7 @@ function loadDemo(){
 /* ===== 사이드바 트리 ===== */
 var openCats={};
 var dragItem=null;   // 사이드바 항목 드래그 상태
+var cardDrag=null;   // 카드 목록 드래그 순서변경 상태
 function renderTree(){
   var tr=$('tree');tr.innerHTML='';
   asArray(data.categories).forEach(function(c){
@@ -765,8 +768,26 @@ function renderCards(it){
     d.querySelector('.cap').oninput=function(){a.title=this.value;setDirty(true);updateMarketPreview(it);};
     d.querySelector('input[type=checkbox]').onchange=function(){a.revealed=this.checked;sortCardsByReveal(it);setDirty(true);renderCards(it);updateMarketPreview(it);};   // 공개=위로, 비공개=원래 자리
     d.querySelector('.x').onclick=function(){if(!confirm('이 카드를 뺄까요?'))return;w.splice(i,1);setDirty(true);renderCards(it);updateMarketPreview(it);};
+    // 드래그로 카드 순서 정리
+    d.setAttribute('draggable','true');
+    var imgEl=d.querySelector('img');if(imgEl)imgEl.setAttribute('draggable','false');
+    var capEl=d.querySelector('.cap');if(capEl)capEl.ondragstart=function(e){e.stopPropagation();};   // 제목 입력 중 텍스트 드래그가 카드 드래그로 안 가게
+    d.ondragstart=function(e){cardDrag=i;d.classList.add('cdragging');if(e.dataTransfer){e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',''+i);}catch(_){}}};
+    d.ondragend=function(){cardDrag=null;var t=$('clist');if(t)[].forEach.call(t.children,function(el){el.classList.remove('cdragging','cdrop');});};
+    d.ondragover=function(e){if(cardDrag==null||cardDrag===i)return;e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='move';d.classList.add('cdrop');};
+    d.ondragleave=function(){d.classList.remove('cdrop');};
+    d.ondrop=function(e){if(cardDrag==null)return;e.preventDefault();e.stopPropagation();var from=cardDrag;cardDrag=null;moveCard(it,from,i);};
     l.appendChild(d);
   });
+}
+/* 드래그한 카드를 대상 카드 앞으로 이동. ord 재부여 후 공개=위로 정렬 유지. */
+function moveCard(it,from,to){
+  var w=it._cards;if(from==null||to==null||from===to||from<0||to<0||from>=w.length||to>=w.length)return;
+  var c=w.splice(from,1)[0];
+  var dst=(from<to)?to-1:to;
+  w.splice(dst,0,c);
+  for(var i=0;i<w.length;i++)w[i].ord=i;
+  sortCardsByReveal(it);setDirty(true);renderCards(it);updateMarketPreview(it);
 }
 /* 오픈업식 고객 화면 미리보기 */
 function updateMarketPreview(it){
