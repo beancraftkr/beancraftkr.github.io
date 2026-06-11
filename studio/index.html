@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-uptimeout';
+var BUILD='20260611-draftdirty';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -332,7 +332,7 @@ function loadData(){
     }
     normalizeData(data);   // 빈 배열 누락(예: 상권분석 items)로 인한 렌더 충돌 방지
     migrateCategories(data);   // 3개 카테고리(카드뉴스·거리분석·매물분석) 보장
-    restoreDraft().then(function(){renderTree();});
+    restoreDraft().then(function(restored){renderTree();if(restored)setDirty(true);});   // 복원된 작업물=미배포 → 배포 버튼 활성
   }).catch(function(e){alert('데이터 로드 실패: '+e.message);});
 }
 function loadDemo(){
@@ -346,7 +346,7 @@ function loadDemo(){
     ]},
     {id:'property',name:'매물분석',kind:'market',items:[]}
   ]};
-  restoreDraft().then(function(){renderTree();openCat('cardnews');});
+  restoreDraft().then(function(restored){renderTree();openCat('cardnews');if(restored)setDirty(true);});
 }
 
 /* ===== 사이드바 트리 ===== */
