@@ -73,7 +73,7 @@ function render(item){
   var midcta='<div class="midcta"><div class="ask">준비 중인 상권이 있으신가요?</div>'+
     '<a class="cta2" href="'+CONSULT_FIND+'" target="_blank" rel="noopener">매물 구해주세요</a>'+
     '<a class="cta2 have" href="'+CONSULT_HAVE+'" target="_blank" rel="noopener">매물은 구했어요</a></div>';
-  if(arr.length){ arr.splice(Math.ceil(arr.length/2),0,midcta); }
+  if(arr.length){ arr.splice(Math.min(1,arr.length),0,midcta); }   // 첫 카드 바로 뒤(잘 보이게)
   var cards=arr.join('');
   if(!item.cards||!item.cards.length)cards='<div class="state">등록된 카드가 없습니다.</div>';
   var col=esc(item.collectedAt||'');

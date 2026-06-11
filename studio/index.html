@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-cta2-noemoji';
+var BUILD='20260611-cta3';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -675,7 +675,7 @@ function updateMarketPreview(it){
   var midcta='<div class="midcta"><div class="ask">준비 중인 상권이 있으신가요?</div>'+
     '<a class="cta2" href="'+FF+'" target="_blank" rel="noopener">매물 구해주세요</a>'+
     '<a class="cta2 have" href="'+FH+'" target="_blank" rel="noopener">매물은 구했어요</a></div>';
-  if(arr.length){ arr.splice(Math.ceil(arr.length/2),0,midcta); }
+  if(arr.length){ arr.splice(Math.min(1,arr.length),0,midcta); }   // 첫 카드 바로 뒤(잘 보이게)
   var cards=arr.join('');
   if(!w.length)cards='<div style="text-align:center;color:#9aa6b3;padding:60px;">이미지를 넣으면 카드가 여기 표시됩니다.</div>';
   var col=esc(it.collectedAt||'');
