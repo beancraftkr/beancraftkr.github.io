@@ -210,12 +210,38 @@ function uid(p){return p+Date.now().toString(36)+Math.floor(Math.random()*1e4).t
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 function setDirty(v){dirty=v;var b=$('deployBtn');b.disabled=!v;b.classList.toggle('dirty',v);b.textContent=v?'● 배포하기':'배포';if(v)scheduleDraftSave();}
 function defaultCategories(){return [
-  {id:'cardnews',name:'카드뉴스',items:[
+  {id:'cardnews',name:'카드뉴스',kind:'page',items:[
     {id:'late',type:'page',title:'지각, 보상이 답일까?',page:'marketing/late/'},
     {id:'music',type:'page',title:'매장 음악, 멜론 결제하면 끝일까?',page:'marketing/music-copyright/'}
   ]},
-  {id:'market',name:'상권분석',items:[]}
+  {id:'street',name:'거리분석',kind:'market',items:[]},
+  {id:'property',name:'매물분석',kind:'market',items:[]}
 ];}
+/* 카테고리마다 '정해진 분석 카테고리' 이름 — 카드 순서대로 자동 부여(카드N 대신).
+   카드 칸에서 수정 가능. 목록보다 카드가 많으면 OCR→그래도 없으면 카드N 폴백. */
+var ANALYSIS_LABELS={
+  street:['상권 분석 리포트','상권 변화 추이','유동인구','임대/창업 정보','고객 분석','SNS 트렌드','날씨 영향 분석','프랜차이즈 현황','개인 카페 분석','상권 경쟁 분석','매출 분석','카페 기회','배달 객단가','AI 종합 분석'],
+  property:['매물 기본 정보','임대 조건 분석','권리금 분석','입지·접근성 분석','면적·구조 분석','주변 시세 비교','매물 앞 유동인구','경쟁 매물 비교','예상 매출','예상 수익성','리스크 체크','종합 평가']
+};
+/* 카테고리 구조 마이그레이션: 구버전 'market'(상권분석)을 'street'(거리분석)로 옮기고
+   3개 카테고리(카드뉴스·거리분석·매물분석)를 항상 보장 + 순서 고정. (기존 항목 보존) */
+function migrateCategories(d){
+  if(!d||typeof d!=='object')d={};
+  var cats=asArray(d.categories).filter(Boolean);
+  var byId={};cats.forEach(function(c){if(c&&c.id)byId[c.id]=c;});
+  if(byId.market&&!byId.street){byId.market.id='street';byId.market.name='거리분석';byId.market.kind='market';byId.street=byId.market;delete byId.market;}
+  function ensureCat(id,name,kind){ if(!byId[id]){byId[id]={id:id,name:name,kind:kind,items:[]};} else {byId[id].kind=kind; if(!byId[id].name)byId[id].name=name;} }
+  ensureCat('cardnews','카드뉴스','page');
+  ensureCat('street','거리분석','market');
+  ensureCat('property','매물분석','market');
+  var order=['cardnews','street','property'];
+  var ordered=order.map(function(id){return byId[id];});
+  cats.forEach(function(c){ if(c&&c.id&&order.indexOf(c.id)<0)ordered.push(c); });   // 알 수 없는 카테고리는 뒤에 보존
+  d.categories=ordered;
+  return d;
+}
+/* 항목이 속한 카테고리 id 찾기 */
+function catIdOf(it){var cs=asArray(data.categories);for(var i=0;i<cs.length;i++){if(asArray(cs[i].items).indexOf(it)>=0)return cs[i].id;}return (sel&&sel.cat)||'';}
 
 /* ===== 작업 자동 저장 (IndexedDB · 새로고침/재접속해도 유지, 배포 전까지 보관) ===== */
 var IDB_DB='bc_studio_drafts',IDB_STORE='kv';
@@ -225,8 +251,8 @@ function idbGet(k){return idbOpen().then(function(db){return new Promise(functio
 function idbDel(k){return idbOpen().then(function(db){return new Promise(function(res){var tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).delete(k);tx.oncomplete=function(){res();};});}).catch(function(){});}
 function draftKey(){return 'draft_'+(DEMO?'demo':(curUser&&curUser.uid?curUser.uid:'anon'));}
 function serializeData(){
-  return {categories:(data.categories||[]).map(function(c){return {id:c.id,name:c.name,items:(c.items||[]).map(function(it){
-    var o={};for(var k in it){if(!it.hasOwnProperty(k))continue;if(k==='_cards'){o._cards=(it._cards||[]).map(function(a){return {title:a.title||'',url:a.url,revealed:!!a.revealed,committed:!!a.committed};});}else if(k.charAt(0)!=='_'){o[k]=it[k];}}
+  return {categories:(data.categories||[]).map(function(c){return {id:c.id,name:c.name,kind:c.kind,items:(c.items||[]).map(function(it){
+    var o={};for(var k in it){if(!it.hasOwnProperty(k))continue;if(k==='_cards'){o._cards=(it._cards||[]).map(function(a){return {title:a.title||'',url:a.url,revealed:!!a.revealed,committed:!!a.committed,ord:(a.ord!=null?a.ord:0)};});}else if(k.charAt(0)!=='_'){o[k]=it[k];}}
     return o;})};})};
 }
 var _saveTimer=null;
@@ -237,7 +263,7 @@ function restoreDraft(){
     var fbUpdated=(data&&data.updatedAt)||0;             // 파이어베이스가 더 최신(누가 배포)이면 로컬초안 폐기
     if(fbUpdated&&d.savedAt&&fbUpdated>=d.savedAt){idbDel(draftKey());return false;}
     data=d.data;if(!data.categories)data.categories=defaultCategories();
-    normalizeData(data);
+    normalizeData(data);migrateCategories(data);
     return true;
   }).catch(function(){return false;});
 }
@@ -293,18 +319,20 @@ function loadData(){
       data=d;
     }
     normalizeData(data);   // 빈 배열 누락(예: 상권분석 items)로 인한 렌더 충돌 방지
+    migrateCategories(data);   // 3개 카테고리(카드뉴스·거리분석·매물분석) 보장
     restoreDraft().then(function(){renderTree();});
   }).catch(function(e){alert('데이터 로드 실패: '+e.message);});
 }
 function loadDemo(){
   data={categories:[
-    {id:'cardnews',name:'카드뉴스',items:[
+    {id:'cardnews',name:'카드뉴스',kind:'page',items:[
       {id:'late',type:'page',title:'지각, 보상이 답일까?',page:'marketing/late/'},
       {id:'music',type:'page',title:'매장 음악, 멜론 결제하면 끝일까?',page:'marketing/music-copyright/'}
     ]},
-    {id:'market',name:'상권분석',items:[
-      {id:'market-analysis',type:'market',title:'강남역 상권분석',cards:[]}
-    ]}
+    {id:'street',name:'거리분석',kind:'market',items:[
+      {id:'market-analysis',type:'market',title:'강남역 거리분석',cards:[]}
+    ]},
+    {id:'property',name:'매물분석',kind:'market',items:[]}
   ]};
   restoreDraft().then(function(){renderTree();openCat('cardnews');});
 }
@@ -338,18 +366,19 @@ function findItem(cat,item){var c=findCat(cat);return c?c.items.filter(function(
 /* ===== 새 항목 ===== */
 function newItem(catId){
   openCat(catId);
-  if(catId==='cardnews'){
+  var cat=findCat(catId);if(!cat)return;
+  if(cat.kind==='page'){
     var topic=prompt('새 카드뉴스 주제를 입력하세요\n예: 배달앱 수수료, 어떻게 줄일까?','');
     if(topic===null)return;topic=topic.trim();if(!topic)return;
     var id=uid('c');
     var it={id:id,type:'card',title:topic,subtitle:'',intro:''};
-    findCat('cardnews').items.push(it);setDirty(true);renderTree();selectItem('cardnews',id);
+    cat.items.push(it);setDirty(true);renderTree();selectItem(catId,id);
   }else{
-    var name=prompt('새 상권분석 이름을 입력하세요\n예: 홍대입구역 상권분석','');
+    var name=prompt('새 '+cat.name+' 이름을 입력하세요\n예: 홍대입구역 '+cat.name,'');
     if(name===null)return;name=name.trim();if(!name)return;
     var gid=uid('m');
     var git={id:gid,type:'market',title:name,cards:[]};
-    findCat('market').items.push(git);setDirty(true);renderTree();selectItem('market',gid);
+    cat.items.push(git);setDirty(true);renderTree();selectItem(catId,gid);
   }
 }
 
@@ -360,7 +389,7 @@ function selectItem(cat,item){
   var w=$('welcome');if(w)w.classList.add('hidden');
   $('backBtn').classList.remove('hidden');
   $('crumb').innerHTML='<span>'+esc(c.name)+'</span><span class="sep">›</span><span class="cur">'+esc(it.title||'')+'</span>';
-  if(cat==='cardnews')renderCardWork(it);else renderMarketWork(it);
+  if(c&&c.kind==='market')renderMarketWork(it);else renderCardWork(it);
 }
 function goBack(){ sel=null; highlightActive(); $('backBtn').classList.add('hidden'); clearStage(); }
 $('backBtn').onclick=goBack;
@@ -420,13 +449,16 @@ function setPreviewHTML(html){
 function updateDraftPreview(it){setPreviewHTML(cardStarterHTML(it));}
 
 /* ----- 상권분석 작업대 (카드 자동분리 + 공개체크 + 오픈업식 미리보기) ----- */
-function ensureCards(it){if(!it._cards){it._cards=(it.cards||[]).map(function(c){return{title:c.title||'',url:c.file,blur:c.blur,revealed:!!c.revealed,committed:true};});}return it._cards;}
+function ensureCards(it){if(!it._cards){it._cards=(it.cards||[]).map(function(c,i){return{title:c.title||'',url:c.file,blur:c.blur,revealed:!!c.revealed,committed:true,ord:(c.ord!=null?c.ord:i)};});}it._cards.forEach(function(a,i){if(a.ord==null)a.ord=i;});return it._cards;}
+/* 공개=위로, 비공개=원래 자리. ord(원래 순서) 기준 안정 정렬: 공개 카드 먼저, 그 안에서 ord 오름차순. */
+function sortCardsByReveal(it){ensureCards(it);it._cards.sort(function(a,b){if(!!a.revealed!==!!b.revealed)return a.revealed?-1:1;return (a.ord||0)-(b.ord||0);});}
 function renderMarketWork(it){
   ensureCards(it);
-  var ctrl='<label>상권분석 제목 (지역명)</label><input type="text" id="mTitle" value="'+esc(it.title)+'">'+
+  var catName=(findCat(catIdOf(it))||{}).name||'분석';
+  var ctrl='<label>'+esc(catName)+' 제목 (지역명)</label><input type="text" id="mTitle" value="'+esc(it.title)+'">'+
     '<label>수집일 (고객 화면에 표시 · 첨부 이미지 날짜로 자동 입력)</label><input type="text" id="mCollected" placeholder="예: 2026-06-10" value="'+esc(it.collectedAt||'')+'">'+
     '<label>자료 첨부 (합본 1장 → 자동으로 카드 분리)</label>'+
-    '<div class="dropzone" id="dz"><div class="big">📊</div><div><strong>상권분석 이미지를 끌어다 놓기</strong></div><div class="sub">합쳐진 이미지를 넣으면 카드별로 자동 분리됩니다</div></div>'+
+    '<div class="dropzone" id="dz"><div class="big">📊</div><div><strong>'+esc(catName)+' 이미지를 끌어다 놓기</strong></div><div class="sub">합쳐진 이미지를 넣으면 카드별로 자동 분리됩니다</div></div>'+
     '<input type="file" id="fileInput" accept="image/*,application/pdf,.pdf">'+
     '<div id="cardhint" class="status show info" style="margin-top:12px;">공개할 카드를 체크하세요. 체크 안 한 카드는 고객 화면에서 블러 처리됩니다.</div>'+
     '<div class="flist" id="clist"></div>'+
@@ -441,7 +473,7 @@ function renderMarketWork(it){
   dz.ondragleave=function(){dz.classList.remove('drag');};
   dz.ondrop=function(e){e.preventDefault();dz.classList.remove('drag');onAttach(it,e.dataTransfer.files);};
   fi.onchange=function(){onAttach(it,fi.files);fi.value='';};
-  $('mDel').onclick=function(){if(confirm('이 상권분석을 삭제할까요?')){var c=findCat('market');c.items=c.items.filter(function(x){return x.id!==it.id;});setDirty(true);sel=null;renderTree();clearStage();}};
+  $('mDel').onclick=function(){if(confirm('이 항목을 삭제할까요?')){var c=findCat(catIdOf(it));if(c)c.items=c.items.filter(function(x){return x.id!==it.id;});setDirty(true);sel=null;renderTree();clearStage();}};
 }
 function fmtDate(d){try{return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}catch(e){return '';}}
 function loadImg(src){return new Promise(function(res,rej){var im=new Image();im.onload=function(){res(im);};im.onerror=rej;im.src=src;});}
@@ -489,19 +521,22 @@ async function onAttach(it,files){
     for(var k=0;k<imgs.length;k++){ cards=cards.concat(splitCards(imgs[k])); }
     ensureCards(it);
     var start=it._cards.length;
-    cards.forEach(function(c){ it._cards.push({title:'카드 '+(it._cards.length+1),url:c.url,revealed:false,committed:false}); });
+    var labels=ANALYSIS_LABELS[catIdOf(it)]||[];   // 카테고리별 '정해진 분석 카테고리' 이름
+    cards.forEach(function(c){ var idx=it._cards.length; it._cards.push({title:labels[idx]||('카드 '+(idx+1)),url:c.url,revealed:false,committed:false,ord:idx}); });
     setDirty(true);renderCards(it);updateMarketPreview(it);
-    // 제목 자동 인식 (OCR)
-    try{
+    // 정해진 라벨이 없는 카드만 OCR로 보완 (라벨 있으면 그대로 사용 → 빠르고 정확)
+    var needOcr=false; for(var ci2=start;ci2<it._cards.length;ci2++){ if(!labels[ci2]){needOcr=true;break;} }
+    if(needOcr){ try{
       showOverlay('카드 제목 인식 중…');
       await getTess();
       for(var ti=start;ti<it._cards.length;ti++){
+        if(labels[ti])continue;   // 정해진 분석 카테고리명 있음 → OCR 건너뜀
         showOverlay('카드 제목 인식 중… ('+(ti-start+1)+'/'+(it._cards.length-start)+')');
         var t=await ocrTitle(it._cards[ti].url);
         if(t&&t.length>=2&&t.length<=24)it._cards[ti].title=t;
       }
       renderCards(it);updateMarketPreview(it);
-    }catch(e){/* OCR 실패 시 '카드 N' 유지 */}
+    }catch(e){/* OCR 실패 시 '카드 N' 유지 */} }
   }catch(e){ alert('처리 실패: '+(e&&e.message||e)); }
   hideOverlay();
 }
@@ -570,10 +605,10 @@ function renderCards(it){
       '<div class="meta" style="flex:1;min-width:0;"><input class="cap" placeholder="카드 제목" value="'+esc(a.title||'')+'">'+
       '<label style="display:flex;align-items:center;gap:6px;margin-top:5px;font-size:.8rem;color:#445;cursor:pointer;"><input type="checkbox" '+(a.revealed?'checked':'')+' style="width:auto;"> 공개(체크 안 하면 블러)</label></div>'+
       '<button class="x">✕</button>';
-    d.querySelector('[data-up]').onclick=function(){if(i>0){var t=w[i];w[i]=w[i-1];w[i-1]=t;setDirty(true);renderCards(it);updateMarketPreview(it);}};
-    d.querySelector('[data-down]').onclick=function(){if(i<w.length-1){var t=w[i];w[i]=w[i+1];w[i+1]=t;setDirty(true);renderCards(it);updateMarketPreview(it);}};
+    d.querySelector('[data-up]').onclick=function(){if(i>0){var o=w[i].ord;w[i].ord=w[i-1].ord;w[i-1].ord=o;sortCardsByReveal(it);setDirty(true);renderCards(it);updateMarketPreview(it);}};
+    d.querySelector('[data-down]').onclick=function(){if(i<w.length-1){var o=w[i].ord;w[i].ord=w[i+1].ord;w[i+1].ord=o;sortCardsByReveal(it);setDirty(true);renderCards(it);updateMarketPreview(it);}};
     d.querySelector('.cap').oninput=function(){a.title=this.value;setDirty(true);updateMarketPreview(it);};
-    d.querySelector('input[type=checkbox]').onchange=function(){a.revealed=this.checked;setDirty(true);updateMarketPreview(it);};
+    d.querySelector('input[type=checkbox]').onchange=function(){a.revealed=this.checked;sortCardsByReveal(it);setDirty(true);renderCards(it);updateMarketPreview(it);};   // 공개=위로, 비공개=원래 자리
     d.querySelector('.x').onclick=function(){if(!confirm('이 카드를 뺄까요?'))return;w.splice(i,1);setDirty(true);renderCards(it);updateMarketPreview(it);};
     l.appendChild(d);
   });
@@ -645,6 +680,7 @@ async function deploy(){
       for(var ii=0;ii<c.items.length;ii++){
         var it=c.items[ii];
         if(it._cards){
+          sortCardsByReveal(it);   // 공개 카드가 위로 오도록 정렬된 순서 그대로 배포
           var newCards=[];
           for(var wi=0;wi<it._cards.length;wi++){
             var a=it._cards[wi];
@@ -656,7 +692,7 @@ async function deploy(){
               var bd=await blurToDataUrl(a.url);
               blurUrl=await uploadDataUrl(it.id,bd);
             }
-            newCards.push({title:a.title||'',file:clearUrl,blur:blurUrl,revealed:!!a.revealed});
+            newCards.push({title:a.title||'',file:clearUrl,blur:blurUrl,revealed:!!a.revealed,ord:(a.ord!=null?a.ord:wi)});
           }
           it.cards=newCards;it.type='market';delete it._cards;delete it.files;
         }
@@ -685,7 +721,7 @@ function deployShareInfo(){
     if(it.type==='page'&&it.page)return {url:location.origin+'/'+String(it.page).replace(/^\/+/,''),name:it.title};
     return {url:location.origin+'/m/#'+it.id,name:it.title};
   }}
-  var m=findCat('market');if(m&&m.items&&m.items[0])return {url:location.origin+'/m/#'+m.items[0].id,name:m.items[0].title};
+  var cs=asArray(data.categories);for(var i=0;i<cs.length;i++){if(cs[i].kind==='market'&&cs[i].items&&cs[i].items[0])return {url:location.origin+'/m/#'+cs[i].items[0].id,name:cs[i].items[0].title};}
   return {url:location.origin+'/m/',name:'상권분석'};
 }
 function showDeployModal(){
