@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-trim';
+var BUILD='20260611-nowmleak';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -920,11 +920,19 @@ function watermarkToDataUrl(srcDataUrl){return new Promise(function(res){
   im.onerror=function(){res(null);};
   im.src=srcDataUrl;
 });}
+/* 고객 공개본 URL 선택 — 선명한 원본(file)은 어떤 경우에도 내보내지 않는다(경쟁사 원본 유출 방지).
+   공개 카드=워터마크본(wm), 없으면 블러로 안전 폴백. 가린 카드=블러본. 둘 다 없으면 빈값(표시 안 함). */
+function publicCardFile(cd){
+  if(!cd)return '';
+  if(cd.revealed)return cd.wm||cd.blur||'';
+  return cd.blur||'';
+}
 
 async function deploy(){
   if(DEMO){showOverlay('(데모) 배포 시뮬레이션…');setTimeout(function(){hideOverlay();setDirty(false);showDeployModal();},1000);return;}
   try{
     showOverlay('배포 준비 중…');
+    var wmFailed=[];   // 기존 https 카드라 워터마크 재생성 불가(CORS) → 공개본은 블러로 안전 폴백한 목록
     for(var ci=0;ci<data.categories.length;ci++){
       var c=data.categories[ci];
       for(var ii=0;ii<c.items.length;ii++){
@@ -937,13 +945,18 @@ async function deploy(){
             var clearUrl,blurUrl,wmUrl=a.wm||null;
             if(a.committed&&/^https?:/.test(a.url)){
               clearUrl=a.url;blurUrl=a.blur||a.url;
-              if(a.revealed&&!wmUrl){var wd0=await watermarkToDataUrl(a.url);if(wd0)wmUrl=await uploadDataUrl(it.id,wd0);}
+              if(a.revealed&&!wmUrl){   // 공개로 바뀐 기존 카드: 워터마크 재생성 시도
+                var wd0=await watermarkToDataUrl(a.url);
+                if(wd0)wmUrl=await uploadDataUrl(it.id,wd0);
+                else wmFailed.push(a.title||('카드 '+(wi+1)));   // CORS로 실패 → 원본 절대 미노출, 공개본은 블러로 폴백
+              }
             }else{
               showOverlay('카드 올리는 중… ('+(wi+1)+'/'+it._cards.length+')');
               clearUrl=await uploadDataUrl(it.id,a.url);   // 팀 보관용(선명한 원본, 로그인 전용 marketing/data 에만 들어감)
               var bd=await blurToDataUrl(a.url);           // 항상 실제 블러 생성(나중에 공개→비공개 전환 시 원본 노출 방지)
               blurUrl=await uploadDataUrl(it.id,bd);
-              if(a.revealed){var wd=await watermarkToDataUrl(a.url);wmUrl=wd?await uploadDataUrl(it.id,wd):clearUrl;}  // 공개용: 워터마크 1400px
+              var wd=await watermarkToDataUrl(a.url);       // 모든 카드에 워터마크본 미리 생성 → 나중에 공개 전환해도 원본 재처리 불필요(CORS 문제 원천 차단)
+              if(wd)wmUrl=await uploadDataUrl(it.id,wd);
             }
             newCards.push({title:a.title||'',file:clearUrl,blur:blurUrl,wm:wmUrl,revealed:!!a.revealed,ord:(a.ord!=null?a.ord:wi)});
           }
@@ -963,7 +976,7 @@ async function deploy(){
     (team.categories||[]).forEach(function(cat){(cat.items||[]).forEach(function(x){
       if(x.cards){
         pubById[x.id]={title:x.title||'',collectedAt:x.collectedAt||'',cards:x.cards.map(function(cd){
-          return {title:cd.title,file:cd.revealed?(cd.wm||cd.file):(cd.blur||cd.file),revealed:!!cd.revealed,ord:cd.ord};
+          return {title:cd.title,file:publicCardFile(cd),revealed:!!cd.revealed,ord:cd.ord};   // 공개본엔 선명한 원본 절대 미포함
         })};
       }
     });});
@@ -971,6 +984,7 @@ async function deploy(){
     await idbDel(draftKey());
     hideOverlay();setDirty(false);renderTree();highlightActive();
     showDeployModal();   // 링크 복사 팝업
+    if(wmFailed.length)alert('아래 공개 카드는 기존 업로드본이라 워터마크를 다시 입히지 못해, 고객 화면에는 원본 대신 블러로 안전하게 표시됩니다:\n· '+wmFailed.join('\n· ')+'\n\n선명하게 공개하려면 해당 카드를 다시 첨부(드래그)한 뒤 배포해 주세요.');
   }catch(e){hideOverlay();alert('배포 실패: '+(e&&e.message||e));}
 }
 function stripT(o){return JSON.parse(JSON.stringify(o,function(k,v){return k.charAt&&k.charAt(0)==='_'?undefined:v;}));}
@@ -978,10 +992,10 @@ function stripT(o){return JSON.parse(JSON.stringify(o,function(k,v){return k.cha
 /* ===== 배포 후 링크 복사 팝업 ===== */
 function deployShareInfo(){
   if(sel){var it=findItem(sel.cat,sel.item);if(it){
-    if(it.type==='page'&&it.page)return {url:location.origin+'/'+String(it.page).replace(/^\/+/,''),name:it.title};
-    return {url:location.origin+'/m/#'+it.id,name:it.title};
+    if(it.type==='page'&&it.page)return {url:location.origin+'/'+String(it.page).replace(/^\/+/,''),name:it.title||'(제목 없음)'};
+    return {url:location.origin+'/m/#'+it.id,name:it.title||'(제목 없음)'};
   }}
-  var cs=asArray(data.categories);for(var i=0;i<cs.length;i++){if(cs[i].kind==='market'&&cs[i].items&&cs[i].items[0])return {url:location.origin+'/m/#'+cs[i].items[0].id,name:cs[i].items[0].title};}
+  var cs=asArray(data.categories);for(var i=0;i<cs.length;i++){if(cs[i].kind==='market'&&cs[i].items&&cs[i].items[0])return {url:location.origin+'/m/#'+cs[i].items[0].id,name:cs[i].items[0].title||'(제목 없음)'};}
   return {url:location.origin+'/m/',name:'상권분석'};
 }
 function showDeployModal(){
