@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-cta4';
+var BUILD='20260611-lock';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -467,7 +467,6 @@ function renderMarketWork(it){
   ensureCards(it);
   var catName=(findCat(catIdOf(it))||{}).name||'분석';
   var ctrl='<label>'+esc(catName)+' 제목 (지역명)</label><input type="text" id="mTitle" value="'+esc(it.title)+'">'+
-    '<label>수집일 (고객 화면에 표시 · 첨부 이미지 날짜로 자동 입력)</label><input type="text" id="mCollected" placeholder="예: 2026-06-10" value="'+esc(it.collectedAt||'')+'">'+
     '<label>자료 첨부 (합본 1장 → 자동으로 카드 분리)</label>'+
     '<div class="dropzone" id="dz"><div><strong>'+esc(catName)+' 이미지를 끌어다 놓기</strong></div><div class="sub">합쳐진 이미지를 넣으면 카드별로 자동 분리됩니다</div></div>'+
     '<input type="file" id="fileInput" accept="image/*,application/pdf,.pdf">'+
@@ -477,7 +476,6 @@ function renderMarketWork(it){
   $('stage').innerHTML='<div class="controls">'+ctrl+'</div><div class="preview"><div class="pv-bar"><span class="dotr"></span><span class="dotr"></span><span class="dotr"></span><span style="margin-left:8px;">고객 화면 미리보기</span></div><iframe id="pvFrame"></iframe></div>';
   renderCards(it);updateMarketPreview(it);
   $('mTitle').oninput=function(){it.title=this.value;setDirty(true);$('crumb').querySelector('.cur').textContent=this.value;var act=document.querySelector('.item-row.active span:last-child');if(act)act.textContent=this.value;updateMarketPreview(it);};
-  $('mCollected').oninput=function(){it.collectedAt=this.value;setDirty(true);updateMarketPreview(it);};
   var dz=$('dz'),fi=$('fileInput');
   dz.onclick=function(){fi.click();};
   dz.ondragover=function(e){e.preventDefault();dz.classList.add('drag');};
@@ -536,7 +534,6 @@ async function onAttach(it,files){
   var arr=[].slice.call(files);var f=arr[0];if(!f)return;
   showOverlay('로딩 중…');
   try{
-    if(!it.collectedAt&&f.lastModified){it.collectedAt=fmtDate(new Date(f.lastModified));var mc=$('mCollected');if(mc)mc.value=it.collectedAt;}  // 수집일 기본값 = 파일 날짜
     var imgs=[];
     if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){
       if(!window.pdfjsLib)throw new Error('PDF 모듈 로드 실패');
@@ -665,12 +662,13 @@ function updateMarketPreview(it){
   var FORM='https://docs.google.com/forms/d/e/1FAIpQLSeRIOxxWOuf-kkhjSsLe5ctcw7GO8_jt5I4rM9sS3CDtJpP5g/viewform';
   var FF=FORM+'?usp=pp_url&entry.740000146='+encodeURIComponent('[매물을 구해주세요] ');
   var FH=FORM+'?usp=pp_url&entry.740000146='+encodeURIComponent('[매물은 구했어요] ');
+  var LOCK='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-1px;margin-right:5px" aria-hidden="true"><path d="M17 8h-1V6A4 4 0 0 0 8 6v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm-7-2a2 2 0 0 1 4 0v2h-4V6z"></path></svg>';
   var arr=w.map(function(a){
     var t=esc(a.title||'정보 카드');
     if(a.revealed){
       return '<div class="oc"><div class="oct on">'+t+'</div><img class="oi" src="'+a.url+'"></div>';
     }
-    return '<div class="oc"><div class="oct off">'+t+'</div><div class="olock"><img class="oi blur" src="'+a.url+'"><div class="ov"><div class="ovmsg">이 정보는 카페 창업자에게만<br>제공되는 서비스입니다</div></div></div></div>';
+    return '<div class="oc"><div class="oct off">'+LOCK+t+'</div><div class="olock"><img class="oi blur" src="'+a.url+'"><div class="ov"><div class="ovmsg">이 정보는 카페 창업자에게만<br>제공되는 서비스입니다</div></div></div></div>';
   });
   var cards=arr.join('');
   // 카드 아래 상담 유도(박스 아님): 질문 + 가로 두 버튼(구분선)
@@ -679,8 +677,6 @@ function updateMarketPreview(it){
     '<span class="sep">ㅣ</span>'+
     '<a class="cta2" href="'+FH+'" target="_blank" rel="noopener">매물은 구했어요</a></div></div>';
   if(!w.length)cards='<div style="text-align:center;color:#9aa6b3;padding:60px;">이미지를 넣으면 카드가 여기 표시됩니다.</div>';
-  var col=esc(it.collectedAt||'');
-  var dateLine=col?'<div class="collected">데이터 수집일 · <b>'+col+'</b></div>':'';
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">'+
    '<style>*{margin:0;box-sizing:border-box}body{font-family:Pretendard,sans-serif;background:#fff;color:#111;}'+
    '.wm{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:5}.wm::before{content:\'빈크래프트 BeanCraft · 빈크래프트 BeanCraft · 빈크래프트 BeanCraft · 빈크래프트 BeanCraft · 빈크래프트 BeanCraft\';position:absolute;top:-50%;left:-50%;width:200%;height:200%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:rgba(26,54,93,.05);letter-spacing:6px;white-space:nowrap;transform:rotate(-35deg)}'+
@@ -709,7 +705,6 @@ function updateMarketPreview(it){
    '<div class="bd">'+
    '<div class="purpose">이 자료는 빈크래프트가 직접 개발한 상권분석 프로그램으로 분석한 실제 데이터입니다. 저희는 <b>상권분석을 파는 회사가 아니라, 매물부터 오픈까지 함께하는 카페 창업 회사</b>예요. 상권분석은 창업을 준비하는 과정의 일부입니다.<br><br>그래서 이 자료도 전체 중 일부만 공개해 두었어요. 정보를 팔려는 게 아니라, 저희가 창업을 도울 때 <b>이런 데이터까지 들여다본다</b>는 걸 보여드리고 싶었습니다. 모든 정보는 카페 창업자를 위해 준비해 두었습니다.</div>'+
    '<div class="disc">※ 분석 데이터는 실시간으로 수집되지만, 본 자료는 <b>수집된 시점 기준</b> 정보입니다. 전체 분석은 카페 창업 상담 시에만 제공됩니다.</div>'+
-   dateLine+
    cards+
    '<div class="notice"><span>공개된 정보는 <b>영상 속에 첨부한 정보</b>만 보여드리고 있습니다.</span></div>'+
    midcta+

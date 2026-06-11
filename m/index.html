@@ -58,6 +58,8 @@ var CONSULT='https://docs.google.com/forms/d/e/1FAIpQLSeRIOxxWOuf-kkhjSsLe5ctcw7
 // 동일한 상담 폼 + '상담 내용' 칸에 구분 표시를 미리 채워 보냄 → 받는 사람이 어느 버튼인지 구분 가능
 var CONSULT_FIND=CONSULT+'?usp=pp_url&entry.740000146='+encodeURIComponent('[매물을 구해주세요] ');
 var CONSULT_HAVE=CONSULT+'?usp=pp_url&entry.740000146='+encodeURIComponent('[매물은 구했어요] ');
+// 자물쇠 아이콘(이모지 아님, SVG) — 블러(비공개) 카드 제목 앞에만 표시
+var LOCK='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-1px;margin-right:5px" aria-hidden="true"><path d="M17 8h-1V6A4 4 0 0 0 8 6v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm-7-2a2 2 0 0 1 4 0v2h-4V6z"></path></svg>';
 var DEMO=/[?&]demo=1/.test(location.search);
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
 
@@ -68,7 +70,7 @@ function render(item){
     if(c.revealed){
       return '<div class="oc"><div class="oct on">'+t+'</div><img class="oi" loading="lazy" src="'+c.file+'"></div>';
     }
-    return '<div class="oc"><div class="oct off">'+t+'</div><div class="olock"><img class="oi" loading="lazy" src="'+c.file+'"><div class="ov"><div class="ovmsg">이 정보는 카페 창업자에게만<br>제공되는 서비스입니다</div></div></div></div>';
+    return '<div class="oc"><div class="oct off">'+LOCK+t+'</div><div class="olock"><img class="oi" loading="lazy" src="'+c.file+'"><div class="ov"><div class="ovmsg">이 정보는 카페 창업자에게만<br>제공되는 서비스입니다</div></div></div></div>';
   });
   var cards=arr.join('');
   // 카드 아래 상담 유도(박스 아님): 질문 + 가로 두 버튼(구분선)
@@ -77,14 +79,11 @@ function render(item){
     '<span class="sep">ㅣ</span>'+
     '<a class="cta2" href="'+CONSULT_HAVE+'" target="_blank" rel="noopener">매물은 구했어요</a></div></div>';
   if(!item.cards||!item.cards.length)cards='<div class="state">등록된 카드가 없습니다.</div>';
-  var col=esc(item.collectedAt||'');
-  var dateLine=col?'<div class="collected">데이터 수집일 · <b>'+col+'</b></div>':'';
   document.getElementById('app').innerHTML=
    '<div class="hd"><div class="brand">BEANCRAFT · 카페 창업</div><div class="area">'+esc(item.title||'상권분석 리포트')+'</div><div class="sub">빈크래프트 상권분석 리포트</div></div>'+
    '<div class="bd">'+
    '<div class="purpose">이 자료는 빈크래프트가 직접 개발한 상권분석 프로그램으로 분석한 실제 데이터입니다. 저희는 <b>상권분석을 파는 회사가 아니라, 매물부터 오픈까지 함께하는 카페 창업 회사</b>예요. 상권분석은 창업을 준비하는 과정의 일부입니다.<br><br>그래서 이 자료도 전체 중 일부만 공개해 두었어요. 정보를 팔려는 게 아니라, 저희가 창업을 도울 때 <b>이런 데이터까지 들여다본다</b>는 걸 보여드리고 싶었습니다. 모든 정보는 카페 창업자를 위해 준비해 두었습니다.</div>'+
    '<div class="disc">※ 분석 데이터는 실시간으로 수집되지만, 본 자료는 <b>수집된 시점 기준</b> 정보입니다. 전체 분석은 카페 창업 상담 시에만 제공됩니다.</div>'+
-   dateLine+
    cards+
    '<div class="notice"><span>공개된 정보는 <b>영상 속에 첨부한 정보</b>만 보여드리고 있습니다.</span></div>'+
    midcta+
