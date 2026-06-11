@@ -123,13 +123,6 @@ function render(item){
    '</div>';
 }
 
-function findItem(data,id){
-  if(!data||!data.categories)return null;
-  var cats=data.categories,first=null;
-  for(var k in cats){var c=cats[k];var items=c.items||[];for(var j in items){var it=items[j];if(it&&(it.type==='market'||it.cards)){if(!first)first=it;if(it.id===id)return it;}}}
-  return id?null:first;  // id 없으면 첫 상권분석
-}
-
 /* ===== 자료 보호 (우클릭·드래그·복사·저장·인쇄·소스보기 차단) =====
    완전 차단은 불가능하므로(화면 캡처는 OS 기능) 워터마크와 함께 다층 억제용. */
 (function(){
@@ -159,11 +152,14 @@ if(DEMO){
     {title:'상권 변화 추이',file:img,revealed:false},
     {title:'유동인구',file:img,revealed:false}
   ]});
+}else if(!id){
+  document.getElementById('app').innerHTML='<div class="state">링크를 다시 확인해 주세요.<br>(자료 주소가 올바르지 않습니다)</div>';
 }else{
   try{
     firebase.initializeApp(FB);
-    firebase.database().ref(PUB_REF).once('value').then(function(s){
-      render(findItem(s.val(),id));
+    // 받은 링크의 상권 1개만 읽음 (published 통째 읽기는 규칙으로 차단됨 → 링크 하나로 전체 덤프 불가)
+    firebase.database().ref(PUB_REF+'/'+id).once('value').then(function(s){
+      render(s.val());
     }).catch(function(){
       document.getElementById('app').innerHTML='<div class="state">자료를 불러오지 못했습니다.<br>잠시 후 다시 시도해 주세요.</div>';
     });

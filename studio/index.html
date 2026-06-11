@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-wm';
+var BUILD='20260611-pubsplit-wm';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -264,7 +264,7 @@ function idbDel(k){return idbOpen().then(function(db){return new Promise(functio
 function draftKey(){return 'draft_'+(DEMO?'demo':(curUser&&curUser.uid?curUser.uid:'anon'));}
 function serializeData(){
   return {categories:(data.categories||[]).map(function(c){return {id:c.id,name:c.name,kind:c.kind,items:(c.items||[]).map(function(it){
-    var o={};for(var k in it){if(!it.hasOwnProperty(k))continue;if(k==='_cards'){o._cards=(it._cards||[]).map(function(a){return {title:a.title||'',url:a.url,revealed:!!a.revealed,committed:!!a.committed,ord:(a.ord!=null?a.ord:0)};});}else if(k.charAt(0)!=='_'){o[k]=it[k];}}
+    var o={};for(var k in it){if(!it.hasOwnProperty(k))continue;if(k==='_cards'){o._cards=(it._cards||[]).map(function(a){return {title:a.title||'',url:a.url,blur:a.blur,wm:a.wm,revealed:!!a.revealed,committed:!!a.committed,ord:(a.ord!=null?a.ord:0)};});}else if(k.charAt(0)!=='_'){o[k]=it[k];}}
     return o;})};})};
 }
 var _saveTimer=null;
@@ -460,7 +460,7 @@ function setPreviewHTML(html){
 function updateDraftPreview(it){setPreviewHTML(cardStarterHTML(it));}
 
 /* ----- 상권분석 작업대 (카드 자동분리 + 공개체크 + 오픈업식 미리보기) ----- */
-function ensureCards(it){if(!it._cards){it._cards=(it.cards||[]).map(function(c,i){return{title:c.title||'',url:c.file,blur:c.blur,revealed:!!c.revealed,committed:true,ord:(c.ord!=null?c.ord:i)};});}it._cards.forEach(function(a,i){if(a.ord==null)a.ord=i;});return it._cards;}
+function ensureCards(it){if(!it._cards){it._cards=(it.cards||[]).map(function(c,i){return{title:c.title||'',url:c.file,blur:c.blur,wm:c.wm,revealed:!!c.revealed,committed:true,ord:(c.ord!=null?c.ord:i)};});}it._cards.forEach(function(a,i){if(a.ord==null)a.ord=i;});return it._cards;}
 /* 공개=위로, 비공개=원래 자리. ord(원래 순서) 기준 안정 정렬: 공개 카드 먼저, 그 안에서 ord 오름차순. */
 function sortCardsByReveal(it){ensureCards(it);it._cards.sort(function(a,b){if(!!a.revealed!==!!b.revealed)return a.revealed?-1:1;return (a.ord||0)-(b.ord||0);});}
 function renderMarketWork(it){
@@ -764,6 +764,27 @@ function hideOverlay(){$('overlay').classList.remove('show');}
 function uploadDataUrl(itemId,dataUrl){var fn=uid('card')+'.jpg';var ref=fbStore.ref(STORAGE_DIR+'/'+itemId+'/'+fn);return ref.putString(dataUrl,'data_url').then(function(){return ref.getDownloadURL();});}
 // 가린 카드용: 블러를 이미지에 영구적으로 구워서 dataURL 반환 (원본은 고객에게 전송 안 됨)
 function blurToDataUrl(srcDataUrl){return new Promise(function(res,rej){var im=new Image();im.onload=function(){var w=im.naturalWidth,h=im.naturalHeight;var cv=document.createElement('canvas');cv.width=w;cv.height=h;var x=cv.getContext('2d');var r=Math.max(16,Math.round(w*0.022));x.filter='blur('+r+'px)';x.drawImage(im,0,0,w,h);x.filter='none';x.fillStyle='rgba(15,20,30,0.16)';x.fillRect(0,0,w,h);res(cv.toDataURL('image/jpeg',0.5));};im.onerror=rej;im.src=srcDataUrl;});}
+// 공개 카드용: 1400px로 축소 + 워터마크를 이미지에 영구히 구워 dataURL 반환 → 네트워크탭으로 빼가도 워터마크 저화질본만 나감
+function watermarkToDataUrl(srcDataUrl){return new Promise(function(res){
+  var im=new Image();im.crossOrigin='anonymous';
+  im.onload=function(){try{
+    var w=im.naturalWidth,h=im.naturalHeight,cap=1400;
+    var s=Math.min(1,cap/Math.max(w,h));var W=Math.max(1,Math.round(w*s)),H=Math.max(1,Math.round(h*s));
+    var cv=document.createElement('canvas');cv.width=W;cv.height=H;var x=cv.getContext('2d');
+    x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';x.drawImage(im,0,0,W,H);
+    // 대각선 반복 텍스트 워터마크 (가독성 유지하는 옅은 농도)
+    x.save();x.translate(W/2,H/2);x.rotate(-32*Math.PI/180);x.textAlign='center';x.textBaseline='middle';
+    var fs=Math.max(13,Math.round(W*0.018));x.font='bold '+fs+'px sans-serif';
+    var stepY=Math.max(70,Math.round(W*0.11)),unit='빈크래프트 BeanCraft · 무단복제·재배포 금지     ';
+    var line='';for(var k=0;k<8;k++)line+=unit;
+    var span=Math.max(W,H)*1.3;
+    for(var yy=-span;yy<span;yy+=stepY){x.fillStyle='rgba(26,54,93,0.11)';x.fillText(line,0,yy);}
+    x.restore();
+    res(cv.toDataURL('image/jpeg',0.82));
+  }catch(e){res(null);}};   // cross-origin(기존 https 카드)으로 캔버스 오염 시 null → 호출부에서 폴백
+  im.onerror=function(){res(null);};
+  im.src=srcDataUrl;
+});}
 
 async function deploy(){
   if(DEMO){showOverlay('(데모) 배포 시뮬레이션…');setTimeout(function(){hideOverlay();setDirty(false);showDeployModal();},1000);return;}
@@ -778,15 +799,18 @@ async function deploy(){
           var newCards=[];
           for(var wi=0;wi<it._cards.length;wi++){
             var a=it._cards[wi];
-            var clearUrl,blurUrl;
-            if(a.committed&&/^https?:/.test(a.url)){clearUrl=a.url;blurUrl=a.blur||a.url;}
-            else{
+            var clearUrl,blurUrl,wmUrl=a.wm||null;
+            if(a.committed&&/^https?:/.test(a.url)){
+              clearUrl=a.url;blurUrl=a.blur||a.url;
+              if(a.revealed&&!wmUrl){var wd0=await watermarkToDataUrl(a.url);if(wd0)wmUrl=await uploadDataUrl(it.id,wd0);}
+            }else{
               showOverlay('카드 올리는 중… ('+(wi+1)+'/'+it._cards.length+')');
-              clearUrl=await uploadDataUrl(it.id,a.url);
-              var bd=await blurToDataUrl(a.url);
+              clearUrl=await uploadDataUrl(it.id,a.url);   // 팀 보관용(선명한 원본, 로그인 전용 marketing/data 에만 들어감)
+              var bd=await blurToDataUrl(a.url);           // 항상 실제 블러 생성(나중에 공개→비공개 전환 시 원본 노출 방지)
               blurUrl=await uploadDataUrl(it.id,bd);
+              if(a.revealed){var wd=await watermarkToDataUrl(a.url);wmUrl=wd?await uploadDataUrl(it.id,wd):clearUrl;}  // 공개용: 워터마크 1400px
             }
-            newCards.push({title:a.title||'',file:clearUrl,blur:blurUrl,revealed:!!a.revealed,ord:(a.ord!=null?a.ord:wi)});
+            newCards.push({title:a.title||'',file:clearUrl,blur:blurUrl,wm:wmUrl,revealed:!!a.revealed,ord:(a.ord!=null?a.ord:wi)});
           }
           it.cards=newCards;it.type='market';delete it._cards;delete it.files;
         }
@@ -798,10 +822,17 @@ async function deploy(){
     data.updated=today();data.updatedAt=Date.now();
     var team=stripT(data);
     await fbDb.ref(DATA_REF).set(team);
-    // 고객 공개본: 가린 카드는 '블러 이미지'만 내보냄 (선명한 원본은 제외)
-    var pub=JSON.parse(JSON.stringify(team));
-    (pub.categories||[]).forEach(function(cat){(cat.items||[]).forEach(function(x){ if(x.cards){x.cards=x.cards.map(function(cd){return {title:cd.title,file:cd.revealed?cd.file:(cd.blur||cd.file),revealed:!!cd.revealed};});} });});
-    await fbDb.ref(PUB_REF).set(pub);
+    // 고객 공개본: 상권 id별 노드로 분리 저장 → 링크 1개로 전체 덤프 불가(규칙으로 published 통째 읽기 차단).
+    // 공개 카드=워터마크본(wm), 가린 카드=블러본만 내보냄. 선명한 원본 URL은 공개본에 들어가지 않음.
+    var pubById={};
+    (team.categories||[]).forEach(function(cat){(cat.items||[]).forEach(function(x){
+      if(x.cards){
+        pubById[x.id]={title:x.title||'',collectedAt:x.collectedAt||'',cards:x.cards.map(function(cd){
+          return {title:cd.title,file:cd.revealed?(cd.wm||cd.file):(cd.blur||cd.file),revealed:!!cd.revealed,ord:cd.ord};
+        })};
+      }
+    });});
+    await fbDb.ref(PUB_REF).set(pubById);   // {<상권id>:{title,cards}} 평면 구조로 통째 교체
     await idbDel(draftKey());
     hideOverlay();setDirty(false);renderTree();highlightActive();
     showDeployModal();   // 링크 복사 팝업
