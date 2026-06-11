@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-dragmove';
+var BUILD='20260611-splitrobust';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -670,17 +670,20 @@ function splitCards(src){
     }
     if(out.length)return out;
   }
-  // 4) 배지 실패 → '빈 줄(배경) 간격'으로 분리
-  var gapMin=Math.max(Math.round(hs*0.006),Math.round(24*s),4);
-  var segs=[],inSeg=false,start=0,gap=0,lastC=-1;
-  for(var yy=0;yy<=hs;yy++){
-    var isC=(yy<hs)?content[yy]:false;
-    if(isC){if(!inSeg){inSeg=true;start=yy;}gap=0;lastC=yy;}
-    else if(inSeg){gap++;if(gap>=gapMin||yy===hs){segs.push([start,lastC+1]);inSeg=false;gap=0;}}
-  }
-  segs=segs.filter(function(g2){return g2[1]-g2[0]>=Math.max(10,Math.round(hs*0.008));});
-  if(segs.length>=2){
-    return segs.map(function(g3){return cropFromSource(src,W,H,g3[0]/s-pad,g3[1]/s+pad);}).filter(Boolean);
+  // 4) 배지 실패 → 콘텐츠 블록 사이 '간격'을 자동 측정해 카드 경계로 분리
+  //    (칸 안 작은 줄간격 vs 카드 사이 큰 간격을 중앙값 기준으로 구분 → 테마/브라우저 무관)
+  var blocks=[],inB=false,bs0=0;
+  for(var yy=0;yy<=hs;yy++){var isC=(yy<hs)&&content[yy];if(isC){if(!inB){inB=true;bs0=yy;}}else if(inB){blocks.push([bs0,yy]);inB=false;}}
+  if(blocks.length>=2){
+    var gaps=[];for(var b1=1;b1<blocks.length;b1++)gaps.push(blocks[b1][0]-blocks[b1-1][1]);
+    var medGap=median(gaps);
+    var thr=Math.max(Math.round(hs*0.012),Math.round(medGap*1.7),8);   // 카드 경계로 볼 최소 간격
+    var groups=[[blocks[0]]];
+    for(var b2=1;b2<blocks.length;b2++){var gp=blocks[b2][0]-blocks[b2-1][1];if(gp>=thr)groups.push([blocks[b2]]);else groups[groups.length-1].push(blocks[b2]);}
+    if(groups.length>=2){
+      var res=groups.map(function(g){var top=g[0][0],bot=g[g.length-1][1];return cropFromSource(src,W,H,top/s-pad,bot/s+pad);}).filter(Boolean);
+      if(res.length>=2)return res;
+    }
   }
   // 5) 통째 1장 (콘텐츠 범위만)
   var ct=0;while(ct<hs&&!content[ct])ct++;var cb=hs-1;while(cb>ct&&!content[cb])cb--;
