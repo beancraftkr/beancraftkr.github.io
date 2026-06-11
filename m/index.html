@@ -28,8 +28,15 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:#fff;c
 .midcta{text-align:center;margin:24px 2px 26px}
 .midcta .ask{font-size:1.05rem;font-weight:800;color:#1a365d;margin-bottom:12px}
 .ctarow{display:flex;align-items:center;justify-content:center;gap:2px}
-.cta2{color:#1a365d;font-weight:800;font-size:1rem;text-decoration:none;padding:9px 16px}
+.cta2{color:#1a365d;font-weight:800;font-size:1rem;text-decoration:none;padding:9px 16px;background:none;border:0;cursor:pointer;font-family:inherit}
 .sep{color:#c3ccd6;font-weight:400}
+.cmodal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
+.cmodal.open{display:flex}
+.cbox{background:#fff;border-radius:16px;width:440px;max-width:calc(100vw - 32px);height:800px;max-height:calc(100vh - 56px);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 12px 44px rgba(0,0,0,.35)}
+.chead{background:linear-gradient(135deg,#1a365d,#2b6cb0);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.chead b{font-size:1rem;font-weight:800}
+.cclose{background:none;border:0;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px 8px;line-height:1}
+.cbox iframe{flex:1;width:100%;border:0;background:#fff}
 .oc{border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:14px;background:#fff}
 .oct{padding:11px 15px;font-size:.95rem;border-bottom:1px solid #f0f2f4}.oct.on{font-weight:800;color:#111}.oct.off{font-weight:600;color:#9aa6b3}
 .oi{width:100%;display:block}
@@ -50,6 +57,12 @@ body{padding-bottom:46px}
 <div class="wm" aria-hidden="true"></div>
 <div id="app"><div class="state">불러오는 중…</div></div>
 <div class="cr"><b>© 2026 BEANCRAFT</b> · 본 자료는 빈크래프트의 저작물입니다. 무단 복제·재배포를 금합니다.</div>
+<div class="cmodal" id="cmodal" onclick="if(event.target===this)closeConsult()">
+  <div class="cbox">
+    <div class="chead"><b id="ctitle">무료 상담 신청</b><button class="cclose" type="button" onclick="closeConsult()" aria-label="닫기">✕</button></div>
+    <iframe id="cframe" title="상담 신청 폼"></iframe>
+  </div>
+</div>
 
 <script>
 var FB={apiKey:"AIzaSyBRrxkXnyGd3HKXFKEUB2o15sY8U2N2Mic",authDomain:"beancraft-sales-team.firebaseapp.com",databaseURL:"https://beancraft-sales-team-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"beancraft-sales-team",storageBucket:"beancraft-sales-team.firebasestorage.app",messagingSenderId:"803745881200",appId:"1:803745881200:web:fb430162f761e3ecdba8b5"};
@@ -62,6 +75,14 @@ var CONSULT_HAVE=CONSULT+'?usp=pp_url&entry.740000146='+encodeURIComponent('[매
 var LOCK='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-1px;margin-right:5px" aria-hidden="true"><path d="M17 8h-1V6A4 4 0 0 0 8 6v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm-7-2a2 2 0 0 1 4 0v2h-4V6z"></path></svg>';
 var DEMO=/[?&]demo=1/.test(location.search);
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+// 상담 폼을 새 탭이 아니라 카드뉴스와 동일한 iframe 창(440x800)으로 띄움. 버튼별로 구분 표시 prefill.
+function openConsult(type){
+  var pre=(type==='have')?'[매물은 구했어요] ':'[매물을 구해주세요] ';
+  var t=document.getElementById('ctitle'); if(t)t.textContent=(type==='have')?'매물은 구했어요 · 상담 신청':'매물 구해주세요 · 상담 신청';
+  document.getElementById('cframe').src=CONSULT+'?embedded=true&usp=pp_url&entry.740000146='+encodeURIComponent(pre);
+  document.getElementById('cmodal').classList.add('open');
+}
+function closeConsult(){var m=document.getElementById('cmodal');if(m)m.classList.remove('open');var f=document.getElementById('cframe');if(f)f.src='about:blank';}
 
 function render(item){
   if(!item){document.getElementById('app').innerHTML='<div class="state">자료를 찾을 수 없습니다.<br>링크를 다시 확인해 주세요.</div>';return;}
@@ -75,18 +96,18 @@ function render(item){
   var cards=arr.join('');
   // 카드 아래 상담 유도(박스 아님): 질문 + 가로 두 버튼(구분선)
   var midcta='<div class="midcta"><div class="ask">준비 중인 카페가 있으신가요?</div>'+
-    '<div class="ctarow"><a class="cta2" href="'+CONSULT_FIND+'" target="_blank" rel="noopener">매물 구해주세요</a>'+
+    '<div class="ctarow"><button class="cta2" type="button" onclick="openConsult(\'find\')">매물 구해주세요</button>'+
     '<span class="sep">ㅣ</span>'+
-    '<a class="cta2" href="'+CONSULT_HAVE+'" target="_blank" rel="noopener">매물은 구했어요</a></div></div>';
+    '<button class="cta2" type="button" onclick="openConsult(\'have\')">매물은 구했어요</button></div></div>';
   if(!item.cards||!item.cards.length)cards='<div class="state">등록된 카드가 없습니다.</div>';
   document.getElementById('app').innerHTML=
    '<div class="hd"><div class="brand">BEANCRAFT · 카페 창업</div><div class="area">'+esc(item.title||'상권분석 리포트')+'</div><div class="sub">빈크래프트 상권분석 리포트</div></div>'+
    '<div class="bd">'+
    '<div class="purpose">이 자료는 빈크래프트가 직접 개발한 상권분석 프로그램으로 분석한 실제 데이터입니다. 저희는 <b>상권분석을 파는 회사가 아니라, 매물부터 오픈까지 함께하는 카페 창업 회사</b>예요. 상권분석은 창업을 준비하는 과정의 일부입니다.<br><br>그래서 이 자료도 전체 중 일부만 공개해 두었어요. 정보를 팔려는 게 아니라, 저희가 창업을 도울 때 <b>이런 데이터까지 들여다본다</b>는 걸 보여드리고 싶었습니다. 모든 정보는 카페 창업자를 위해 준비해 두었습니다.</div>'+
    '<div class="disc">※ 분석 데이터는 실시간으로 수집되지만, 본 자료는 <b>수집된 시점 기준</b> 정보입니다. 전체 분석은 카페 창업 상담 시에만 제공됩니다.</div>'+
+   midcta+
    cards+
    '<div class="notice"><span>공개된 정보는 <b>영상 속에 첨부한 정보</b>만 보여드리고 있습니다.</span></div>'+
-   midcta+
    '<div class="foot"><a class="hbtn" href="https://beancraft.co.kr" target="_blank" rel="noopener">빈크래프트 홈페이지 바로가기</a><p><b>빈크래프트는 프랜차이즈 회사가 아닙니다.</b><br>개인 카페를 만들어 주는 회사입니다.</p></div>'+
    '</div>';
 }
