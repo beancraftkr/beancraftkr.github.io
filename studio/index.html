@@ -9,7 +9,20 @@
 <meta name="theme-color" content="#0f1b2d">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
-<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>
+/* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
+var BUILD='20260611-3cat-ocr';
+(function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
+  v=(v||'').trim();
+  if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
+    sessionStorage.setItem('rl_'+v,'1');
+    var done=function(){location.reload(true);};
+    if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(x){x.unregister();});}).catch(function(){});}
+    if(window.caches){caches.keys().then(function(ks){return Promise.all(ks.map(function(k){return caches.delete(k);}));}).then(done).catch(done);}else{done();}
+  }
+}).catch(function(){});}catch(e){}})();
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -488,6 +501,20 @@ function cleanTitle(s){
     .replace(/[^가-힣A-Za-z0-9 /·]/g,'')    // 한글·영문·숫자·공백만 남김
     .replace(/\s{2,}/g,' ').trim();
 }
+/* OCR로 읽은 제목을 '정해진 분석 카테고리명'에 맞춰 보정(스냅). 비슷하면 깨끗한 이름으로 교정,
+   목록에 없는 새 내용이면 OCR 원문 사용 → 읽기(적응) + 정확도 둘 다 확보. */
+function snapLabel(ocr,labels){
+  if(!ocr||!labels||!labels.length)return '';
+  var o=(ocr||'').replace(/\s/g,'');if(o.length<2)return '';
+  var best='',bestScore=0;
+  for(var i=0;i<labels.length;i++){
+    var l=labels[i].replace(/\s/g,''),common=0,used={};
+    for(var k=0;k<o.length;k++){var pos=l.indexOf(o[k]);if(pos>=0&&!used[pos]){used[pos]=1;common++;}}
+    var score=common/Math.max(o.length,l.length);
+    if(score>bestScore){bestScore=score;best=labels[i];}
+  }
+  return bestScore>=0.5?best:'';
+}
 async function ocrTitle(url){
   try{
     var im=await loadImg(url);var W=im.naturalWidth;
@@ -524,19 +551,19 @@ async function onAttach(it,files){
     var labels=ANALYSIS_LABELS[catIdOf(it)]||[];   // 카테고리별 '정해진 분석 카테고리' 이름
     cards.forEach(function(c){ var idx=it._cards.length; it._cards.push({title:labels[idx]||('카드 '+(idx+1)),url:c.url,revealed:false,committed:false,ord:idx}); });
     setDirty(true);renderCards(it);updateMarketPreview(it);
-    // 정해진 라벨이 없는 카드만 OCR로 보완 (라벨 있으면 그대로 사용 → 빠르고 정확)
-    var needOcr=false; for(var ci2=start;ci2<it._cards.length;ci2++){ if(!labels[ci2]){needOcr=true;break;} }
-    if(needOcr){ try{
+    // 각 카드 상단의 [번호배지][제목] 패턴을 OCR로 읽어 제목 기재 → 정해진 분석 카테고리명으로 보정
+    try{
       showOverlay('카드 제목 인식 중…');
       await getTess();
       for(var ti=start;ti<it._cards.length;ti++){
-        if(labels[ti])continue;   // 정해진 분석 카테고리명 있음 → OCR 건너뜀
         showOverlay('카드 제목 인식 중… ('+(ti-start+1)+'/'+(it._cards.length-start)+')');
-        var t=await ocrTitle(it._cards[ti].url);
-        if(t&&t.length>=2&&t.length<=24)it._cards[ti].title=t;
+        var ocr=await ocrTitle(it._cards[ti].url);
+        var snapped=snapLabel(ocr,labels);                                   // 비슷하면 깨끗한 이름으로
+        var t=snapped||((ocr&&ocr.length>=2&&ocr.length<=24)?ocr:'')||labels[ti]||'';
+        if(t)it._cards[ti].title=t;
+        renderCards(it);updateMarketPreview(it);                              // 한 장씩 즉시 반영(읽는 게 보이게)
       }
-      renderCards(it);updateMarketPreview(it);
-    }catch(e){/* OCR 실패 시 '카드 N' 유지 */} }
+    }catch(e){/* OCR 실패 시 정해진 라벨/카드N 유지 */}
   }catch(e){ alert('처리 실패: '+(e&&e.message||e)); }
   hideOverlay();
 }
