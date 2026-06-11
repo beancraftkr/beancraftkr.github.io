@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-cardreorder';
+var BUILD='20260611-trim';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -645,8 +645,8 @@ async function onAttachSingle(it,files){
       }else if(f.type.indexOf('image/')===0){ pages.push(await fileToImage(f)); }
       else continue;
       for(var p=0;p<pages.length;p++){
-        var im=pages[p];var W=im.naturalWidth||im.width,H=im.naturalHeight||im.height;
-        var card=cropFromSource(im,W,H,0,H);   // 통째 1장 그대로
+        var im=pages[p];
+        var card=trimToContent(im);   // 위·아래 빈 여백만 잘라 콘텐츠에 초점(자동 인식)
         if(card){var idx=it._cards.length;it._cards.push({title:'',url:card.url,revealed:false,committed:false,ord:idx});}
       }
     }
@@ -672,6 +672,30 @@ function cropFromSource(src,W,H,top,bot){
   var c=document.createElement('canvas');c.width=W;c.height=sh;
   c.getContext('2d').drawImage(src,0,top,W,sh,0,0,W,sh);
   return {url:c.toDataURL('image/jpeg',0.9)};
+}
+/* 낱개 카드용 콘텐츠 트림 — 위·아래의 '균일한 빈 띠'(여백)만 잘라 콘텐츠에 초점.
+   원리: 콘텐츠가 있는 행은 밝기 편차가 크고, 빈 여백 행은 거의 균일(편차 작음).
+   행 편차로 위/아래 여백을 자동 인식 → 카드마다 텍스트·높이가 달라도 고치지 않고 잘 잘림.
+   좌우 폭은 그대로 유지(요청: 윗/아랫 초점). 가운데 패널 사이 간격은 건드리지 않음. */
+function trimToContent(src){
+  var W=src.naturalWidth||src.width, H=src.naturalHeight||src.height;
+  if(!W||!H) return cropFromSource(src,W,H,0,H);
+  var s=Math.min(1, 4000/H, Math.sqrt(8000000/(W*H))); if(!(s>0)||!isFinite(s))s=1;
+  var hs=Math.max(1,Math.round(H*s)), sw=Math.max(40,Math.round(W*s));
+  var cv=document.createElement('canvas');cv.width=sw;cv.height=hs;
+  cv.getContext('2d').drawImage(src,0,0,W,H,0,0,sw,hs);
+  var d;try{d=cv.getContext('2d').getImageData(0,0,sw,hs).data;}catch(e){return cropFromSource(src,W,H,0,H);}
+  function lum(p){return 0.299*d[p]+0.587*d[p+1]+0.114*d[p+2];}
+  var x0=Math.round(sw*0.03), x1=sw-Math.round(sw*0.03); if(x1<=x0){x0=0;x1=sw;}   // 가장자리 잡티 제외
+  var step=Math.max(1,Math.floor((x1-x0)/140));
+  var flatTol=14;   // 행 안 밝기 편차가 이보다 작으면 '빈 여백'으로 봄
+  function flat(y){var mn=999,mx=-1,base=y*sw;for(var x=x0;x<x1;x+=step){var L=lum((base+x)*4);if(L<mn)mn=L;if(L>mx)mx=L;if(mx-mn>=flatTol)return false;}return true;}
+  var ct=0;while(ct<hs&&flat(ct))ct++;
+  var cb=hs-1;while(cb>ct&&flat(cb))cb--;
+  if(ct>=cb){ct=0;cb=hs-1;}   // 전부 균일하면(인식 실패) 통째
+  var pad=Math.max(14,Math.round(W*0.014));
+  var card=cropFromSource(src,W,H, ct/s-pad, (cb+1)/s+pad);
+  return card||cropFromSource(src,W,H,0,H);
 }
 /* 핵심: 어떤 PC·브라우저에서도 동일하게 동작하도록 —
    1) 분석은 축소본에서(대형 캔버스 한계 회피), 자르기는 원본에서 직접
