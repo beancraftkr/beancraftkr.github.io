@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>빈크래프트 창업 디렉팅 신청서</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="template-v1.js"></script>
+<style>
+*{margin:0;box-sizing:border-box}
+body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:#fff;color:#111;-webkit-font-smoothing:antialiased;}
+.hd{background:linear-gradient(135deg,#1a365d,#0f2647);color:#fff;padding:28px 22px}
+.hd .brand{font-size:.74rem;font-weight:800;letter-spacing:.06em;opacity:.8}
+.hd .area{font-size:1.35rem;font-weight:800;margin-top:6px}
+.hd .sub{font-size:.84rem;color:#cbd5e0;margin-top:4px}
+.bd{max-width:620px;margin:0 auto;padding:18px 16px 60px}
+.intro{border:1.5px solid #1a365d;border-radius:12px;padding:15px 17px;font-size:.88rem;line-height:1.75;color:#222;margin-bottom:18px}
+.sec{border:1px solid #e5e7eb;border-radius:14px;background:#fff;margin-bottom:16px;overflow:hidden}
+.sec .st{background:#f4f7fb;border-bottom:1px solid #e5ecf4;padding:12px 16px;font-size:.95rem;font-weight:800;color:#1a365d;display:flex;gap:8px;align-items:center}
+.sec .st .no{background:#1a365d;color:#fff;border-radius:6px;font-size:.72rem;font-weight:800;padding:2px 7px;flex-shrink:0}
+.sec .sb{padding:14px 16px}
+label.fl{display:block;font-size:.8rem;font-weight:700;color:#3b4a5e;margin:12px 0 5px}
+label.fl:first-child{margin-top:0}
+input[type=text],input[type=tel]{width:100%;padding:11px 12px;border:1.5px solid #d6dde6;border-radius:9px;font-size:.92rem;font-family:inherit;background:#fff;color:#111}
+input[type=text]:focus,input[type=tel]:focus{outline:none;border-color:#1a365d}
+.b3{display:flex;gap:8px}.b3>div{flex:1}.b3 .bl{font-size:.72rem;color:#67768a;margin-bottom:4px;font-weight:600}
+.sfx{display:flex;align-items:center;gap:8px}.sfx input{flex:1}.sfx span{font-size:.85rem;color:#3b4a5e;flex-shrink:0;font-weight:600}
+.svc{display:block;border:1.5px solid #d6dde6;border-radius:11px;padding:13px 14px;margin-bottom:9px;cursor:pointer;transition:border-color .12s,background .12s}
+.svc:last-child{margin-bottom:0}
+.svc.on{border-color:#1a365d;background:#f0f5fb}
+.svc .row{display:flex;align-items:flex-start;gap:10px}
+.svc input{width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:#1a365d}
+.svc .nm{font-size:.92rem;font-weight:800;color:#16263c}
+.svc .pr{font-size:.86rem;font-weight:800;color:#1a365d;margin-left:auto;flex-shrink:0;padding-left:8px}
+.svc .dc{font-size:.78rem;color:#67768a;line-height:1.55;margin-top:4px}
+.hint{font-size:.78rem;color:#67768a;line-height:1.6;margin-bottom:10px}
+.step{padding:13px 0;border-bottom:1px dashed #e2e8f0}
+.step:first-child{padding-top:2px}.step:last-child{border-bottom:0;padding-bottom:2px}
+.step .tt{font-size:.88rem;font-weight:800;color:#16263c;margin-bottom:6px}
+.step .tt .sn{color:#1a365d}
+.step .tx{font-size:.82rem;color:#374357;line-height:1.7}
+.step ul{margin:7px 0 0 18px}
+.step li{font-size:.8rem;color:#374357;line-height:1.65;margin-bottom:2px}
+.step .nt{font-size:.76rem;color:#8a93a0;line-height:1.6;margin-top:7px;padding-left:10px;border-left:2px solid #dde6f1}
+.con{padding:12px 0;border-bottom:1px dashed #e2e8f0}
+.con:last-child{border-bottom:0}
+.con .ck{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.con input{width:18px;height:18px;margin-top:1px;flex-shrink:0;accent-color:#1a365d}
+.con .tg{font-size:.84rem;font-weight:800;color:#1a365d}
+.con .tx{font-size:.8rem;color:#374357;line-height:1.68;margin-top:4px}
+.allck{display:flex;gap:10px;align-items:center;background:#f0f5fb;border:1.5px solid #b9cce3;border-radius:10px;padding:11px 13px;margin-bottom:6px;cursor:pointer}
+.allck input{width:19px;height:19px;accent-color:#1a365d;flex-shrink:0}
+.allck b{font-size:.88rem;color:#1a365d}
+.lockmsg{background:#fbf4ec;border:1px solid #ecd9bf;color:#8a6534;border-radius:10px;padding:10px 13px;font-size:.8rem;line-height:1.6;margin-bottom:10px}
+.lockmsg.hidden{display:none}
+.sec.locked .sb>*:not(.lockmsg){opacity:.45;pointer-events:none}
+.sigtab{display:flex;gap:8px;margin-bottom:10px}
+.sigtab button{flex:1;padding:9px;border-radius:9px;border:1.5px solid #d6dde6;background:#fff;font-family:inherit;font-size:.84rem;font-weight:700;color:#67768a;cursor:pointer}
+.sigtab button.on{border-color:#1a365d;color:#1a365d;background:#f0f5fb}
+#sigCanvas{width:100%;height:150px;border:1.5px dashed #b9c5d4;border-radius:10px;touch-action:none;background:#fbfcfe;display:block}
+.sigbar{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.sigbar small{color:#8a93a0;font-size:.74rem}
+.sigbar button{background:none;border:0;color:#1a365d;font-weight:700;font-size:.8rem;cursor:pointer;font-family:inherit;text-decoration:underline}
+.typedPrev{margin-top:8px;border:1.5px dashed #b9c5d4;border-radius:10px;padding:14px;text-align:center;font-size:1.5rem;font-weight:600;color:#16263c;font-family:'Pretendard',cursive;min-height:60px}
+.finline{font-size:.84rem;color:#16263c;line-height:1.7;font-weight:600;margin-bottom:10px}
+.subbtn{width:100%;background:#1a365d;color:#fff;border:0;border-radius:12px;padding:15px;font-size:1rem;font-weight:800;font-family:inherit;cursor:pointer;margin-top:4px}
+.subbtn:disabled{background:#aebccf;cursor:not-allowed}
+.errbar{background:#fdf1f1;border:1px solid #ecc8c8;color:#9b3535;border-radius:10px;padding:10px 13px;font-size:.8rem;line-height:1.6;margin-top:10px;display:none}
+.errbar.show{display:block}
+.state{text-align:center;color:#9aa6b3;padding:80px 24px;font-size:.95rem;line-height:1.8}
+.state b{color:#1a365d}
+.done{max-width:620px;margin:0 auto;padding:28px 16px 60px}
+.donecard{border:1.5px solid #1a365d;border-radius:14px;padding:22px 20px;text-align:center}
+.donecard .big{font-size:1.2rem;font-weight:800;color:#1a365d;margin-bottom:8px}
+.donecard p{font-size:.85rem;color:#374357;line-height:1.7}
+.sumcard{border:1px solid #e5e7eb;border-radius:12px;padding:15px 17px;margin-top:14px}
+.sumcard .r{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:.84rem;border-bottom:1px dashed #eef1f5}
+.sumcard .r:last-child{border-bottom:0}
+.sumcard .k{color:#67768a;flex-shrink:0}.sumcard .v{color:#16263c;font-weight:600;text-align:right;word-break:break-all}
+.prbtn{display:block;width:100%;margin-top:14px;background:#fff;color:#1a365d;border:1.5px solid #1a365d;border-radius:11px;padding:13px;font-size:.92rem;font-weight:800;font-family:inherit;cursor:pointer}
+.withdraw{font-size:.76rem;color:#8a93a0;line-height:1.65;margin-top:14px;text-align:center}
+.foot{margin-top:26px;border-top:1px dashed #d3d9e0;padding-top:18px;text-align:center}
+.foot p{font-size:.82rem;color:#445;line-height:1.7}
+.foot .cr{font-size:.72rem;color:#9aa6b3;margin-top:10px}
+@media print{
+  .hd,.subbtn,.prbtn,.sigtab,.sigbar,.errbar,.lockmsg{display:none!important}
+  .bd,.done{max-width:100%;padding:0}
+  .sec{break-inside:avoid;border-color:#bbb}
+  body{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div id="app"><div class="state">신청서를 불러오는 중입니다…</div></div>
+<script>
+(function(){
+'use strict';
+var DB='https://beancraft-sales-team-default-rtdb.asia-southeast1.firebasedatabase.app';
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function $(id){return document.getElementById(id);}
+var qs=new URLSearchParams(location.search);
+var ID=(location.hash||'').replace(/^#/,'')||qs.get('id')||'';
+var DEMO=(ID==='demo')||qs.get('demo')==='1';
+if(DEMO)ID='demo';
+var doc=null, viewLogged=false, openedAt=Date.now();
+
+function api(path){return DB+'/agreements/'+encodeURIComponent(ID)+path+'.json';}
+function fmtDT(ms){try{var d=new Date(ms);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}catch(e){return '';}}
+
+function showState(html){$('app').innerHTML='<div class="state">'+html+'</div>';}
+
+/* 열람 기록 — 봇(링크 미리보기) 오탐 방지: 사람 신호(스크롤/터치/클릭) 후 1회만 */
+function logView(){
+  if(viewLogged||DEMO)return;viewLogged=true;
+  try{fetch(api('/views'),{method:'POST',body:JSON.stringify({at:{'.sv':'timestamp'},device:String(navigator.userAgent||'').slice(0,280)})}).catch(function(){});}catch(e){}
+}
+function armViewLog(){['scroll','pointerdown','touchstart','keydown'].forEach(function(ev){window.addEventListener(ev,logView,{once:true,passive:true});});}
+
+function load(){
+  if(DEMO){doc={title:AGREEMENT_TEMPLATE_V1.title,version:AGREEMENT_TEMPLATE_V1.version,body:AGREEMENT_TEMPLATE_V1,expireAt:Date.now()+7*864e5};render();return;}
+  if(!ID){showState('유효하지 않은 링크입니다.<br>받으신 메시지의 링크를 다시 확인해 주세요.');return;}
+  Promise.all([
+    fetch(api('/doc')).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
+    fetch(api('/submission/submittedAt')).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+  ]).then(function(rs){
+    var d=rs[0],subAt=rs[1];
+    if(!d){showState('신청서를 찾을 수 없습니다.<br>링크가 만료되었거나 잘못된 주소일 수 있습니다.<br><br>받으신 채널(카카오톡·문자·이메일)로 회신해 주시면<br>새 링크를 보내드리겠습니다.');return;}
+    doc=d;
+    if(subAt){showState('<b>이미 제출이 완료된 신청서입니다.</b><br>제출 시각: '+esc(fmtDT(subAt))+'<br><br>수정이나 문의가 필요하시면 받으신 채널로 회신해 주세요.');return;}
+    if(d.revoked===true){showState('이 신청서 링크는 더 이상 사용할 수 없습니다.<br>받으신 채널로 회신해 주시면 새 링크를 보내드리겠습니다.');return;}
+    if(d.expireAt&&Date.now()>d.expireAt){showState('신청서 링크의 유효 기간이 지났습니다.<br>받으신 채널(카카오톡·문자·이메일)로 회신해 주시면<br>새 링크를 보내드리겠습니다.');return;}
+    render();
+  });
+}
+
+function render(){
+  var b=doc.body;if(!b){showState('신청서 내용을 불러올 수 없습니다.');return;}
+  var h='';
+  h+='<div class="hd"><div class="brand">'+esc(b.brand||'BEANCRAFT')+'</div><div class="area">'+esc(doc.title||b.title)+'</div><div class="sub">아래 내용을 확인하시고 작성해 주세요'+(doc.expireAt?(' · 유효기간 '+esc(fmtDT(doc.expireAt))+'까지'):'')+'</div></div>';
+  h+='<div class="bd">';
+  h+='<div class="intro">'+esc(b.intro).replace(/\n/g,'<br>')+'</div>';
+  /* 01 희망 창업 조건 */
+  h+='<div class="sec"><div class="st"><span class="no">01</span>희망 창업 조건</div><div class="sb">';
+  (b.wishes||[]).forEach(function(w){
+    h+='<label class="fl">'+esc(w.label)+'</label>';
+    if(w.type==='budget3'){
+      h+='<div class="b3">';
+      (w.parts||[]).forEach(function(p){h+='<div><div class="bl">'+esc(p.label)+'</div><input type="text" inputmode="numeric" data-wish="'+esc(p.key)+'" placeholder="만 원"></div>';});
+      h+='</div>';
+    }else if(w.suffix){
+      h+='<div class="sfx"><input type="text" data-wish="'+esc(w.key)+'" placeholder="'+esc(w.ph||'')+'"><span>'+esc(w.suffix)+'</span></div>';
+    }else{
+      h+='<input type="text" data-wish="'+esc(w.key)+'" placeholder="'+esc(w.ph||'')+'">';
+    }
+  });
+  h+='</div></div>';
+  /* 02 서비스 선택 */
+  h+='<div class="sec"><div class="st"><span class="no">02</span>창업 디렉팅 서비스 선택</div><div class="sb">';
+  h+='<div class="hint">'+esc(b.servicesNote||'')+'</div>';
+  (b.services||[]).forEach(function(s){
+    h+='<label class="svc" data-svcrow="'+esc(s.key)+'"><div class="row"><input type="checkbox" data-svc="'+esc(s.key)+'"><span class="nm">'+esc(s.name)+'</span><span class="pr">'+esc(s.price)+'</span></div>'+(s.desc?'<div class="dc">'+esc(s.desc)+'</div>':'')+'</label>';
+  });
+  h+='</div></div>';
+  /* 03 진행 안내 */
+  h+='<div class="sec"><div class="st"><span class="no">03</span>서비스 진행 안내 (3단계)</div><div class="sb">';
+  h+='<div class="hint">'+esc(b.stepsIntro||'')+'</div>';
+  (b.steps||[]).forEach(function(st){
+    h+='<div class="step"><div class="tt"><span class="sn">['+st.n+'단계]</span> '+esc(st.title)+'</div><div class="tx">'+esc(st.body)+'</div>';
+    if(st.bullets){h+='<ul>';st.bullets.forEach(function(x){h+='<li>'+esc(x)+'</li>';});h+='</ul>';}
+    if(st.notes){st.notes.forEach(function(x){h+='<div class="nt">'+esc(x)+'</div>';});}
+    h+='</div>';
+  });
+  h+='</div></div>';
+  /* 스크롤 게이트 기준점 */
+  h+='<div id="readSentinel"></div>';
+  /* 04 필수 동의 */
+  h+='<div class="sec locked" id="consentSec"><div class="st"><span class="no">04</span>'+esc(b.consentsTitle||'필수 동의 사항')+'</div><div class="sb">';
+  h+='<div class="lockmsg" id="lockMsg">위 내용을 끝까지 읽으시면 동의 체크가 활성화됩니다.</div>';
+  h+='<label class="allck"><input type="checkbox" id="allCk"><b>전체 항목에 모두 동의합니다</b></label>';
+  (b.consents||[]).forEach(function(c){
+    h+='<div class="con"><label class="ck"><input type="checkbox" data-con="'+esc(c.key)+'"><span><span class="tg">['+esc(c.tag)+']</span><div class="tx">'+esc(c.text)+'</div></span></label></div>';
+  });
+  h+='</div></div>';
+  /* 서명 */
+  h+='<div class="sec locked" id="signSec"><div class="st"><span class="no">05</span>신청인 확인 및 서명</div><div class="sb">';
+  h+='<div class="finline">'+esc(b.finalLine||'')+'</div>';
+  h+='<div class="con" style="border-bottom:0;padding-top:0"><label class="ck"><input type="checkbox" id="finalCk"><span><div class="tx" style="margin-top:0;font-weight:700;color:#16263c">'+esc(b.finalCheck||'')+'</div></span></label></div>';
+  h+='<label class="fl">신청인 성명</label><input type="text" id="inName" placeholder="성함을 입력해 주세요" maxlength="40">';
+  h+='<label class="fl">연락처</label><input type="tel" id="inPhone" placeholder="010-0000-0000" maxlength="20">';
+  h+='<label class="fl">서명</label>';
+  h+='<div class="sigtab"><button type="button" id="tabTyped" class="on">이름으로 서명</button><button type="button" id="tabDrawn">손글씨 서명</button></div>';
+  h+='<div id="typedWrap"><div class="typedPrev" id="typedPrev">성명을 입력하시면 서명이 표시됩니다</div></div>';
+  h+='<div id="drawnWrap" style="display:none"><canvas id="sigCanvas"></canvas><div class="sigbar"><small>손가락 또는 마우스로 서명해 주세요</small><button type="button" id="sigClear">지우기</button></div></div>';
+  h+='<button class="subbtn" id="submitBtn" disabled>동의하고 제출하기</button>';
+  h+='<div class="errbar" id="errBar"></div>';
+  h+='</div></div>';
+  h+='<div class="foot"><p><b>빈크래프트는 프랜차이즈 회사가 아닙니다.</b><br>개인 카페를 만들어 주는 회사입니다.</p><div class="cr">© 2026 BEANCRAFT. All Rights Reserved.</div></div>';
+  h+='</div>';
+  $('app').innerHTML=h;
+  bind();armViewLog();
+}
+
+var sigMode='typed', sigDrawn=false, sigCv=null, sigCtx=null;
+function bind(){
+  /* 스크롤 게이트 — 기준점(03 끝)이 화면에 들어오거나 '지나치면' 해제.
+     IntersectionObserver만 쓰면 빠른 스크롤로 점프할 때 교차 없이 지나쳐 안 풀릴 수 있어
+     스크롤 위치 검사를 함께 사용(카톡 인앱 브라우저 포함 전 환경 호환). */
+  var unlocked=false;
+  function unlock(){if(unlocked)return;unlocked=true;$('consentSec').classList.remove('locked');$('signSec').classList.remove('locked');var lm=$('lockMsg');if(lm)lm.classList.add('hidden');refresh();
+    ['scroll','touchmove','resize'].forEach(function(ev){window.removeEventListener(ev,checkRead);});}
+  function checkRead(){
+    var s=$('readSentinel');if(!s){unlock();return;}
+    var top=s.getBoundingClientRect().top;
+    if(top<(window.innerHeight||document.documentElement.clientHeight))unlock();   // 보이거나 이미 지나침
+  }
+  ['scroll','touchmove','resize'].forEach(function(ev){window.addEventListener(ev,checkRead,{passive:true});});
+  try{
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)unlock();});},{threshold:0});
+    io.observe($('readSentinel'));
+  }catch(e){}
+  checkRead();   // 짧은 화면(이미 다 보이는 경우) 즉시 해제
+  /* 서비스 카드 강조 */
+  document.querySelectorAll('[data-svc]').forEach(function(c){c.addEventListener('change',function(){var row=document.querySelector('[data-svcrow="'+c.dataset.svc+'"]');if(row)row.classList.toggle('on',c.checked);refresh();});});
+  /* 동의 체크 */
+  document.querySelectorAll('[data-con]').forEach(function(c){c.addEventListener('change',function(){syncAll();refresh();});});
+  $('allCk').addEventListener('change',function(){var v=this.checked;document.querySelectorAll('[data-con]').forEach(function(c){c.checked=v;});refresh();});
+  $('finalCk').addEventListener('change',refresh);
+  $('inName').addEventListener('input',function(){$('typedPrev').textContent=this.value.trim()||'성명을 입력하시면 서명이 표시됩니다';refresh();});
+  $('inPhone').addEventListener('input',refresh);
+  /* 서명 탭 */
+  $('tabTyped').onclick=function(){sigMode='typed';this.classList.add('on');$('tabDrawn').classList.remove('on');$('typedWrap').style.display='';$('drawnWrap').style.display='none';refresh();};
+  $('tabDrawn').onclick=function(){sigMode='drawn';this.classList.add('on');$('tabTyped').classList.remove('on');$('typedWrap').style.display='none';$('drawnWrap').style.display='';initCanvas();refresh();};
+  $('sigClear').onclick=function(){if(sigCtx){sigCtx.clearRect(0,0,sigCv.width,sigCv.height);sigDrawn=false;refresh();}};
+  $('submitBtn').onclick=submit;
+}
+function syncAll(){var cs=document.querySelectorAll('[data-con]');var all=true;cs.forEach(function(c){if(!c.checked)all=false;});$('allCk').checked=all;}
+function initCanvas(){
+  if(sigCv)return;
+  sigCv=$('sigCanvas');
+  var dpr=Math.max(1,window.devicePixelRatio||1);
+  var w=sigCv.clientWidth||560,hh=150;
+  sigCv.width=Math.round(w*dpr);sigCv.height=Math.round(hh*dpr);
+  sigCtx=sigCv.getContext('2d');sigCtx.scale(dpr,dpr);
+  sigCtx.lineWidth=2.2;sigCtx.lineCap='round';sigCtx.lineJoin='round';sigCtx.strokeStyle='#16263c';
+  var drawing=false,px=0,py=0;
+  function pos(e){var r=sigCv.getBoundingClientRect();var t=(e.touches&&e.touches[0])||e;return [t.clientX-r.left,t.clientY-r.top];}
+  function down(e){e.preventDefault();drawing=true;var p=pos(e);px=p[0];py=p[1];}
+  function move(e){if(!drawing)return;e.preventDefault();var p=pos(e);sigCtx.beginPath();sigCtx.moveTo(px,py);sigCtx.lineTo(p[0],p[1]);sigCtx.stroke();px=p[0];py=p[1];sigDrawn=true;refresh();}
+  function up(){drawing=false;}
+  sigCv.addEventListener('pointerdown',down);sigCv.addEventListener('pointermove',move);window.addEventListener('pointerup',up);
+  sigCv.addEventListener('touchstart',down,{passive:false});sigCv.addEventListener('touchmove',move,{passive:false});window.addEventListener('touchend',up);
+}
+function allConsented(){var ok=true;document.querySelectorAll('[data-con]').forEach(function(c){if(!c.checked)ok=false;});return ok&&$('finalCk').checked;}
+function sigReady(){return sigMode==='typed'?!!$('inName').value.trim():sigDrawn;}
+function svcSelected(){var n=0;document.querySelectorAll('[data-svc]').forEach(function(c){if(c.checked)n++;});return n>0;}
+function refresh(){
+  var locked=$('consentSec').classList.contains('locked');
+  var ok=!locked&&allConsented()&&!!$('inName').value.trim()&&$('inPhone').value.trim().length>=8&&sigReady()&&svcSelected();
+  $('submitBtn').disabled=!ok;
+}
+function err(msg){var e=$('errBar');e.textContent=msg;e.classList.add('show');}
+
+function submit(){
+  var b=doc.body;
+  var name=$('inName').value.trim(),phone=$('inPhone').value.trim();
+  if(!svcSelected())return err('02에서 진행을 원하시는 서비스를 1개 이상 선택해 주세요.');
+  if(!allConsented())return err('04 동의 항목과 최종 동의에 모두 체크해 주세요.');
+  if(!name)return err('신청인 성명을 입력해 주세요.');
+  if(phone.length<8)return err('연락처를 입력해 주세요.');
+  if(!sigReady())return err(sigMode==='drawn'?'서명을 그려 주세요.':'성명을 입력해 주세요.');
+  var btn=$('submitBtn');btn.disabled=true;btn.textContent='제출하는 중…';
+  var wishes={};document.querySelectorAll('[data-wish]').forEach(function(i){var v=i.value.trim();if(v)wishes[i.dataset.wish]=v.slice(0,200);});
+  var services={};document.querySelectorAll('[data-svc]').forEach(function(c){if(c.checked)services[c.dataset.svc]=true;});
+  var agreed={};(b.consents||[]).forEach(function(c){agreed[c.key]=true;});agreed.final=true;
+  var payload={
+    name:name,phone:phone.slice(0,20),wishes:wishes,services:services,agreed:agreed,
+    signatureType:sigMode,
+    signatureData:sigMode==='typed'?name:(function(){try{return sigCv.toDataURL('image/png');}catch(e){return name;}})(),
+    device:String(navigator.userAgent||'').slice(0,280),
+    docVersion:doc.version||'',
+    viewedForMs:Date.now()-openedAt,
+    submittedAt:{'.sv':'timestamp'}
+  };
+  /* IP는 참고 정보 — 실패해도 제출은 진행 */
+  var ipP=Promise.race([
+    fetch('https://api.ipify.org?format=json').then(function(r){return r.json();}).then(function(j){return j&&j.ip;}),
+    new Promise(function(res){setTimeout(function(){res(null);},1500);})
+  ]).catch(function(){return null;});
+  ipP.then(function(ip){
+    if(ip)payload.clientIp=String(ip).slice(0,60);
+    if(DEMO)return new Promise(function(res){setTimeout(function(){res({ok:true});},700);});
+    return fetch(api('/submission'),{method:'PUT',body:JSON.stringify(payload)});
+  }).then(function(r){
+    if(r&&r.ok){renderDone(name,services,b);return;}
+    return (r&&r.json?r.json().catch(function(){return {};}):Promise.resolve({})).then(function(j){
+      /* 이미 제출됨(write-once) 또는 만료 */
+      fetch(api('/submission/submittedAt')).then(function(rr){return rr.ok?rr.json():null;}).then(function(subAt){
+        if(subAt){showState('<b>이미 제출이 완료된 신청서입니다.</b><br>제출 시각: '+esc(fmtDT(subAt)));}
+        else{btn.disabled=false;btn.textContent='동의하고 제출하기';err('제출하지 못했습니다. 링크가 만료되었거나 통신 문제가 있을 수 있습니다. 잠시 후 다시 시도해 주세요.');}
+      });
+    });
+  }).catch(function(){
+    btn.disabled=false;btn.textContent='동의하고 제출하기';
+    err('네트워크 오류로 제출하지 못했습니다. 연결을 확인하신 뒤 다시 시도해 주세요.');
+  });
+}
+
+function renderDone(name,services,b){
+  var svcNames=(b.services||[]).filter(function(s){return services[s.key];}).map(function(s){return s.name;});
+  var h='<div class="hd"><div class="brand">'+esc(b.brand||'BEANCRAFT')+'</div><div class="area">제출이 완료되었습니다</div><div class="sub">'+esc(doc.title||'')+'</div></div>';
+  h+='<div class="done">';
+  h+='<div class="donecard"><div class="big">'+esc(name)+'님, 신청해 주셔서 감사합니다</div><p>작성하신 내용이 안전하게 접수되었습니다.<br>담당 디렉터가 확인 후 빠르게 연락드리겠습니다.</p></div>';
+  h+='<div class="sumcard">';
+  h+='<div class="r"><span class="k">신청인</span><span class="v">'+esc(name)+'</span></div>';
+  h+='<div class="r"><span class="k">선택 서비스</span><span class="v">'+esc(svcNames.join(', ')||'-')+'</span></div>';
+  h+='<div class="r"><span class="k">제출 시각</span><span class="v">'+esc(fmtDT(Date.now()))+'</span></div>';
+  h+='<div class="r"><span class="k">동의 항목</span><span class="v">필수 '+(b.consents||[]).length+'개 항목 + 최종 동의 완료</span></div>';
+  h+='<div class="r"><span class="k">문서 버전</span><span class="v">'+esc(doc.version||'')+'</span></div>';
+  h+='</div>';
+  h+='<button class="prbtn" onclick="window.print()">신청 내용 인쇄 · PDF로 저장</button>';
+  h+='<div class="withdraw">동의 내역 확인·철회, 개인정보 정정·삭제를 원하시면<br>링크를 받으신 채널(카카오톡·문자·이메일)로 회신해 주세요.</div>';
+  h+='<div class="foot"><p><b>빈크래프트는 프랜차이즈 회사가 아닙니다.</b><br>개인 카페를 만들어 주는 회사입니다.</p><div class="cr">© 2026 BEANCRAFT. All Rights Reserved.</div></div>';
+  h+='</div>';
+  $('app').innerHTML=h;
+  window.scrollTo(0,0);
+}
+
+load();
+})();
+</script>
+</body>
+</html>

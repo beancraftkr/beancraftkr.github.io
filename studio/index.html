@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260611-nowmleak';
+var BUILD='20260612-agree';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -27,6 +27,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}</script>
+<script src="../agree/template-v1.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -78,6 +79,36 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:#eef1f
 .btn.ghost{background:#fff;color:#1a365d;border:1.5px solid #1a365d;}
 .btn.sm{padding:7px 13px;font-size:.8rem;}
 .btn.danger{background:#fff;color:#c0392b;border:1.5px solid #e3b3ad;}
+.sb-agree{margin:8px 10px;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.14);color:#e5ecf4;font-weight:700;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.sb-agree:hover{background:rgba(255,255,255,.06);}
+.sb-agree.active{background:#24405f;}
+.agbadge{background:#2b6cb0;color:#fff;border-radius:999px;font-size:.68rem;padding:1px 8px;font-weight:800;}
+.agwrap{flex:1;overflow-y:auto;padding:24px;background:#f3f5f8;}
+.agcard{background:#fff;border:1px solid #e2e7ee;border-radius:12px;padding:18px 20px;margin-bottom:16px;max-width:880px;}
+.agcard h3{font-size:1rem;color:#1a365d;margin-bottom:12px;}
+.agform{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;}
+.agform .fg{flex:1;min-width:150px;}
+.agform label{display:block;font-size:.74rem;font-weight:700;color:#67768a;margin-bottom:4px;}
+.agform input{width:100%;padding:9px 11px;border:1.5px solid #d6dde6;border-radius:8px;font-size:.88rem;font-family:inherit;}
+.aglink{margin-top:12px;background:#f0f5fb;border:1.5px solid #b9cce3;border-radius:9px;padding:10px 13px;font-size:.82rem;color:#1a365d;display:none;align-items:center;gap:10px;flex-wrap:wrap;}
+.aglink.show{display:flex;}
+.aglink code{font-size:.78rem;word-break:break-all;flex:1;min-width:200px;}
+.agtable{width:100%;border-collapse:collapse;font-size:.84rem;}
+.agtable th{text-align:left;color:#67768a;font-size:.74rem;font-weight:700;padding:8px 10px;border-bottom:1.5px solid #e2e7ee;}
+.agtable td{padding:10px;border-bottom:1px solid #eef1f5;vertical-align:middle;}
+.agchip{display:inline-block;border-radius:999px;font-size:.7rem;font-weight:800;padding:2px 9px;white-space:nowrap;}
+.agchip.ok{background:#e6f4ea;color:#1d7a3e;}
+.agchip.wait{background:#eef1f5;color:#67768a;}
+.agchip.view{background:#e8f0fb;color:#2b6cb0;}
+.agchip.mut{background:#f7ecec;color:#9b3535;}
+.agact{display:flex;gap:6px;flex-wrap:wrap;}
+.agact button{background:#fff;border:1px solid #d6dde6;border-radius:7px;padding:4px 9px;font-size:.74rem;font-weight:700;color:#3b4a5e;cursor:pointer;font-family:inherit;}
+.agact button:hover{border-color:#1a365d;color:#1a365d;}
+.agact button.warn{color:#9b3535;}
+.agdet .r{display:flex;gap:12px;padding:7px 0;font-size:.86rem;border-bottom:1px dashed #eef1f5;}
+.agdet .k{color:#67768a;width:120px;flex-shrink:0;}
+.agdet .v{color:#16263c;font-weight:600;word-break:break-all;}
+.agdet img.sig{max-width:280px;border:1px solid #e2e7ee;border-radius:8px;background:#fbfcfe;}
 .stage{flex:1;display:flex;min-height:0;}
 .controls{width:340px;flex-shrink:0;background:#fff;border-right:1px solid #e2e7ee;overflow-y:auto;padding:20px;}
 .preview{flex:1;background:#dfe4ea;min-width:0;position:relative;display:flex;flex-direction:column;}
@@ -151,6 +182,7 @@ input:focus,textarea:focus{border-color:#1a365d;box-shadow:0 0 0 3px rgba(26,54,
       <p>카테고리 → 항목 선택 → 편집 → 배포</p>
     </div>
     <div class="sb-tree" id="tree"></div>
+    <div class="sb-agree" id="agreeNav"><span>동의서 (창업 디렉팅 신청)</span><span class="agbadge hidden" id="agreeBadge"></span></div>
     <div class="sb-bottom">
       <span id="loginState">로그인 안 됨</span>
       <a id="logoutLink" class="hidden">로그아웃</a>
@@ -433,6 +465,7 @@ function newItem(catId){
 /* ===== 항목 선택 → 작업대 ===== */
 function selectItem(cat,item){
   sel={cat:cat,item:item};highlightActive();
+  agView=false;var _an=$('agreeNav');if(_an)_an.classList.remove('active');
   var c=findCat(cat),it=findItem(cat,item);
   var w=$('welcome');if(w)w.classList.add('hidden');
   $('backBtn').classList.remove('hidden');
@@ -1017,9 +1050,188 @@ $('dmClose').onclick=function(){$('deployModal').classList.remove('show');};
 
 window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue='';}});
 
+/* ===== 동의서(창업 디렉팅 신청서) 관리 =====
+   마케팅 배포 흐름(data/dirty/deploy)과 완전 분리 — agreements/ 경로에 직접 기록.
+   고객 페이지: /agree/#<id> (DB의 doc 스냅샷을 읽음). 데모 모드는 메모리 저장으로 동작. */
+var AGREE_BASE=location.origin+'/agree/#';
+var agOn=false, agCache={}, agDemoStore={}, agView=false;
+function aid(){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}return Array.prototype.map.call(a,function(b){return ('0'+b.toString(16)).slice(-2);}).join('');}
+function sha256Hex(str){
+  try{return crypto.subtle.digest('SHA-256',new TextEncoder().encode(str)).then(function(buf){return Array.prototype.map.call(new Uint8Array(buf),function(b){return ('0'+b.toString(16)).slice(-2);}).join('');});}
+  catch(e){return Promise.resolve('');}
+}
+function agFmt(ms){if(!ms)return '-';try{var d=new Date(ms);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}catch(e){return '-';}}
+function agStatus(rec){var d=(rec&&rec.doc)||{};if(rec&&rec.submission)return ['완료','ok'];if(d.revoked===true)return ['무효','mut'];if(d.expireAt&&Date.now()>d.expireAt)return ['만료','mut'];if(rec&&rec.views)return ['열람','view'];return ['대기','wait'];}
+function agStart(){
+  if(DEMO){agCache=agDemoStore;agRefreshUI();return;}
+  if(agOn)return;agOn=true;
+  fbDb.ref('agreements').on('value',function(s){agCache=s.val()||{};agRefreshUI();},function(){/* 권한 없음 등 — 무시 */});
+}
+function agRefreshUI(){
+  var ids=Object.keys(agCache||{});
+  var done=ids.filter(function(id){return agCache[id]&&agCache[id].submission;}).length;
+  var b=$('agreeBadge');if(b){if(done>0){b.textContent='완료 '+done;b.classList.remove('hidden');}else{b.classList.add('hidden');}}
+  if(agView&&$('agList'))renderAgreeList();
+}
+function agCopy(text,btn){
+  function ok(){if(btn){var t=btn.textContent;btn.textContent='복사됨';setTimeout(function(){btn.textContent=t;},1200);}}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok).catch(function(){prompt('아래 주소를 복사하세요',text);});}
+  else prompt('아래 주소를 복사하세요',text);
+}
+function renderAgreementAdmin(){
+  agView=true;sel=null;highlightActive();
+  var an=$('agreeNav');if(an)an.classList.add('active');
+  $('crumb').innerHTML='<span>동의서</span><span class="sep">›</span><span class="cur">창업 디렉팅 신청서</span>';
+  $('stage').innerHTML='<div class="agwrap">'+
+    '<div class="agcard"><h3>새 신청서 보내기</h3>'+
+    '<div class="agform">'+
+      '<div class="fg"><label>고객 이름 (내부 표시용)</label><input type="text" id="agName" placeholder="예: 김OO"></div>'+
+      '<div class="fg"><label>연락처 (선택)</label><input type="text" id="agPhone" placeholder="010-0000-0000"></div>'+
+      '<div class="fg"><label>메모 (선택)</label><input type="text" id="agMemo" placeholder="예: 인스타 DM 문의"></div>'+
+      '<button class="btn deploy sm" id="agCreate" style="height:38px;">신청서 링크 만들기</button>'+
+    '</div>'+
+    '<div class="aglink" id="agLinkBox"><code id="agLinkUrl"></code><button class="btn ghost sm" id="agLinkCopy">링크 복사</button></div>'+
+    '<div style="margin-top:10px;font-size:.74rem;color:#8a93a0;line-height:1.6;">링크 유효기간 7일 · 같은 링크는 1회만 제출됩니다. 만든 링크를 카카오톡·문자·이메일로 직접 보내세요.<br>문서 버전: '+esc((window.AGREEMENT_TEMPLATE_V1||{}).version||'')+' · 미리보기: <a href="'+esc(location.origin)+'/agree/#demo" target="_blank" rel="noopener">고객 화면 데모 열기</a></div>'+
+    '</div>'+
+    '<div class="agcard"><h3 style="display:flex;justify-content:space-between;align-items:center;">신청 현황 <button class="btn ghost sm" id="agExport">전체 내보내기 (JSON)</button></h3><div id="agList"></div></div>'+
+  '</div>';
+  $('agCreate').onclick=function(){
+    var nm=$('agName').value.trim();
+    if(!nm){alert('고객 이름을 입력하세요. (내부 표시용입니다)');return;}
+    var self=this;self.disabled=true;self.textContent='만드는 중…';
+    var body=window.AGREEMENT_TEMPLATE_V1;
+    if(!body){alert('신청서 본문 템플릿을 불러오지 못했습니다. 새로고침 후 다시 시도하세요.');self.disabled=false;self.textContent='신청서 링크 만들기';return;}
+    var id=aid(),now=Date.now();
+    sha256Hex(JSON.stringify(body)).then(function(hash){
+      var rec={doc:{title:body.title,version:body.version,body:body,bodyHash:hash,createdAt:now,expireAt:now+7*864e5},
+               private:{customerName:nm.slice(0,40),customerPhone:$('agPhone').value.trim().slice(0,20),memo:$('agMemo').value.trim().slice(0,200),createdBy:(curUser&&curUser.email)||'',sentAt:now}};
+      function done(){
+        var url=AGREE_BASE+id;
+        $('agLinkUrl').textContent=url;$('agLinkBox').classList.add('show');
+        $('agLinkCopy').onclick=function(){agCopy(url,this);};
+        $('agName').value='';$('agPhone').value='';$('agMemo').value='';
+        self.disabled=false;self.textContent='신청서 링크 만들기';
+        agRefreshUI();if($('agList'))renderAgreeList();
+      }
+      if(DEMO){agDemoStore[id]=rec;agCache=agDemoStore;done();return;}
+      fbDb.ref('agreements/'+id).set(rec).then(done).catch(function(e){alert('만들지 못했습니다: '+(e&&e.message||e));self.disabled=false;self.textContent='신청서 링크 만들기';});
+    });
+  };
+  $('agExport').onclick=function(){
+    var blob=new Blob([JSON.stringify(agCache||{},null,2)],{type:'application/json'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='beancraft-agreements-'+fmtDate(new Date())+'.json';a.click();
+  };
+  renderAgreeList();agStart();
+}
+function renderAgreeList(){
+  var el=$('agList');if(!el)return;
+  var ids=Object.keys(agCache||{});
+  if(!ids.length){el.innerHTML='<div class="status show info">아직 보낸 신청서가 없습니다. 위에서 링크를 만들어 보내세요.</div>';return;}
+  ids.sort(function(a,b){return (((agCache[b]||{}).doc||{}).createdAt||0)-(((agCache[a]||{}).doc||{}).createdAt||0);});
+  var h='<table class="agtable"><tr><th>고객</th><th>상태</th><th>보낸 날</th><th>열람</th><th>제출 시각</th><th></th></tr>';
+  ids.forEach(function(id){
+    var r=agCache[id]||{},st=agStatus(r),pv=(r.private||{}),views=r.views?Object.keys(r.views).length:0;
+    h+='<tr><td><b>'+esc(pv.customerName||'(이름 없음)')+'</b>'+(pv.memo?'<div style="font-size:.72rem;color:#8a93a0;">'+esc(pv.memo)+'</div>':'')+'</td>'+
+      '<td><span class="agchip '+st[1]+'">'+st[0]+'</span></td>'+
+      '<td>'+esc(agFmt((r.doc||{}).createdAt))+'</td>'+
+      '<td>'+(views?views+'회':'-')+'</td>'+
+      '<td>'+esc(r.submission?agFmt(r.submission.submittedAt):'-')+'</td>'+
+      '<td><div class="agact">'+
+        '<button data-agcopy="'+esc(id)+'">링크 복사</button>'+
+        '<button data-agdetail="'+esc(id)+'">상세</button>'+
+        '<button data-agrevoke="'+esc(id)+'">'+(((r.doc||{}).revoked===true)?'복구':'무효화')+'</button>'+
+        '<button class="warn" data-agdel="'+esc(id)+'">삭제</button>'+
+      '</div></td></tr>';
+  });
+  h+='</table>';
+  el.innerHTML=h;
+  el.querySelectorAll('[data-agcopy]').forEach(function(b){b.onclick=function(){agCopy(AGREE_BASE+b.dataset.agcopy,b);};});
+  el.querySelectorAll('[data-agdetail]').forEach(function(b){b.onclick=function(){renderAgreeDetail(b.dataset.agdetail);};});
+  el.querySelectorAll('[data-agrevoke]').forEach(function(b){b.onclick=function(){
+    var id=b.dataset.agrevoke,r=agCache[id]||{},rv=((r.doc||{}).revoked===true);
+    if(!confirm(rv?'이 링크를 다시 사용할 수 있게 복구할까요?':'이 링크를 무효화할까요? 고객이 더 이상 제출할 수 없게 됩니다.'))return;
+    if(DEMO){agDemoStore[id].doc.revoked=rv?null:true;agRefreshUI();renderAgreeList();return;}
+    fbDb.ref('agreements/'+id+'/doc/revoked').set(rv?null:true).catch(function(e){alert('실패: '+(e&&e.message||e));});
+  };});
+  el.querySelectorAll('[data-agdel]').forEach(function(b){b.onclick=function(){
+    var id=b.dataset.agdel,r=agCache[id]||{};
+    var warn=r.submission?'이 신청서에는 고객 제출 기록(법적 증빙)이 있습니다!\n삭제하면 되돌릴 수 없습니다. 삭제 전 [전체 내보내기]로 백업하세요.\n\n정말 삭제할까요?':'이 신청서를 삭제할까요?';
+    if(!confirm(warn))return;
+    if(r.submission&&!confirm('마지막 확인: 제출 기록까지 영구 삭제됩니다. 진행할까요?'))return;
+    if(DEMO){delete agDemoStore[id];agRefreshUI();renderAgreeList();return;}
+    fbDb.ref('agreements/'+id).remove().catch(function(e){alert('실패: '+(e&&e.message||e));});
+  };});
+}
+function renderAgreeDetail(id){
+  var r=agCache[id];if(!r){renderAgreementAdmin();return;}
+  var pv=r.private||{},d=r.doc||{},s=r.submission||null,st=agStatus(r);
+  var body=d.body||{},svcMap={};(body.services||[]).forEach(function(x){svcMap[x.key]=x.name;});
+  var conMap={};(body.consents||[]).forEach(function(x){conMap[x.key]=x.tag;});
+  var h='<div class="agwrap"><div class="agcard agdet" style="max-width:700px;">';
+  h+='<h3 style="display:flex;justify-content:space-between;align-items:center;"><span>'+esc(pv.customerName||'(이름 없음)')+' <span class="agchip '+st[1]+'">'+st[0]+'</span></span><button class="btn ghost sm" id="agBack">← 목록</button></h3>';
+  h+='<div class="r"><span class="k">링크</span><span class="v" style="font-weight:400;font-size:.78rem;">'+esc(AGREE_BASE+id)+' <button class="btn ghost sm" id="agDetCopy" style="padding:2px 9px;font-size:.72rem;">복사</button></span></div>';
+  h+='<div class="r"><span class="k">보낸 날</span><span class="v">'+esc(agFmt(d.createdAt))+' (유효기간 '+esc(agFmt(d.expireAt))+'까지)</span></div>';
+  h+='<div class="r"><span class="k">문서 버전</span><span class="v">'+esc(d.version||'-')+(d.bodyHash?' · 해시 '+esc(String(d.bodyHash).slice(0,16))+'…':'')+'</span></div>';
+  h+='<div class="r"><span class="k">내부 메모</span><span class="v">'+esc(pv.memo||'-')+' · 등록: '+esc(pv.createdBy||'-')+'</span></div>';
+  var views=r.views?Object.keys(r.views).map(function(k){return r.views[k];}).sort(function(a,b){return (a.at||0)-(b.at||0);}):[];
+  h+='<div class="r"><span class="k">열람 기록</span><span class="v">'+(views.length?views.map(function(v,i){return (i+1)+'차 '+agFmt(v.at);}).join(' · '):'아직 열람 전')+'</span></div>';
+  if(s){
+    h+='<div style="margin:14px 0 6px;font-weight:800;color:#1a365d;font-size:.92rem;">고객 제출 내용</div>';
+    h+='<div class="r"><span class="k">신청인</span><span class="v">'+esc(s.name||'-')+' / '+esc(s.phone||'-')+'</span></div>';
+    h+='<div class="r"><span class="k">제출 시각</span><span class="v">'+esc(agFmt(s.submittedAt))+' (서버 기록·위변조 불가)</span></div>';
+    var w=s.wishes||{};
+    h+='<div class="r"><span class="k">희망 조건</span><span class="v">지역 '+esc(w.region||'-')+' · 보증금 '+esc(w.deposit||'-')+' · 월세 '+esc(w.rent||'-')+' · 권리금 '+esc(w.premium||'-')+' · '+esc(w.size||'-')+'평 · 기타 '+esc(w.etc||'-')+'</span></div>';
+    var svcs=Object.keys(s.services||{}).map(function(k){return svcMap[k]||k;});
+    h+='<div class="r"><span class="k">선택 서비스</span><span class="v">'+esc(svcs.join(', ')||'-')+'</span></div>';
+    var cons=Object.keys(s.agreed||{}).filter(function(k){return k!=='final';}).map(function(k){return conMap[k]||k;});
+    h+='<div class="r"><span class="k">동의 항목</span><span class="v">'+cons.length+'개 전체 동의 + 최종 동의</span></div>';
+    h+='<div class="r"><span class="k">서명</span><span class="v">'+(s.signatureType==='drawn'&&/^data:image/.test(s.signatureData||'')?'<img class="sig" src="'+s.signatureData+'" alt="서명">':'이름 서명: '+esc(s.signatureData||'-'))+'</span></div>';
+    h+='<div class="r"><span class="k">참고 정보</span><span class="v" style="font-weight:400;font-size:.76rem;">기기 '+esc((s.device||'').slice(0,90))+(s.clientIp?' · IP(자기보고) '+esc(s.clientIp):'')+(s.viewedForMs?' · 열람~제출 '+Math.round(s.viewedForMs/1000)+'초':'')+'</span></div>';
+    h+='<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn deploy sm" id="agPrint">인쇄용 보기 (PDF 저장)</button><button class="btn ghost sm" id="agOneExport">이 건 JSON 내보내기</button></div>';
+  }else{
+    h+='<div class="status show info" style="margin-top:12px;">아직 제출 전입니다.</div>';
+  }
+  h+='</div></div>';
+  $('stage').innerHTML=h;
+  $('agBack').onclick=function(){renderAgreementAdmin();};
+  var dc=$('agDetCopy');if(dc)dc.onclick=function(){agCopy(AGREE_BASE+id,this);};
+  var oe=$('agOneExport');if(oe)oe.onclick=function(){var blob=new Blob([JSON.stringify(r,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='agreement-'+id.slice(0,8)+'.json';a.click();};
+  var pr=$('agPrint');if(pr)pr.onclick=function(){openAgreePrint(id,r);};
+}
+function openAgreePrint(id,r){
+  var pv=r.private||{},d=r.doc||{},s=r.submission||{},body=d.body||{};
+  var svcMap={};(body.services||[]).forEach(function(x){svcMap[x.key]=x.name+' ('+x.price+')';});
+  var svcs=Object.keys(s.services||{}).map(function(k){return svcMap[k]||k;});
+  var w=s.wishes||{};
+  var h='<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>'+esc(d.title||'신청서')+'</title>'+
+    '<style>body{font-family:"Pretendard","Apple SD Gothic Neo",sans-serif;color:#111;max-width:680px;margin:0 auto;padding:32px 24px;font-size:13px;line-height:1.7;}'+
+    'h1{font-size:20px;color:#1a365d;}h2{font-size:14px;color:#1a365d;margin:18px 0 6px;border-bottom:1.5px solid #1a365d;padding-bottom:4px;}'+
+    'table{width:100%;border-collapse:collapse;}td{padding:5px 8px;border:1px solid #ddd;}td.k{background:#f4f7fb;width:130px;color:#3b4a5e;font-weight:700;}'+
+    '.con{margin:7px 0;}.con b{color:#1a365d;}.sig img{max-width:240px;border:1px solid #ddd;}'+
+    '.ft{margin-top:26px;font-size:11px;color:#8a93a0;text-align:center;}</style></head><body>'+
+    '<h1>'+esc(d.title||'')+'</h1><div style="font-size:11px;color:#67768a;">'+esc(body.brand||'')+' · 문서 버전 '+esc(d.version||'')+(d.bodyHash?' · 본문 해시 '+esc(String(d.bodyHash).slice(0,24))+'…':'')+'</div>'+
+    '<h2>제출 정보</h2><table>'+
+    '<tr><td class="k">신청인</td><td>'+esc(s.name||'-')+'</td></tr>'+
+    '<tr><td class="k">연락처</td><td>'+esc(s.phone||'-')+'</td></tr>'+
+    '<tr><td class="k">제출 시각 (서버 기록)</td><td>'+esc(agFmt(s.submittedAt))+'</td></tr>'+
+    '<tr><td class="k">선택 서비스</td><td>'+esc(svcs.join(', ')||'-')+'</td></tr>'+
+    '<tr><td class="k">희망 조건</td><td>지역 '+esc(w.region||'-')+' / 보증금 '+esc(w.deposit||'-')+' / 월세 '+esc(w.rent||'-')+' / 권리금 '+esc(w.premium||'-')+' / '+esc(w.size||'-')+'평 / '+esc(w.etc||'-')+'</td></tr>'+
+    '<tr><td class="k">기기·참고 정보</td><td style="font-size:11px;">'+esc((s.device||'').slice(0,120))+(s.clientIp?' / IP(자기보고) '+esc(s.clientIp):'')+'</td></tr>'+
+    '</table>'+
+    '<h2>동의한 내용 (제출 시점 원문)</h2>'+
+    (body.consents||[]).map(function(c){return '<div class="con"><b>['+esc(c.tag)+']</b> 동의함<br><span style="font-size:11.5px;color:#374357;">'+esc(c.text)+'</span></div>';}).join('')+
+    '<div class="con"><b>최종 동의</b> '+esc(body.finalCheck||'')+' — 동의함</div>'+
+    '<h2>서명</h2><div class="sig">'+(s.signatureType==='drawn'&&/^data:image/.test(s.signatureData||'')?'<img src="'+s.signatureData+'" alt="서명">':'이름 서명: <b>'+esc(s.signatureData||'-')+'</b>')+'</div>'+
+    '<div class="ft">© 2026 BEANCRAFT · 본 문서는 전자적으로 제출된 신청 기록입니다.</div>'+
+    '<script>window.print();<\/script></body></html>';
+  var u=URL.createObjectURL(new Blob([h],{type:'text/html;charset=utf-8'}));
+  window.open(u,'_blank');
+}
+$('agreeNav').onclick=function(){renderAgreementAdmin();};
+
 /* ===== 시작 ===== */
 if(DEMO){afterLogin();loadDemo();}
-else{fbAuth.onAuthStateChanged(function(u){if(u){curUser=u;afterLogin();loadData();}else{$('login').classList.remove('hidden');}});}
+else{fbAuth.onAuthStateChanged(function(u){if(u){curUser=u;afterLogin();loadData();agStart();}else{$('login').classList.remove('hidden');}});}
 </script>
 </body>
 </html>
