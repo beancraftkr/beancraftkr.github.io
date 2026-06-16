@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260612-agree';
+var BUILD='20260612-sololock';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -318,6 +318,18 @@ function restoreDraft(){
   }).catch(function(){return false;});
 }
 
+/* ===== 접근 허용 계정 (퇴사자 정리: 본인 계정만) =====
+   이 목록에 없는 계정은 로그인에 성공해도 즉시 차단·로그아웃되어 스튜디오/동의서 관리에 들어올 수 없다.
+   계정을 추가하려면 따옴표로 이메일을 더 넣으면 된다(모두 소문자). */
+var ALLOWED_EMAILS=['admin@beancraft.com'];
+function isAllowed(u){return !!(u&&u.email&&ALLOWED_EMAILS.indexOf(String(u.email).toLowerCase())>=0);}
+function denyAccess(email){
+  curUser=null;
+  try{if(fbAuth)fbAuth.signOut();}catch(e){}
+  var lg=$('login');if(lg)lg.classList.remove('hidden');
+  var ls=$('loginStatus');if(ls){ls.className='status show err';ls.textContent='이 계정('+(email||'')+')은 더 이상 접근 권한이 없습니다. 관리자 계정으로만 이용할 수 있습니다.';}
+  var ll=$('logoutLink');if(ll)ll.classList.add('hidden');
+}
 /* ===== 로그인 (영업앱과 동일 Firebase 계정) ===== */
 function login(email,pw){
   $('loginStatus').className='status show info';$('loginStatus').textContent='로그인 중…';
@@ -1231,7 +1243,12 @@ $('agreeNav').onclick=function(){renderAgreementAdmin();};
 
 /* ===== 시작 ===== */
 if(DEMO){afterLogin();loadDemo();}
-else{fbAuth.onAuthStateChanged(function(u){if(u){curUser=u;afterLogin();loadData();agStart();}else{$('login').classList.remove('hidden');}});}
+else{fbAuth.onAuthStateChanged(function(u){
+  if(u){
+    if(!isAllowed(u)){denyAccess(u.email);return;}   // 허용 목록 외 계정: 로그인돼도 차단·로그아웃
+    curUser=u;afterLogin();loadData();agStart();
+  }else{$('login').classList.remove('hidden');}
+});}
 </script>
 </body>
 </html>
