@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260612-sololock';
+var BUILD='20260612-confirmcta';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -240,6 +240,19 @@ input:focus,textarea:focus{border-color:#1a365d;box-shadow:0 0 0 3px rgba(26,54,
       <button class="btn ghost" id="dmClose">닫기</button>
     </div>
     <div class="dmsg" id="dmMsg"></div>
+  </div>
+</div>
+
+<!-- 배포 전 확인 -->
+<div class="dmodal" id="deployConfirm">
+  <div class="dbox">
+    <div class="dh">이대로 배포할까요?</div>
+    <p class="dp" id="dcSummary"></p>
+    <p class="dp" style="color:#c2410c;font-weight:700;margin-top:6px;">배포하면 고객 화면이 지금 내용으로 즉시 바뀝니다.</p>
+    <div class="drow">
+      <button class="btn deploy" id="dcGo" style="flex:1;justify-content:center;">네, 배포할게요</button>
+      <button class="btn ghost" id="dcCancel">취소</button>
+    </div>
   </div>
 </div>
 
@@ -927,7 +940,7 @@ function updateMarketPreview(it){
 function clearStage(){$('stage').innerHTML='<div class="welcome" id="welcome"><h2>왼쪽에서 카테고리를 펼쳐 항목을 선택하세요</h2><p>카드뉴스는 주제만 입력하면 새 페이지가 만들어지고,<br>상권분석은 파일을 첨부하면 폼에 적용됩니다.<br>편집 후 우측 상단 <b>배포</b>를 누르면 고객에게 공개됩니다.</p></div>';$('crumb').innerHTML='<span>마케팅</span>';var bb=$('backBtn');if(bb)bb.classList.add('hidden');}
 
 /* ===== 배포 ===== */
-$('deployBtn').onclick=function(){if(!dirty)return;deploy();};
+$('deployBtn').onclick=function(){if(!dirty)return;showDeployConfirm();};
 function showOverlay(m){$('overlayMsg').textContent=m;$('overlay').classList.add('show');}
 function hideOverlay(){$('overlay').classList.remove('show');}
 
@@ -1051,6 +1064,25 @@ function showDeployModal(){
   $('dmMsg').textContent='';
   $('deployModal').classList.add('show');
 }
+/* 배포 전 확인 — 통째 덮어쓰기 전에 요약 보여주고 명시적 확인 받음(오배포 방지) */
+function deploySummary(){
+  var cats=asArray(data.categories),items=0,pages=0,revealed=0,hidden=0;
+  cats.forEach(function(c){asArray(c.items).forEach(function(it){
+    items++;
+    if(it.type==='page'){pages++;return;}
+    try{ensureCards(it).forEach(function(a){if(a.revealed)revealed++;else hidden++;});}catch(e){}
+  });});
+  return {items:items,pages:pages,revealed:revealed,hidden:hidden,last:(data.updated||'기록 없음')};
+}
+function showDeployConfirm(){
+  var s=deploySummary();
+  $('dcSummary').innerHTML='항목 <b>'+s.items+'개</b>'+(s.pages?' (카드뉴스 '+s.pages+'개 포함)':'')+'<br>'+
+    '공개 카드 <b>'+s.revealed+'개</b> · 가림 카드 <b>'+s.hidden+'개</b><br>'+
+    '직전 배포: '+esc(s.last);
+  $('deployConfirm').classList.add('show');
+}
+$('dcCancel').onclick=function(){$('deployConfirm').classList.remove('show');};
+$('dcGo').onclick=function(){$('deployConfirm').classList.remove('show');deploy();};
 
 $('dmCopy').onclick=function(){
   var u=$('dmUrl').value;
