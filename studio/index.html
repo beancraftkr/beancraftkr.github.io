@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260612-confirmcta';
+var BUILD='20260612-ga4';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -240,6 +240,14 @@ input:focus,textarea:focus{border-color:#1a365d;box-shadow:0 0 0 3px rgba(26,54,
       <button class="btn ghost" id="dmClose">닫기</button>
     </div>
     <div class="dmsg" id="dmMsg"></div>
+    <div style="margin-top:10px;border-top:1px dashed #d3d9e0;padding-top:10px;">
+      <div style="font-size:.74rem;color:#67768a;margin-bottom:6px;">채널별 링크 (어디서 왔는지 분석용 — 해당 채널에 붙여넣기)</div>
+      <div class="drow">
+        <button class="btn ghost sm" id="dmUtmIg" style="flex:1;">인스타용</button>
+        <button class="btn ghost sm" id="dmUtmKakao" style="flex:1;">카톡용</button>
+        <button class="btn ghost sm" id="dmUtmSms" style="flex:1;">문자용</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1091,6 +1099,22 @@ $('dmCopy').onclick=function(){
   else{try{$('dmUrl').select();document.execCommand('copy');ok();}catch(e){$('dmMsg').textContent='주소창을 길게 눌러 직접 복사해주세요.';}}
 };
 $('dmClose').onclick=function(){$('deployModal').classList.remove('show');};
+/* 채널별 UTM 링크 — GA에서 유입 채널(인스타/카톡/문자) 구분용. 해시(#id) 앞에 쿼리 삽입. */
+function utmLink(url,channel){
+  var map={instagram:'instagram|social',kakao:'kakao|messenger',sms:'sms|sms'};
+  var m=(map[channel]||(channel+'|social')).split('|');
+  var hash='',u=url,hi=u.indexOf('#');if(hi>=0){hash=u.slice(hi);u=u.slice(0,hi);}
+  var sep=u.indexOf('?')>=0?'&':'?';
+  return u+sep+'utm_source='+m[0]+'&utm_medium='+m[1]+hash;
+}
+function bcCopy(text,msg){
+  function ok(){$('dmMsg').textContent=msg||'복사됐어요!';}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok).catch(function(){prompt('아래 링크를 복사하세요',text);});}
+  else{try{var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);ok();}catch(e){prompt('아래 링크를 복사하세요',text);}}
+}
+$('dmUtmIg').onclick=function(){bcCopy(utmLink($('dmUrl').value,'instagram'),'인스타용 링크 복사됨 (인스타에 붙여넣기)');};
+$('dmUtmKakao').onclick=function(){bcCopy(utmLink($('dmUrl').value,'kakao'),'카톡용 링크 복사됨 (카톡에 붙여넣기)');};
+$('dmUtmSms').onclick=function(){bcCopy(utmLink($('dmUrl').value,'sms'),'문자용 링크 복사됨 (문자에 붙여넣기)');};
 
 window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue='';}});
 

@@ -14,6 +14,7 @@
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="../analytics.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
@@ -100,6 +101,7 @@ function openConsult(type){
   var t=document.getElementById('ctitle'); if(t)t.textContent=(type==='have')?'매물은 구했어요 · 상담 신청':'매물 구해주세요 · 상담 신청';
   document.getElementById('cframe').src=CONSULT+'?embedded=true&usp=pp_url&entry.740000146='+encodeURIComponent(pre);
   document.getElementById('cmodal').classList.add('open');
+  try{bcTrack('cta_click',{method:type});}catch(e){}   // 상담 버튼 클릭(find/have 구분) — A/B·전환 측정
 }
 function closeConsult(){var m=document.getElementById('cmodal');if(m)m.classList.remove('open');var f=document.getElementById('cframe');if(f)f.src='about:blank';}
 
@@ -129,6 +131,7 @@ function render(item){
    cards+
    '<div class="foot"><a class="hbtn" href="https://beancraft.co.kr" target="_blank" rel="noopener">빈크래프트 홈페이지 바로가기</a><p><b>빈크래프트는 프랜차이즈 회사가 아닙니다.</b><br>개인 카페를 만들어 주는 회사입니다.</p></div>'+
    '</div>';
+  try{bcTrack('view_report',{report_id:id||'',report_title:(item.title||'')});}catch(e){}   // 리포트 조회
 }
 
 /* ===== 자료 보호 (우클릭·드래그·복사·저장·인쇄·소스보기 차단) =====
