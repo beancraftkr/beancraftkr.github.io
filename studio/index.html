@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260612-ga4';
+var BUILD='20260612-dash';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -108,6 +108,18 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:#eef1f
 .agdet .r{display:flex;gap:12px;padding:7px 0;font-size:.86rem;border-bottom:1px dashed #eef1f5;}
 .agdet .k{color:#67768a;width:120px;flex-shrink:0;}
 .agdet .v{color:#16263c;font-weight:600;word-break:break-all;}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+.dstat{background:#f7f9fc;border:1px solid #e2e7ee;border-radius:10px;padding:14px 16px;}
+.dstat .lbl{font-size:.76rem;color:#67768a;font-weight:700;margin-bottom:6px;}
+.dstat .num{font-size:1.7rem;font-weight:800;color:#1a365d;line-height:1;}
+.dstat .num small{font-size:.8rem;color:#8a93a0;font-weight:700;}
+.dfunnel{display:flex;flex-direction:column;gap:8px;}
+.dfrow{display:flex;align-items:center;gap:10px;}
+.dfrow .fl{width:64px;font-size:.82rem;color:#3b4a5e;font-weight:700;flex-shrink:0;}
+.dfrow .fb{flex:1;background:#eef1f5;border-radius:6px;height:22px;overflow:hidden;}
+.dfrow .fb span{display:block;height:100%;background:#2b6cb0;border-radius:6px;}
+.dfrow .fv{width:84px;text-align:right;font-size:.82rem;color:#16263c;font-weight:700;flex-shrink:0;}
+.dnote{font-size:.78rem;color:#67768a;line-height:1.6;}
 .agdet img.sig{max-width:280px;border:1px solid #e2e7ee;border-radius:8px;background:#fbfcfe;}
 .stage{flex:1;display:flex;min-height:0;}
 .controls{width:340px;flex-shrink:0;background:#fff;border-right:1px solid #e2e7ee;overflow-y:auto;padding:20px;}
@@ -182,6 +194,7 @@ input:focus,textarea:focus{border-color:#1a365d;box-shadow:0 0 0 3px rgba(26,54,
       <p>카테고리 → 항목 선택 → 편집 → 배포</p>
     </div>
     <div class="sb-tree" id="tree"></div>
+    <div class="sb-agree" id="dashNav"><span>대시보드 (현황)</span></div>
     <div class="sb-agree" id="agreeNav"><span>동의서 (창업 디렉팅 신청)</span><span class="agbadge hidden" id="agreeBadge"></span></div>
     <div class="sb-bottom">
       <span id="loginState">로그인 안 됨</span>
@@ -498,7 +511,7 @@ function newItem(catId){
 /* ===== 항목 선택 → 작업대 ===== */
 function selectItem(cat,item){
   sel={cat:cat,item:item};highlightActive();
-  agView=false;var _an=$('agreeNav');if(_an)_an.classList.remove('active');
+  agView=false;dashView=false;var _an=$('agreeNav');if(_an)_an.classList.remove('active');var _dn=$('dashNav');if(_dn)_dn.classList.remove('active');
   var c=findCat(cat),it=findItem(cat,item);
   var w=$('welcome');if(w)w.classList.add('hidden');
   $('backBtn').classList.remove('hidden');
@@ -1122,7 +1135,7 @@ window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();
    마케팅 배포 흐름(data/dirty/deploy)과 완전 분리 — agreements/ 경로에 직접 기록.
    고객 페이지: /agree/#<id> (DB의 doc 스냅샷을 읽음). 데모 모드는 메모리 저장으로 동작. */
 var AGREE_BASE=location.origin+'/agree/#';
-var agOn=false, agCache={}, agDemoStore={}, agView=false;
+var agOn=false, agCache={}, agDemoStore={}, agView=false, dashView=false, LOOKER_EMBED='';
 function aid(){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}return Array.prototype.map.call(a,function(b){return ('0'+b.toString(16)).slice(-2);}).join('');}
 function sha256Hex(str){
   try{return crypto.subtle.digest('SHA-256',new TextEncoder().encode(str)).then(function(buf){return Array.prototype.map.call(new Uint8Array(buf),function(b){return ('0'+b.toString(16)).slice(-2);}).join('');});}
@@ -1140,14 +1153,63 @@ function agRefreshUI(){
   var done=ids.filter(function(id){return agCache[id]&&agCache[id].submission;}).length;
   var b=$('agreeBadge');if(b){if(done>0){b.textContent='완료 '+done;b.classList.remove('hidden');}else{b.classList.add('hidden');}}
   if(agView&&$('agList'))renderAgreeList();
+  if(dashView)dashRender();
 }
 function agCopy(text,btn){
   function ok(){if(btn){var t=btn.textContent;btn.textContent='복사됨';setTimeout(function(){btn.textContent=t;},1200);}}
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok).catch(function(){prompt('아래 주소를 복사하세요',text);});}
   else prompt('아래 주소를 복사하세요',text);
 }
+/* ===== 대시보드 (현황) — 우리 데이터(Firebase)로 즉시. GA는 루커 임베드 자리 예약. ===== */
+function dashSiteStats(){
+  var cats=asArray(data.categories),reports=0,deployed=0,cardnews=0,revealed=0,blurred=0;
+  cats.forEach(function(c){asArray(c.items).forEach(function(it){
+    if(it.type==='page'){cardnews++;return;}
+    reports++;var cards=asArray(it.cards);if(cards.length)deployed++;
+    cards.forEach(function(cd){if(cd.revealed)revealed++;else blurred++;});
+  });});
+  return {reports:reports,deployed:deployed,cardnews:cardnews,revealed:revealed,blurred:blurred};
+}
+function dashAgreeStats(){
+  var ids=Object.keys(agCache||{}),sent=ids.length,opened=0,completed=0,expired=0,revoked=0;
+  ids.forEach(function(id){var r=agCache[id]||{},d=r.doc||{};
+    if(r.views||r.submission)opened++;
+    if(r.submission){completed++;return;}
+    if(d.revoked===true){revoked++;return;}
+    if(d.expireAt&&Date.now()>d.expireAt){expired++;}
+  });
+  return {sent:sent,opened:opened,completed:completed,expired:expired,revoked:revoked,conv:(sent?Math.round(completed/sent*100):0)};
+}
+function dashRender(){
+  var dn=$('dashNav');if(dn)dn.classList.add('active');
+  var an=$('agreeNav');if(an)an.classList.remove('active');
+  $('crumb').innerHTML='<span>대시보드</span><span class="sep">›</span><span class="cur">현황</span>';
+  var s=dashSiteStats(),a=dashAgreeStats();
+  function st(lbl,num,suf){return '<div class="dstat"><div class="lbl">'+lbl+'</div><div class="num">'+num+(suf?'<small> '+suf+'</small>':'')+'</div></div>';}
+  function bar(label,val,max){var pct=max?Math.round(val/max*100):0;return '<div class="dfrow"><span class="fl">'+label+'</span><span class="fb"><span style="width:'+pct+'%"></span></span><span class="fv">'+val+'건 ('+pct+'%)</span></div>';}
+  var h='<div class="agwrap">';
+  h+='<div class="agcard"><h3>종합</h3><div class="dgrid">'+
+    st('배포 리포트',s.deployed,'/ '+s.reports+'개')+st('동의서 발송',a.sent,'건')+st('동의서 완료',a.completed,'건')+st('완료 전환율',a.conv,'%')+st('카드뉴스',s.cardnews,'개')+
+    '</div></div>';
+  h+='<div class="agcard"><h3>동의서 현황</h3><div class="dfunnel">'+
+    bar('발송',a.sent,a.sent)+bar('열람',a.opened,a.sent)+bar('완료',a.completed,a.sent)+
+    '</div><div class="dnote" style="margin-top:8px;">만료 '+a.expired+'건 · 무효 '+a.revoked+'건 · 전환율 '+a.conv+'% (발송 대비 완료)</div></div>';
+  h+='<div class="agcard"><h3>배포 콘텐츠</h3><div class="dgrid">'+
+    st('전체 리포트',s.reports,'개')+st('공개 카드',s.revealed,'장')+st('가림 카드',s.blurred,'장')+
+    '</div></div>';
+  h+='<div class="agcard"><h3>방문·유입 (Google Analytics)</h3>';
+  if(LOOKER_EMBED){h+='<iframe src="'+esc(LOOKER_EMBED)+'" style="width:100%;height:520px;border:0;border-radius:8px;"></iframe>';}
+  else{h+='<div class="dnote">GA에 데이터가 쌓이고 있어요(측정ID 연결됨). 이 자리에 <b>루커(Looker) 대시보드</b>를 임베드하면 방문·유입·채널이 한 화면에 표시됩니다. 준비되면 루커 보고서의 \'퍼가기(embed) URL\'을 LOOKER_EMBED에 넣으면 됩니다.</div>'+
+    '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;"><a class="btn ghost sm" href="https://analytics.google.com" target="_blank" rel="noopener">GA 실시간 열기</a><a class="btn ghost sm" href="https://lookerstudio.google.com" target="_blank" rel="noopener">루커 스튜디오 열기</a></div>';}
+  h+='</div></div>';
+  $('stage').innerHTML=h;
+}
+function renderDashboard(){dashView=true;agView=false;sel=null;highlightActive();dashRender();agStart();}
+$('dashNav').onclick=function(){renderDashboard();};
+
 function renderAgreementAdmin(){
-  agView=true;sel=null;highlightActive();
+  agView=true;dashView=false;sel=null;highlightActive();
+  var dn0=$('dashNav');if(dn0)dn0.classList.remove('active');
   var an=$('agreeNav');if(an)an.classList.add('active');
   $('crumb').innerHTML='<span>동의서</span><span class="sep">›</span><span class="cur">창업 디렉팅 신청서</span>';
   $('stage').innerHTML='<div class="agwrap">'+
