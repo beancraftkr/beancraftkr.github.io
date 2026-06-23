@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260612-dash';
+var BUILD='20260612-compose';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -120,6 +120,19 @@ body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:#eef1f
 .dfrow .fb span{display:block;height:100%;background:#2b6cb0;border-radius:6px;}
 .dfrow .fv{width:84px;text-align:right;font-size:.82rem;color:#16263c;font-weight:700;flex-shrink:0;}
 .dnote{font-size:.78rem;color:#67768a;line-height:1.6;}
+.cpwrap{flex:1;overflow-y:auto;padding:24px;background:#f3f5f8;}
+.cprow{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
+.cpform{flex:1;min-width:300px;}
+.cpprev{width:280px;flex-shrink:0;}
+label.fl2{display:block;font-size:.76rem;font-weight:700;color:#67768a;margin:12px 0 4px;}
+.cpform input[type=text],.cpform textarea{width:100%;padding:9px 11px;border:1.5px solid #d6dde6;border-radius:8px;font-size:.88rem;font-family:inherit;box-sizing:border-box;}
+.cpform textarea{resize:vertical;}
+.ck2{display:flex;align-items:center;gap:6px;font-size:.86rem;color:#3b4a5e;cursor:pointer;}
+.igcard{background:#fff;border:1px solid #e2e7ee;border-radius:12px;overflow:hidden;}
+.igcard img{width:100%;display:block;aspect-ratio:1/1;object-fit:cover;background:#eee;}
+.igph{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;color:#9aa6b3;background:#f0f2f5;font-size:.85rem;}
+.igcap{padding:12px 14px;font-size:.85rem;color:#16263c;line-height:1.6;white-space:pre-wrap;word-break:break-word;}
+.igtags{color:#2b6cb0;}
 .agdet img.sig{max-width:280px;border:1px solid #e2e7ee;border-radius:8px;background:#fbfcfe;}
 .stage{flex:1;display:flex;min-height:0;}
 .controls{width:340px;flex-shrink:0;background:#fff;border-right:1px solid #e2e7ee;overflow-y:auto;padding:20px;}
@@ -194,6 +207,7 @@ input:focus,textarea:focus{border-color:#1a365d;box-shadow:0 0 0 3px rgba(26,54,
       <p>카테고리 → 항목 선택 → 편집 → 배포</p>
     </div>
     <div class="sb-tree" id="tree"></div>
+    <div class="sb-agree" id="composeNav"><span>콘텐츠 작성·발행</span></div>
     <div class="sb-agree" id="dashNav"><span>대시보드 (현황)</span></div>
     <div class="sb-agree" id="agreeNav"><span>동의서 (창업 디렉팅 신청)</span><span class="agbadge hidden" id="agreeBadge"></span></div>
     <div class="sb-bottom">
@@ -511,7 +525,7 @@ function newItem(catId){
 /* ===== 항목 선택 → 작업대 ===== */
 function selectItem(cat,item){
   sel={cat:cat,item:item};highlightActive();
-  agView=false;dashView=false;var _an=$('agreeNav');if(_an)_an.classList.remove('active');var _dn=$('dashNav');if(_dn)_dn.classList.remove('active');
+  agView=false;dashView=false;composeView=false;var _an=$('agreeNav');if(_an)_an.classList.remove('active');var _dn=$('dashNav');if(_dn)_dn.classList.remove('active');var _cn=$('composeNav');if(_cn)_cn.classList.remove('active');
   var c=findCat(cat),it=findItem(cat,item);
   var w=$('welcome');if(w)w.classList.add('hidden');
   $('backBtn').classList.remove('hidden');
@@ -1136,6 +1150,7 @@ window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();
    고객 페이지: /agree/#<id> (DB의 doc 스냅샷을 읽음). 데모 모드는 메모리 저장으로 동작. */
 var AGREE_BASE=location.origin+'/agree/#';
 var agOn=false, agCache={}, agDemoStore={}, agView=false, dashView=false, LOOKER_EMBED='';
+var postOn=false, postCache={}, postDemoStore={}, composeView=false, editingPostId=null, _cpThumb='';
 function aid(){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}return Array.prototype.map.call(a,function(b){return ('0'+b.toString(16)).slice(-2);}).join('');}
 function sha256Hex(str){
   try{return crypto.subtle.digest('SHA-256',new TextEncoder().encode(str)).then(function(buf){return Array.prototype.map.call(new Uint8Array(buf),function(b){return ('0'+b.toString(16)).slice(-2);}).join('');});}
@@ -1160,6 +1175,91 @@ function agCopy(text,btn){
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok).catch(function(){prompt('아래 주소를 복사하세요',text);});}
   else prompt('아래 주소를 복사하세요',text);
 }
+/* ===== 콘텐츠 작성·발행 큐 (릴스/숏츠 준비) — posts 큐. 실제 발행은 쇼츠 편집기/서버 연결 시 동작 ===== */
+function postStart(){
+  if(DEMO){postCache=postDemoStore;postRefreshUI();return;}
+  if(postOn)return;postOn=true;
+  fbDb.ref('posts').on('value',function(s){postCache=s.val()||{};postRefreshUI();},function(){});
+}
+function postRefreshUI(){ if(composeView&&$('postList'))renderPostList(); }
+function postStatus(p){ if(!p)return ['초안','wait']; if(p.status==='published')return ['게시됨','ok']; if(p.status==='ready')return ['준비완료','view']; return ['초안','wait']; }
+function composePreview(){
+  var pv=$('cpPreview');if(!pv)return;
+  var cap=$('cpCaption')?$('cpCaption').value:'', tags=$('cpTags')?$('cpTags').value:'';
+  pv.innerHTML='<div class="igcard">'+(_cpThumb?'<img src="'+_cpThumb+'">':'<div class="igph">썸네일 미리보기</div>')+
+    '<div class="igcap">'+(esc(cap)||'<span style="color:#9aa6b3">캡션 미리보기</span>')+(tags?'<br><span class="igtags">'+esc(tags)+'</span>':'')+'</div></div>';
+}
+function renderCompose(){
+  composeView=true;agView=false;dashView=false;sel=null;highlightActive();
+  var cn=$('composeNav');if(cn)cn.classList.add('active');
+  var dn=$('dashNav');if(dn)dn.classList.remove('active');
+  var an=$('agreeNav');if(an)an.classList.remove('active');
+  $('crumb').innerHTML='<span>콘텐츠 작성·발행</span>';
+  _cpThumb='';editingPostId=null;
+  $('stage').innerHTML='<div class="cpwrap">'+
+    '<div class="agcard"><h3 id="cpHead">새 콘텐츠 작성</h3><div class="cprow">'+
+      '<div class="cpform">'+
+        '<label class="fl2">내부 제목</label><input type="text" id="cpTitle" placeholder="예: 합정 카페 릴스 1편">'+
+        '<label class="fl2">캡션</label><textarea id="cpCaption" rows="4" placeholder="인스타/유튜브에 올릴 문구"></textarea>'+
+        '<label class="fl2">해시태그</label><input type="text" id="cpTags" placeholder="#카페창업 #상권분석">'+
+        '<label class="fl2">대상</label><div style="display:flex;gap:14px;margin:4px 0;"><label class="ck2"><input type="checkbox" id="cpIg" checked> 인스타 릴스</label><label class="ck2"><input type="checkbox" id="cpYt"> 유튜브 숏츠</label></div>'+
+        '<label class="fl2">썸네일</label><input type="file" id="cpThumbFile" accept="image/*">'+
+        '<label class="fl2">영상 링크 (편집기 결과 URL · 선택)</label><input type="text" id="cpVideo" placeholder="https://...">'+
+        '<div style="margin-top:14px;display:flex;gap:8px;"><button class="btn deploy sm" id="cpSave">큐에 저장</button><button class="btn ghost sm" id="cpReset">새로 작성</button></div>'+
+        '<div class="dnote" style="margin-top:8px;">저장하면 아래 큐에 쌓입니다. \'준비완료\'로 바꾸면 쇼츠 편집기가 집어가 발행하는 구조(편집기 연결 시 동작).</div>'+
+      '</div>'+
+      '<div class="cpprev"><div class="dnote" style="margin-bottom:6px;">미리보기</div><div id="cpPreview"></div></div>'+
+    '</div></div>'+
+    '<div class="agcard"><h3>콘텐츠 큐</h3><div id="postList"></div></div>'+
+  '</div>';
+  composePreview();
+  $('cpCaption').oninput=composePreview;$('cpTags').oninput=composePreview;
+  $('cpThumbFile').onchange=function(){var f=this.files&&this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){_cpThumb=r.result;composePreview();};r.readAsDataURL(f);};
+  $('cpSave').onclick=savePost;
+  $('cpReset').onclick=function(){renderCompose();};
+  renderPostList();postStart();
+}
+function savePost(){
+  var title=$('cpTitle').value.trim();
+  if(!title){alert('내부 제목을 입력하세요.');return;}
+  var id=editingPostId||uid('p'), prev=postCache[id]||{};
+  var rec={title:title.slice(0,80),caption:$('cpCaption').value.slice(0,2200),hashtags:$('cpTags').value.slice(0,500),
+    igOn:$('cpIg').checked,ytOn:$('cpYt').checked,thumbUrl:(_cpThumb||prev.thumbUrl||''),videoUrl:$('cpVideo').value.trim().slice(0,500),
+    status:prev.status||'draft',createdAt:prev.createdAt||Date.now(),createdBy:(curUser&&curUser.email)||''};
+  var btn=$('cpSave');btn.disabled=true;btn.textContent='저장 중…';
+  function done(){editingPostId=null;_cpThumb='';renderCompose();}
+  if(DEMO){postDemoStore[id]=rec;postCache=postDemoStore;done();return;}
+  fbDb.ref('posts/'+id).set(rec).then(done).catch(function(e){alert('저장 실패: '+(e&&e.message||e));btn.disabled=false;btn.textContent='큐에 저장';});
+}
+function renderPostList(){
+  var el=$('postList');if(!el)return;
+  var ids=Object.keys(postCache||{});
+  if(!ids.length){el.innerHTML='<div class="status show info">아직 작성한 콘텐츠가 없습니다. 위에서 작성해 큐에 저장하세요.</div>';return;}
+  ids.sort(function(a,b){return ((postCache[b]||{}).createdAt||0)-((postCache[a]||{}).createdAt||0);});
+  var h='<table class="agtable"><tr><th></th><th>제목</th><th>대상</th><th>상태</th><th></th></tr>';
+  ids.forEach(function(id){var p=postCache[id]||{},st=postStatus(p);var tgt=[];if(p.igOn)tgt.push('릴스');if(p.ytOn)tgt.push('숏츠');
+    h+='<tr><td>'+(p.thumbUrl?'<img src="'+p.thumbUrl+'" style="width:46px;height:46px;object-fit:cover;border-radius:6px;">':'')+'</td>'+
+      '<td><b>'+esc(p.title||'(제목없음)')+'</b><div style="font-size:.72rem;color:#8a93a0;">'+esc((p.caption||'').slice(0,40))+'</div></td>'+
+      '<td>'+esc(tgt.join(', ')||'-')+'</td>'+
+      '<td><span class="agchip '+st[1]+'">'+st[0]+'</span></td>'+
+      '<td><div class="agact"><button data-pedit="'+esc(id)+'">수정</button><button data-ptoggle="'+esc(id)+'">'+(p.status==='ready'?'초안으로':'준비완료')+'</button><button class="warn" data-pdel="'+esc(id)+'">삭제</button></div></td></tr>';
+  });
+  h+='</table>';el.innerHTML=h;
+  el.querySelectorAll('[data-pedit]').forEach(function(b){b.onclick=function(){loadPost(b.dataset.pedit);};});
+  el.querySelectorAll('[data-ptoggle]').forEach(function(b){b.onclick=function(){var id=b.dataset.ptoggle,p=postCache[id]||{},ns=(p.status==='ready')?'draft':'ready';if(DEMO){postDemoStore[id].status=ns;postRefreshUI();}else fbDb.ref('posts/'+id+'/status').set(ns).catch(function(e){alert('실패: '+(e&&e.message||e));});};});
+  el.querySelectorAll('[data-pdel]').forEach(function(b){b.onclick=function(){var id=b.dataset.pdel;if(!confirm('이 콘텐츠를 삭제할까요?'))return;if(DEMO){delete postDemoStore[id];postRefreshUI();}else fbDb.ref('posts/'+id).remove().catch(function(e){alert('실패: '+(e&&e.message||e));});};});
+}
+function loadPost(id){
+  var p=postCache[id];if(!p)return;
+  renderCompose();
+  editingPostId=id;_cpThumb=p.thumbUrl||'';
+  $('cpHead').textContent='콘텐츠 수정';
+  $('cpTitle').value=p.title||'';$('cpCaption').value=p.caption||'';$('cpTags').value=p.hashtags||'';
+  $('cpIg').checked=!!p.igOn;$('cpYt').checked=!!p.ytOn;$('cpVideo').value=p.videoUrl||'';
+  composePreview();
+}
+$('composeNav').onclick=function(){renderCompose();};
+
 /* ===== 대시보드 (현황) — 우리 데이터(Firebase)로 즉시. GA는 루커 임베드 자리 예약. ===== */
 function dashSiteStats(){
   var cats=asArray(data.categories),reports=0,deployed=0,cardnews=0,revealed=0,blurred=0;
@@ -1183,6 +1283,7 @@ function dashAgreeStats(){
 function dashRender(){
   var dn=$('dashNav');if(dn)dn.classList.add('active');
   var an=$('agreeNav');if(an)an.classList.remove('active');
+  var cn=$('composeNav');if(cn)cn.classList.remove('active');
   $('crumb').innerHTML='<span>대시보드</span><span class="sep">›</span><span class="cur">현황</span>';
   var s=dashSiteStats(),a=dashAgreeStats();
   function st(lbl,num,suf){return '<div class="dstat"><div class="lbl">'+lbl+'</div><div class="num">'+num+(suf?'<small> '+suf+'</small>':'')+'</div></div>';}
@@ -1204,12 +1305,13 @@ function dashRender(){
   h+='</div></div>';
   $('stage').innerHTML=h;
 }
-function renderDashboard(){dashView=true;agView=false;sel=null;highlightActive();dashRender();agStart();}
+function renderDashboard(){dashView=true;agView=false;composeView=false;sel=null;highlightActive();dashRender();agStart();}
 $('dashNav').onclick=function(){renderDashboard();};
 
 function renderAgreementAdmin(){
-  agView=true;dashView=false;sel=null;highlightActive();
+  agView=true;dashView=false;composeView=false;sel=null;highlightActive();
   var dn0=$('dashNav');if(dn0)dn0.classList.remove('active');
+  var cn0=$('composeNav');if(cn0)cn0.classList.remove('active');
   var an=$('agreeNav');if(an)an.classList.add('active');
   $('crumb').innerHTML='<span>동의서</span><span class="sep">›</span><span class="cur">창업 디렉팅 신청서</span>';
   $('stage').innerHTML='<div class="agwrap">'+
