@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <script>
 /* 자동 업데이트: 캐시에 옛 버전이 박혀 있어도 version.txt(네트워크 최신)와 비교해 다르면 1회 강제 새로고침 */
-var BUILD='20260612-compose';
+var BUILD='20260612-looker';
 (function(){try{fetch('version.txt?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(v){
   v=(v||'').trim();
   if(v&&v!==BUILD&&!sessionStorage.getItem('rl_'+v)){
@@ -1149,7 +1149,7 @@ window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();
    마케팅 배포 흐름(data/dirty/deploy)과 완전 분리 — agreements/ 경로에 직접 기록.
    고객 페이지: /agree/#<id> (DB의 doc 스냅샷을 읽음). 데모 모드는 메모리 저장으로 동작. */
 var AGREE_BASE=location.origin+'/agree/#';
-var agOn=false, agCache={}, agDemoStore={}, agView=false, dashView=false, LOOKER_EMBED='';
+var agOn=false, agCache={}, agDemoStore={}, agView=false, dashView=false, LOOKER_EMBED='https://lookerstudio.google.com/embed/reporting/72ead548-31e4-4d1e-93dc-d45214caa7dc/page/TlJ0C';
 var postOn=false, postCache={}, postDemoStore={}, composeView=false, editingPostId=null, _cpThumb='';
 function aid(){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}return Array.prototype.map.call(a,function(b){return ('0'+b.toString(16)).slice(-2);}).join('');}
 function sha256Hex(str){
