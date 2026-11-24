@@ -119,6 +119,41 @@
       if(ownership.strictOwnership&&has(previous,key)&&!present)fail('public_changed','기존 GUIDE 공개본이 변경되었습니다: '+key,'conflict');
     });return previous;
   }
+  function restoreProjection(team, published, proof) {
+    var receipt = proof && proof.receipt;
+    if (!isReceipt(receipt) || receipt.id !== proof.id || receipt.inputHash !== proof.inputHash ||
+        !equal(receipt.before.team, team) || !equal(receipt.before.owned || {}, published)) {
+      fail('invalid_restore', '복구 자료가 확인된 이전 저장 기록과 다릅니다.');
+    }
+    var items = new Map(teamItems(team).map(function (item) { return [item.id, item]; }));
+    var legacyIds = new Set();
+    Object.keys(published).forEach(function (key) {
+      id(key);
+      var item = items.get(key), saved = published[key];
+      if (item && item.cards != null) {
+        try {
+          var normal = projection({categories: [{id: 'restore-validation', items: [item]}]}, true);
+          if (equal(normal[key], saved)) return;
+        } catch (error) { if (!(error instanceof PublishError)) throw error; }
+        // Earlier editions may lack derivative metadata. Only the exact public
+        // slot captured in this receipt can be restored. A hidden original is
+        // never a matching legacy slot, even if both recorded fields claim it.
+        var slot = receipt.before.public && receipt.before.public[key];
+        if (slot && slot.present === true && equal(slot.value, saved) &&
+            array(item.cards).every(function (card) { return object(card) && card.derivatives == null; }) &&
+            legacyPublicMatches(item, saved)) {
+          legacyIds.add(key);
+          return;
+        }
+      }
+      fail('invalid_restore', '복구할 공개본과 기존 공개 범위를 확인하지 못했습니다.');
+    });
+    return {published: clone(published), legacyIds: legacyIds};
+  }
+  function historicalRestoreIds(op) {
+    return op && op.kind === 'restore' && op.restoreFrom
+      ? restoreProjection(op.team, op.public, op.restoreFrom).legacyIds : new Set();
+  }
   async function operation(options) {
     var base = options.base;
     if (!base || !base.known) fail('base_unknown', '편집을 시작한 원격 판본이 확인되지 않았습니다. 초안을 보관하고 최신 자료와 먼저 비교해 주세요.');
@@ -126,8 +161,8 @@
     if (!options.actor || typeof options.actor.uid !== 'string' || !options.actor.uid) fail('account_required', '기존 관리자 계정이 필요합니다.');
     if (!Number.isSafeInteger(options.at) || options.at <= 0) fail('invalid_operation', '배포 시각을 확인해 주세요.');
     var ownership=publicationOwnership(base.team,base.state),state=ownership.state,desired=clone(options.team),previous=ownership.previous;
-    var publicNodes = projection(desired, true, options.publicOverride);
-    if (options.publicOverride && !equal(publicNodes, options.publicOverride)) fail('invalid_restore', '복구할 공개본과 팀 자료의 대응이 다릅니다.');
+    var publicNodes = options.kind === 'restore' ? restoreProjection(desired, options.publicOverride, options.restoreFrom).published
+      : projection(desired, true);
     var payload = {schema: 'guide-publication-operation', version: 1, producer: PRODUCER, id: options.id, kind: options.kind || 'deploy', at: options.at, actor: clone(options.actor), baseTeam: clone(base.team), baseState: clone(state), previous: previous, strictOwnership: !!state, team: desired, public: publicNodes, keep: 7};
     if (options.previous) payload.previous = clone(options.previous);
     if (options.restoreFrom) payload.restoreFrom = clone(options.restoreFrom);
@@ -145,7 +180,8 @@
     var c = clone(value), expected = c.inputHash; delete c.inputHash;
     if (await digest(c) !== expected) fail('invalid_operation', '보관한 배포 입력이 변경되었습니다.');
     validState(c.baseState); teamItems(c.team);
-    if (!equal(projection(c.team, true, c.kind === 'restore' ? c.public : undefined), c.public)) fail('invalid_operation', '보관한 공개 대상이 팀 자료와 다릅니다.');
+    if (c.kind === 'restore') restoreProjection(c.team, c.public, c.restoreFrom);
+    else if (!equal(projection(c.team, true), c.public)) fail('invalid_operation', '보관한 공개 대상이 팀 자료와 다릅니다.');
     return freeze(clone(value));
   }
   function stateAfter(op) { return {schema: 'guide-publication-state', version: 1, producer: PRODUCER, revision: (op.baseState ? op.baseState.revision : 0) + 1, lastOperationId: op.id, at: op.at, manifest: clone(op.public)}; }
@@ -276,5 +312,5 @@
     }); });
     return {format: 'beancraft-guide-legacy-recovery', version: 1, mode: 'unsaved-review', team: source, verifiedItemIds: verified, blocked: blocked};
   }
-  return {PublishError: PublishError, clone: clone, wire: wire, equal: equal, teamItems: teamItems, assetIdentity: assetIdentity, safeCard: safeCard, projection: projection, assertCurrentPublicOwnership: assertCurrentPublicOwnership, isReceipt: isReceipt, digest: digest, prepareDeploy: prepareDeploy, prepareRestore: prepareRestore, resumeOperation: resumeOperation, applyOperation: applyOperation, commitOperation: commitOperation, inspectOperation: inspectOperation, legacyRecovery: legacyRecovery, stateKey: STATE, indexKey: INDEX};
+  return {PublishError: PublishError, clone: clone, wire: wire, equal: equal, teamItems: teamItems, assetIdentity: assetIdentity, safeCard: safeCard, projection: projection, assertCurrentPublicOwnership: assertCurrentPublicOwnership, historicalRestoreIds: historicalRestoreIds, isReceipt: isReceipt, digest: digest, prepareDeploy: prepareDeploy, prepareRestore: prepareRestore, resumeOperation: resumeOperation, applyOperation: applyOperation, commitOperation: commitOperation, inspectOperation: inspectOperation, legacyRecovery: legacyRecovery, stateKey: STATE, indexKey: INDEX};
 });
